@@ -16,10 +16,10 @@
 [ext_resource type="PackedScene" uid="uid://c4w0h65nmvokw" path="res://Scenes/maelstrom.tscn" id="14_e0ngr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dwbse"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
 bg_color = Color(0.1, 0.1, 0.1, 0.6)
 border_width_left = 1
 border_width_top = 1
@@ -104,7 +104,7 @@ grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_dwbse")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/wind_panel" unique_id=424878902]
-custom_minimum_size = Vector2(200, 250)
+custom_minimum_size = Vector2(200, 320)
 layout_mode = 2
 
 [node name="Label_h" type="Label" parent="MarginContainer/HUD/wind_panel/VBoxContainer" unique_id=345593295]
@@ -193,11 +193,14 @@ bounds = Vector3(100, 0, 100)
 [node name="barrels" type="Node3D" parent="." unique_id=714804176]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("5_5v1tr")
+amount = 5
 bounds = Vector3(100, 0, 100)
 
 [node name="maelstroms" type="Node3D" parent="." unique_id=1431239431]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("14_e0ngr")
+amount = 2
 bounds = Vector3(100, 0, 100)
 
 [connection signal="pressed" from="MarginContainer/HUD/wind_panel/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
+[connection signal="body_entered" from="PlayerShip" to="PlayerShip" method="_on_body_entered"]

@@ -7,7 +7,10 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
 size = Vector3(1.1582031, 1.4629517, 4.74115)
 
-[node name="ship" type="RigidBody3D" unique_id=1285290341]
+[node name="ship" type="RigidBody3D" unique_id=1823530110]
+mass = 100000.0
+gravity_scale = 0.0
+angular_damp = 5.0
 
 [node name="Sail ship" parent="." unique_id=116400657 instance=ExtResource("1_l3rv8")]
 

@@ -40,5 +40,6 @@ func randomize_direction():
 
 func set_enable_wind(value: bool):
 	timer_enable = value
-	randomize_direction()
+	if value:
+		randomize_direction()
 	emit_signal("wind_changed", target_direction)

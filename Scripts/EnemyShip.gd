@@ -1,9 +1,36 @@
 extends Ship
 
+class_name EnemyShip
+
 @export var pirate_ship: PackedScene
 @export var navy_ship: PackedScene
 @export var merchant_ship: PackedScene
 @export var floater: Node3D
+
+var change_route := 10.0
+var route_timer := 0.0
+var ai_state: AIState = AIState.IDLE
+var combat_state: CombatState = CombatState.PURSUE
+
+var agro_dist := 100.0
+var pursue_dist := 200.0
+
+signal state_changed(_ai_State: AIState)
+enum AIState {IDLE, ENROUTE, COMBAT}
+
+signal combat_state_changed(_combat_State: CombatState)
+enum CombatState {AGRO, PURSUE, FLEE}
+
+var AIStateNames = {
+	AIState.IDLE: "IDLE",
+	AIState.ENROUTE: "ENROUTE",
+	AIState.COMBAT: "COMBAT",
+}
+var CombatStateNames = {
+	CombatState.AGRO: "AGRO",
+	CombatState.PURSUE: "PURSUE",
+	CombatState.FLEE: "FLEE",
+}
 
 func _ready() -> void:
 	var s
@@ -29,10 +56,87 @@ func _ready() -> void:
 	
 	floater.target = s
 	
+	# roll some stats
 	top_speed = randf_range(0.0, 3.0)
-	target_speed = randf_range(0, top_speed)
-	attack = randi_range(0, 5)
-	
-	yaw = randf_range(0.0, 359.0)
-
+	attack = randi_range(1, 5)
 	hit_points = max_hit_points
+
+	connect("recieved_damage", Callable(self , "_on_damage_recieved"))
+	
+	set_state(AIState.ENROUTE)
+
+
+func _on_damage_recieved(_damage: float, _attacker: Node3D):
+	if _attacker is Ship:
+		var ship = _attacker as Ship
+		if ship:
+			#compare ship stats and decide what to do
+			if defense > ship.attack or attack > ship.defense:
+				set_state(AIState.COMBAT)
+				set_combat_state(CombatState.AGRO)
+			else:
+				set_combat_state(CombatState.FLEE)
+				await get_tree().create_timer(10.0).timeout
+				set_state(AIState.ENROUTE)
+
+
+func set_state(_ai_State: AIState):
+	ai_state = _ai_State
+	emit_signal("state_changed", _ai_State)
+
+func set_combat_state(_combat_State: CombatState):
+	combat_state = _combat_State
+	emit_signal("combat_state_changed", _combat_State)
+
+func set_full_speed():
+	target_speed = top_speed
+
+func set_random_dir_and_speed():
+	target_speed = randf_range(0, top_speed)
+	yaw_deg = randf_range(0.0, 359.0)
+
+func _process(delta):
+	var dist_to_attacker := 0.0
+	var dir_to_attacker := Vector3.ZERO
+	if attacker and ai_state == AIState.COMBAT:
+		dist_to_attacker = (attacker.global_position - global_position).length()
+		dir_to_attacker = (attacker.global_position - global_position).normalized()
+		if dist_to_attacker < agro_dist:
+			set_combat_state(CombatState.AGRO)
+		elif dist_to_attacker > pursue_dist:
+			set_state(AIState.ENROUTE)
+		elif dist_to_attacker > agro_dist + 2.0: # small buffer
+			set_combat_state(CombatState.PURSUE)
+
+	match ai_state:
+		AIState.IDLE:
+			#do nothing
+			pass
+		AIState.ENROUTE:
+			en_route_behaviour(delta)
+		AIState.COMBAT:
+			var deg_to_target = rad_to_deg(atan2(dir_to_attacker.z, dir_to_attacker.x))
+			match combat_state:
+				CombatState.PURSUE:
+					yaw_deg = deg_to_target
+					target_speed = top_speed
+				CombatState.AGRO:
+					# add 90 to angle to be perpendicular for shooting
+					target_speed = 0.0
+					yaw_deg = deg_to_target + 90
+					var diff = angle_difference(rotation.y, deg_to_rad(yaw_deg))
+					if abs(diff) < deg_to_rad(10.0):
+						port_pitch(dist_to_attacker / 5.0)
+						shoot_port()
+				CombatState.FLEE:
+					yaw_deg = deg_to_target
+					target_speed = top_speed
+
+
+func en_route_behaviour(delta: float):
+	route_timer += delta
+	if route_timer >= change_route:
+		target_speed = 1.0
+		change_route = randf_range(5.0, 20.0)
+		route_timer = 0
+		yaw_deg = randf_range(0.0, 359.0)

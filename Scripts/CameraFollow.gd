@@ -7,7 +7,7 @@ func _process(_delta: float) -> void:
 	position = target.position
 
 func set_zoom(value: float):
-	camera.size = clamp(camera.size + value, 1, 50)
+	camera.size = clamp(camera.size + value, 1, 200)
 
 func add_pitch(value: float):
 	rotation.x = clamp(rotation.x + deg_to_rad(value), 0, 90)

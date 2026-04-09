@@ -40,7 +40,12 @@ func _on_update_wind(dir: Vector3):
 
 func update_label(ship: Ship):
 	ship_label_h.text = "%s" % ship.ship_name
-	ship_label.text = "Hp: %.2f/%.2f\nTarg.Spd: %.2f/%.2f\nAct.Spd: %.2f\nHeading: %.2f\nAgility: %.2f\nAttack: %.2f\nDefense: %.2f\nGold: %.2f" % [ship.hit_points, ship.max_hit_points, ship.target_speed, ship.top_speed, ship.actual_speed, rad_to_deg(ship.rotation.y), ship.agility, ship.attack, ship.defense, ship.gold]
+	var ai_text = ""
+	if ship is EnemyShip:
+		ai_text = "State: %s\n" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
+		ai_text += "SubState: %s\n" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
+	var ship_text = "Hp: %.2f/%.2f\nTarg.Spd: %.2f/%.2f\nAct.Spd: %.2f\nHeading: %.2f\nAgility: %.2f\nAttack: %.2f\nDefense: %.2f\nGold: %.2f\nYaw: %.2f" % [ship.hit_points, ship.max_hit_points, ship.target_speed, ship.top_speed, ship.actual_speed, rad_to_deg(ship.rotation.y), ship.agility, ship.attack, ship.defense, ship.gold, ship.yaw_deg]
+	ship_label.text = ai_text + ship_text
 	ship_pb.max_value = ship.max_hit_points
 	ship_pb.value = ship.hit_points
 

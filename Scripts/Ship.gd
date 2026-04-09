@@ -1,4 +1,4 @@
-extends Node3D
+extends RigidBody3D
 class_name Ship
 
 @onready var gameManager: GameManager = get_node("/root/World")
@@ -17,7 +17,7 @@ var gold := 0
 var actual_speed := 0.0
 
 var target_speed := 0.0
-var yaw := 0.0
+var yaw_deg := 0.0
 
 var destroyed := false
 var sink_speed := 0.5
@@ -30,32 +30,52 @@ var damage_threshold := 1.0
 @export var canons_port: Array[Canon]
 @export var canons_starboard: Array[Canon]
 
-signal recieved_gold(amount: int)
+var attacker: Node3D
 
-func _process(delta: float) -> void:
+signal recieved_gold(amount: int)
+signal recieved_damage(amount: float, attacker: Node3D)
+
+func _physics_process(_delta: float) -> void:
 	if destroyed:
-		position += -basis.y * sink_speed * delta
-		rotation.y += delta # radians per second
+		apply_central_force(Vector3.UP * sink_speed * mass)
+		# position += -basis.y * sink_speed * delta
+		apply_torque(Vector3.UP * 5.0 * mass)
+		# rotation.y += delta # radians per second
 		if global_position.y <= -5.0:
-			var l: Loot = loot.instantiate()
-			get_tree().current_scene.add_child(l)
-			l.global_position = global_position
-			l.global_position.y = 0
-			l.set_gold(gold)
+			spawn_loot()
 			queue_free()
 		return
 
+	rotation.x = lerp_angle(rotation.x, 0, _delta)
+	rotation.z = lerp_angle(rotation.z, 0, _delta)
 	forward_arrow.scale.z = target_speed
-	position.y = gameManager.water.get_height_at(position)
+	# position.y = gameManager.water.get_height_at(position)
 
-	var forward = basis.z
+	var forward = global_basis.z
 	var wind_along_forward = gameManager.wind.direction.dot(-forward)
 
 	actual_speed = target_speed + wind_along_forward
 
-	position += forward * actual_speed * delta
-	var new_yaw = lerp_angle(rotation.y, deg_to_rad(yaw), delta)
-	rotation = Vector3(0, new_yaw, 0)
+	apply_central_force(forward * actual_speed * mass / 10.0)
+	# position += forward * actual_speed * delta
+	# var new_yaw = lerp_angle(rotation.y, deg_to_rad(yaw_deg), delta)
+	# rotation = Vector3(0, new_yaw, 0)
+	
+	var current_rotation = global_transform.basis.get_euler().y
+	var target_rotation_rad = deg_to_rad(yaw_deg)
+	var rotation_diff = angle_difference(current_rotation, target_rotation_rad)
+
+	# Apply a turning force based on how far we need to turn
+	apply_torque(Vector3.UP * rotation_diff * agility * mass * 5.0)
+
+
+func spawn_loot():
+	var l: Loot = loot.instantiate()
+	get_tree().current_scene.add_child(l)
+	l.global_position = global_position
+	l.global_position.y = 0
+	l.set_gold(gold)
+
 
 func give_loot(_gold: int):
 	gold += _gold
@@ -63,7 +83,7 @@ func give_loot(_gold: int):
 	print("Recieved: ", gold);
 
 
-func damage(_damage: float, _position: Vector3):
+func damage(_damage: float, _position: Vector3, _attacker: Node3D):
 	gameManager.hud.hovered_ship = self
 	accumulated_damage += _damage
 	if accumulated_damage >= damage_threshold:
@@ -71,8 +91,11 @@ func damage(_damage: float, _position: Vector3):
 		ddd_label(s, _position)
 		accumulated_damage = 0
 
+	attacker = _attacker
 	hit_points = clamp(hit_points - (_damage / defense), 0, max_hit_points)
-	if hit_points <= 0:
+	emit_signal("recieved_damage", (_damage / defense), _attacker)
+
+	if hit_points <= 0 and not destroyed:
 		destroyed = true
 		ddd_label("SUNK!", position)
 
@@ -102,9 +125,16 @@ func starboard_pitch(value: float):
 func shoot_port():
 	for canon in canons_port:
 		await get_tree().create_timer(randf() / 10.0).timeout
-		canon.shoot(attack)
+		canon.shoot(attack, self )
 
 func shoot_starboard():
 	for canon in canons_starboard:
 		await get_tree().create_timer(randf() / 10.0).timeout
-		canon.shoot(attack)
+		canon.shoot(attack, self )
+
+func _on_body_entered(body: Node) -> void:
+	if body is not Ship:
+		return
+	var ship := body as Ship
+	if ship:
+		ship.damage(attack * hit_points, global_position, self )
