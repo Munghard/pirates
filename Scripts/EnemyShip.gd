@@ -6,6 +6,7 @@ class_name EnemyShip
 @export var navy_ship: PackedScene
 @export var merchant_ship: PackedScene
 @export var floater: Node3D
+@export var target_arrow: Node3D
 
 var change_route := 10.0
 var route_timer := 0.0
@@ -35,21 +36,21 @@ var CombatStateNames = {
 func _ready() -> void:
 	var s
 	ship_name = "Navy"
-	max_hit_points = 150
+	max_hit_points = 75.0
 	s = navy_ship.instantiate()
 	defense = randi_range(1, 4)
 	gold = randi_range(0, 200)
 	if randf() > 0.5:
 		ship_name = "Merchant"
 		defense = randi_range(1, 2)
-		max_hit_points = 50
+		max_hit_points = 10.0
 		s = merchant_ship.instantiate()
 		gold = randi_range(0, 1000)
 		if randf() > 0.5:
 			gold = randi_range(0, 100)
 			ship_name = "Pirate"
 			defense = randi_range(1, 3)
-			max_hit_points = 100
+			max_hit_points = 50.0
 			s = pirate_ship.instantiate()
 
 	add_child(s)
@@ -71,12 +72,12 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		var ship = _attacker as Ship
 		if ship:
 			#compare ship stats and decide what to do
+			set_state(AIState.COMBAT)
 			if defense > ship.attack or attack > ship.defense:
-				set_state(AIState.COMBAT)
-				set_combat_state(CombatState.AGRO)
+				set_combat_state(CombatState.PURSUE)
 			else:
 				set_combat_state(CombatState.FLEE)
-				await get_tree().create_timer(10.0).timeout
+				await get_tree().create_timer(100.0).timeout
 				set_state(AIState.ENROUTE)
 
 
@@ -108,6 +109,9 @@ func _process(delta):
 		elif dist_to_attacker > agro_dist + 2.0: # small buffer
 			set_combat_state(CombatState.PURSUE)
 
+	elif not attacker:
+		set_state(AIState.ENROUTE)
+	target_arrow.visible = false
 	match ai_state:
 		AIState.IDLE:
 			#do nothing
@@ -115,24 +119,27 @@ func _process(delta):
 		AIState.ENROUTE:
 			en_route_behaviour(delta)
 		AIState.COMBAT:
-			var deg_to_target = rad_to_deg(atan2(dir_to_attacker.z, dir_to_attacker.x))
+			target_arrow.visible = true
+			target_arrow.global_rotation = Vector3.UP * deg_to_rad(yaw_deg + -90)
+			var deg_to_target = rad_to_deg(atan2(dir_to_attacker.z, -dir_to_attacker.x))
 			match combat_state:
 				CombatState.PURSUE:
-					yaw_deg = deg_to_target
+					yaw_deg = deg_to_target + 90
 					target_speed = top_speed
 				CombatState.AGRO:
 					# add 90 to angle to be perpendicular for shooting
 					target_speed = 0.0
-					yaw_deg = deg_to_target + 90
+					yaw_deg = deg_to_target
 					var diff = angle_difference(rotation.y, deg_to_rad(yaw_deg))
 					if abs(diff) < deg_to_rad(10.0):
-						port_pitch(dist_to_attacker / 5.0)
+						set_canon_pitch((dist_to_attacker / 2.0))
+						# print((dist_to_attacker / 1.0));
 						shoot_port()
 				CombatState.FLEE:
-					yaw_deg = deg_to_target
+					yaw_deg = - deg_to_target
 					target_speed = top_speed
-
-
+	
+	
 func en_route_behaviour(delta: float):
 	route_timer += delta
 	if route_timer >= change_route:

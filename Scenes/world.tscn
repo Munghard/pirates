@@ -152,6 +152,7 @@ target = NodePath("../PlayerShip")
 textureSize = 512
 
 [node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") instance=ExtResource("1_fo5ed")]
+linear_damp = 1.0
 script = ExtResource("3_5v1tr")
 loot = ExtResource("5_5v1tr")
 canons_port = [NodePath("Canon"), NodePath("Canon2"), NodePath("Canon3")]

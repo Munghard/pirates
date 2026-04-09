@@ -56,7 +56,7 @@ func _physics_process(_delta: float) -> void:
 
 	actual_speed = target_speed + wind_along_forward
 
-	apply_central_force(forward * actual_speed * mass / 10.0)
+	apply_central_force(forward * actual_speed * mass * 5)
 	# position += forward * actual_speed * delta
 	# var new_yaw = lerp_angle(rotation.y, deg_to_rad(yaw_deg), delta)
 	# rotation = Vector3(0, new_yaw, 0)
@@ -66,7 +66,8 @@ func _physics_process(_delta: float) -> void:
 	var rotation_diff = angle_difference(current_rotation, target_rotation_rad)
 
 	# Apply a turning force based on how far we need to turn
-	apply_torque(Vector3.UP * rotation_diff * agility * mass * 5.0)
+	# rotation = Vector3(0, new_yaw, 0)
+	apply_torque(Vector3.UP * rotation_diff * agility * mass / (target_speed + 1.0))
 
 
 func spawn_loot():
@@ -121,6 +122,12 @@ func starboard_pitch(value: float):
 	for canon in canons_starboard:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
+
+func set_canon_pitch(value: float):
+	for canon in canons_starboard:
+		canon.pitch = value
+	for canon in canons_port:
+		canon.pitch = value
 
 func shoot_port():
 	for canon in canons_port:
