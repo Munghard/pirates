@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://duwtvx8o3bmva"]
+
+[ext_resource type="PackedScene" uid="uid://b07rwk6xaro8v" path="res://Models/Ship_Large.fbx" id="1_nwo65"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_2wvnr"]
+[ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="3_2wvnr"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
+size = Vector3(1.1582031, 1.4629517, 4.948715)
+
+[node name="ship" type="CharacterBody3D" unique_id=7143519]
+
+[node name="Ship_Large" parent="." unique_id=1290319548 instance=ExtResource("1_nwo65")]
+transform = Transform3D(-1.7827418e-08, 0, 0.40784377, 0, 0.40784377, 0, -0.40784377, 0, -1.7827418e-08, 0, 0.5237971, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1226719022]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60946655, 0.18819427)
+shape = SubResource("BoxShape3D_4cq66")
+
+[node name="floater" type="Node3D" parent="." unique_id=741225022]
+script = ExtResource("2_2wvnr")
+
+[node name="forward_arrow" type="Node3D" parent="." unique_id=1747985525]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9536269, 3.8348532)
+
+[node name="Sprite3D" type="Sprite3D" parent="forward_arrow" unique_id=598440039]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 1.0000001)
+texture = ExtResource("3_2wvnr")

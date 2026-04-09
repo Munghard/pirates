@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://bwq7hpvxdd4pi"]
+
+[ext_resource type="Script" uid="uid://b7cvn7x63qb54" path="res://Scripts/EnemyShip.gd" id="1_3bg38"]
+[ext_resource type="PackedScene" uid="uid://cr7y5ey7ppmmp" path="res://Models/Sail ship.fbx" id="3_c6fo0"]
+[ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/barrels.tscn" id="4_a0oot"]
+[ext_resource type="PackedScene" uid="uid://0csv1fk2jl65" path="res://Models/BoatWSail.fbx" id="4_ovko2"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="5_a0oot"]
+[ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="6_c6fo0"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ovko2"]
+size = Vector3(1.1582031, 1.4629517, 4.948715)
+
+[node name="enemy_ship" type="RigidBody3D" unique_id=1322708518 node_paths=PackedStringArray("floater")]
+script = ExtResource("1_3bg38")
+pirate_ship = ExtResource("3_c6fo0")
+navy_ship = ExtResource("3_c6fo0")
+merchant_ship = ExtResource("4_ovko2")
+floater = NodePath("floater")
+loot = ExtResource("4_a0oot")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=339108743]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60946655, 0.18819427)
+shape = SubResource("BoxShape3D_ovko2")
+
+[node name="floater" type="Node3D" parent="." unique_id=698358891]
+script = ExtResource("5_a0oot")
+
+[node name="forward_arrow" type="Node3D" parent="." unique_id=2049236311]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9536269, 3.8348532)
+
+[node name="Sprite3D" type="Sprite3D" parent="forward_arrow" unique_id=963629054]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 1.0000001)
+texture = ExtResource("6_c6fo0")

@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://02p2nx888ai3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_tlwt5"]
+
+[node name="rock" type="MeshInstance3D" unique_id=264826012]
+transform = Transform3D(0.6560903, -0.7480813, -0.09959954, 0.6300094, 0.47025445, 0.61802024, -0.41549224, -0.46822566, 0.7798276, 0, 0, 0)
+mesh = SubResource("BoxMesh_tlwt5")

@@ -1,0 +1,203 @@
+[gd_scene format=3 uid="uid://8rxhn3koiq02"]
+
+[ext_resource type="Script" uid="uid://bdldn5w2gpqpk" path="res://Scripts/GameManager.gd" id="1_5ukr8"]
+[ext_resource type="PackedScene" uid="uid://dlft2jwgwtr2u" path="res://Scenes/ship.tscn" id="1_fo5ed"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://new_theme.tres" id="2_0fj1v"]
+[ext_resource type="Script" uid="uid://x6pu3p80ufph" path="res://Scripts/CameraFollow.gd" id="2_5ukr8"]
+[ext_resource type="Script" uid="uid://c46rapv4u4xne" path="res://Scripts/HUD.gd" id="2_k7acu"]
+[ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="2_o06y3"]
+[ext_resource type="Script" uid="uid://ch05r6tladmiw" path="res://Scripts/Player_Ship.gd" id="3_5v1tr"]
+[ext_resource type="Script" uid="uid://bis8b8asmxsqh" path="res://Scripts/Scatterer.gd" id="3_o06y3"]
+[ext_resource type="PackedScene" uid="uid://bwq7hpvxdd4pi" path="res://Scenes/enemy_ship.tscn" id="4_k7acu"]
+[ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/barrels.tscn" id="5_5v1tr"]
+[ext_resource type="Material" uid="uid://cypyf8n66hyww" path="res://water_shader.tres" id="7_ikia7"]
+[ext_resource type="Script" uid="uid://ckymdnssopogk" path="res://Scripts/Water.gd" id="8_7yui6"]
+[ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="9_c5t2i"]
+[ext_resource type="PackedScene" uid="uid://c4w0h65nmvokw" path="res://Scenes/maelstrom.tscn" id="14_e0ngr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dwbse"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.748, 0.45999998, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_7yui6"]
+material = ExtResource("7_ikia7")
+size = Vector2(100, 100)
+subdivide_width = 100
+subdivide_depth = 100
+
+[node name="World" type="Node3D" unique_id=418889483]
+script = ExtResource("1_5ukr8")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=954428007]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_label_h", "ship_label", "ship_pb", "wind_label", "wind_control", "notification_label")]
+layout_mode = 2
+theme = ExtResource("2_0fj1v")
+script = ExtResource("2_k7acu")
+ship_label_h = NodePath("ship_panel/VBoxContainer/Label_h")
+ship_label = NodePath("ship_panel/VBoxContainer/Label")
+ship_pb = NodePath("ship_panel/VBoxContainer/ProgressBar")
+wind_label = NodePath("wind_panel/VBoxContainer/Label")
+wind_control = NodePath("wind_panel/VBoxContainer/Control/TextureRect")
+notification_label = NodePath("Label")
+
+[node name="ship_panel" type="PanelContainer" parent="MarginContainer/HUD" unique_id=1055016684]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -178.0
+offset_right = 130.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_dwbse")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/ship_panel" unique_id=503175062]
+layout_mode = 2
+
+[node name="Label_h" type="Label" parent="MarginContainer/HUD/ship_panel/VBoxContainer" unique_id=587075776]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+theme_override_colors/font_color = Color(1, 0.748, 0.45999998, 1)
+text = "Ship name"
+
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/HUD/ship_panel/VBoxContainer" unique_id=1176932344]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/HUD/ship_panel/VBoxContainer" unique_id=203722753]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.748, 0.45999998, 1)
+text = "speed:
+agility:
+attack:
+defense:"
+
+[node name="wind_panel" type="PanelContainer" parent="MarginContainer/HUD" unique_id=1276112817]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -94.0
+offset_bottom = 31.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_dwbse")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/wind_panel" unique_id=424878902]
+custom_minimum_size = Vector2(200, 250)
+layout_mode = 2
+
+[node name="Label_h" type="Label" parent="MarginContainer/HUD/wind_panel/VBoxContainer" unique_id=345593295]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+theme_override_colors/font_color = Color(1, 0.748, 0.45999998, 1)
+text = "Wind"
+
+[node name="Button" type="Button" parent="MarginContainer/HUD/wind_panel/VBoxContainer" unique_id=282768948]
+layout_mode = 2
+text = "Toggle wind"
+
+[node name="Label" type="Label" parent="MarginContainer/HUD/wind_panel/VBoxContainer" unique_id=1783925917]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.748, 0.45999998, 1)
+text = "Wind"
+
+[node name="Control" type="Control" parent="MarginContainer/HUD/wind_panel/VBoxContainer" unique_id=337244025]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HUD/wind_panel/VBoxContainer/Control" unique_id=1041010364]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 200.0
+scale = Vector2(0.5, 0.5)
+pivot_offset_ratio = Vector2(0.5, 0.5)
+size_flags_horizontal = 4
+texture = ExtResource("2_o06y3")
+
+[node name="Label" type="Label" parent="MarginContainer/HUD" unique_id=379872612]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Notifications"
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=85683695]
+transform = Transform3D(0.70710677, -0.5, 0.50000006, 0, 0.7071068, 0.70710677, -0.7071068, -0.49999997, 0.5, 0, 3.3022847, 0)
+shadow_enabled = true
+
+[node name="water" type="MeshInstance3D" parent="." unique_id=2117390099 node_paths=PackedStringArray("target")]
+mesh = SubResource("PlaneMesh_7yui6")
+script = ExtResource("8_7yui6")
+target = NodePath("../PlayerShip")
+textureSize = 512
+
+[node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") instance=ExtResource("1_fo5ed")]
+script = ExtResource("3_5v1tr")
+loot = ExtResource("5_5v1tr")
+canons_port = [NodePath("Canon"), NodePath("Canon2"), NodePath("Canon3")]
+canons_starboard = [NodePath("Canon4"), NodePath("Canon5"), NodePath("Canon6")]
+
+[node name="Canon" parent="PlayerShip" unique_id=101832743 instance=ExtResource("9_c5t2i")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.45781922, 0.5402633, 0.7390715)
+
+[node name="Canon2" parent="PlayerShip" unique_id=1400176985 instance=ExtResource("9_c5t2i")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.45781922, 0.5402633, -0.25266623)
+
+[node name="Canon3" parent="PlayerShip" unique_id=2134173716 instance=ExtResource("9_c5t2i")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.45781922, 0.5402633, -1.2526662)
+
+[node name="Canon4" parent="PlayerShip" unique_id=590165147 instance=ExtResource("9_c5t2i")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.458, 0.5402633, 0.7390715)
+
+[node name="Canon5" parent="PlayerShip" unique_id=1815787446 instance=ExtResource("9_c5t2i")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.458, 0.5402633, -0.25266623)
+
+[node name="Canon6" parent="PlayerShip" unique_id=529390465 instance=ExtResource("9_c5t2i")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.458, 0.5402633, -1.2526662)
+
+[node name="camrig" type="Node3D" parent="." unique_id=596184847 node_paths=PackedStringArray("target")]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, -0.86602545, 0, 0.86602545, 0.49999997, 0, 0, 0)
+script = ExtResource("2_5ukr8")
+target = NodePath("../PlayerShip")
+
+[node name="Camera3D" type="Camera3D" parent="camrig" unique_id=389494367]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -20.001)
+projection = 1
+size = 30.0
+
+[node name="ships" type="Node3D" parent="." unique_id=130823351]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("4_k7acu")
+bounds = Vector3(100, 0, 100)
+
+[node name="barrels" type="Node3D" parent="." unique_id=714804176]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("5_5v1tr")
+bounds = Vector3(100, 0, 100)
+
+[node name="maelstroms" type="Node3D" parent="." unique_id=1431239431]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("14_e0ngr")
+bounds = Vector3(100, 0, 100)
+
+[connection signal="pressed" from="MarginContainer/HUD/wind_panel/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]

@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://qvfr2s5ji76k"]
+
+[ext_resource type="Script" uid="uid://de126hsuavfvs" path="res://Scripts/cannon_ball.gd" id="1_fd25l"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_10215"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_fd25l"]
+radius = 0.1
+
+[node name="cannon_ball" type="RigidBody3D" unique_id=915416495]
+contact_monitor = true
+max_contacts_reported = 1
+script = ExtResource("1_fd25l")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1635723266]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+mesh = SubResource("SphereMesh_10215")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=275129911]
+shape = SubResource("SphereShape3D_fd25l")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

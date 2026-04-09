@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://c4w0h65nmvokw"]
+
+[ext_resource type="Script" uid="uid://busan32mauwi4" path="res://Scenes/maelstrom.gd" id="1_8s505"]
+
+[sub_resource type="Curve" id="Curve_c5t2i"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.15862069, 1), 0.0, 0.0, 0, 0, Vector2(0.97931033, 0), -2.317815, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_e0ngr"]
+curve = SubResource("Curve_c5t2i")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_kn0ld"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 0.0
+emission_ring_radius = 5.0
+emission_ring_inner_radius = 5.0
+emission_ring_cone_angle = 90.0
+direction = Vector3(0, 0, 0)
+spread = 0.0
+flatness = 1.0
+radial_velocity_min = -10.000022
+radial_velocity_max = -2.2351742e-05
+gravity = Vector3(0, 0, 0)
+tangential_accel_min = -20.000002
+tangential_accel_max = -2.2351742e-06
+scale_curve = SubResource("CurveTexture_e0ngr")
+
+[sub_resource type="QuadMesh" id="QuadMesh_hgpy0"]
+orientation = 1
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_c5t2i"]
+radius = 5.0
+
+[node name="maelstrom" type="Area3D" unique_id=735147423]
+script = ExtResource("1_8s505")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1671570764]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+amount = 100
+lifetime = 0.44
+fixed_fps = 60
+trail_lifetime = 1.5799999999999998
+process_material = SubResource("ParticleProcessMaterial_kn0ld")
+draw_pass_1 = SubResource("QuadMesh_hgpy0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=928381288]
+shape = SubResource("SphereShape3D_c5t2i")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
