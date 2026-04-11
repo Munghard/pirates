@@ -24,47 +24,55 @@ varying float v_height;
 
 void vertex() {
 	vec3 world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	world_pos -= NODE_POSITION_WORLD; // important
-	
-	vec2 wind = normalize(vec2(wind_dir.x,wind_dir.y));
-	float p = dot(world_pos.xz, wind);
+	world_pos -= NODE_POSITION_WORLD;
+
+	vec2 wind = normalize(vec2(wind_dir.x, wind_dir.y));
+
+	vec2 perp = vec2(-wind.y, wind.x);
+
+	vec2 pos_xz = world_pos.xz;
+
+	float along = dot(pos_xz, wind);
+	float across = dot(pos_xz, perp);
 
 	float t = time;
+	float f = freq;
 
-
-	float w1 = sin(p * 0.2 * freq + t) * 0.5;
-	float w2 = sin((world_pos.x + world_pos.z) * 0.15 * freq + t * 2.0) * 0.3;
-	float w3 = sin(world_pos.x * 0.35 * freq + t * 1.2) * 0.2;
+	// --- waves (ALL wind-aligned now) ---
+	float w1 = sin(along * f * 0.2 + t) * 0.5;
+	float w2 = sin(across * f * 0.1 + t * 2.0) * 0.3;
+	float w3 = sin((along * 0.35 + across * 0.1) * f + t * 1.2) * 0.2;
 
 	float wave = w1 + w2 + w3;
-
 	wave = sign(wave) * pow(abs(wave), 1.3);
-
 	wave *= amp * wave_height_scale;
 
 	VERTEX.y += wave;
 	v_height = wave;
-	
 
-	// derivatives
+	// --- derivatives (MATCHING wave math) ---
 
-	float dw1 = cos(p * 0.2 * freq + t) * 0.2 * freq * 0.5;
-	vec2 d1 = wind * dw1;
+	float dw1 = cos(along * f * 0.2 + t) * (f * 0.2);
+	vec2 d1 = wind * (dw1 * 0.5);
 
-	float dw2 = cos((world_pos.x + world_pos.z) * 0.15 * freq + t * 2.0) * 0.15 * freq * 0.3;
-	vec2 d2 = vec2(dw2, dw2);
+	float dw2 = cos(across * f * 0.1 + t * 2.0) * (f * 0.1);
+	vec2 d2 = perp * (dw2 * 0.3);
 
-	float dw3 = cos(world_pos.x * 0.35 * freq + t * 1.2) * 0.35 * freq * 0.2;
-	vec2 d3 = vec2(dw3, 0.0);
+	float phase3 = (along * 0.35 + across * 0.1) * f + t * 1.2;
+	float dw3 = cos(phase3);
+
+	vec2 d3 = wind * (dw3 * 0.35 * f) + perp * (dw3 * 0.1 * f);
 
 	vec2 slope = d1 + d2 + d3;
 
 	vec3 normal = normalize(vec3(-slope.x, 1.0, -slope.y));
+
+	// --- normal map (fix wind space) ---
 	vec2 uv = world_pos.xz / normal_map_scale;
-	uv += wind_dir * time * -0.1;
-	vec4 normal_tex = texture(normal_map,uv);
-	vec3 n_tex = normal_tex.rgb * 2.0 - 1.0;
-	
+	uv += wind * time * -0.1;
+
+	vec3 n_tex = texture(normal_map, uv).rgb * 2.0 - 1.0;
+
 	NORMAL = normalize(normal + n_tex * normal_map_strength);
 }
 

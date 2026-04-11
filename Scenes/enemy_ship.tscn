@@ -18,7 +18,7 @@ colors = PackedColorArray(0.94989246, 0, 0.3525211, 1, 0.5680001, 1, 0.04000002,
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_c6fo0"]
 gradient = SubResource("Gradient_c6fo0")
 
-[node name="enemy_ship" type="RigidBody3D" unique_id=1754202150 node_paths=PackedStringArray("floater", "target_arrow", "ship_pivot", "canons_port", "canons_starboard")]
+[node name="enemy_ship" type="RigidBody3D" unique_id=1754202150 node_paths=PackedStringArray("target_arrow", "floater", "canons_port", "canons_starboard")]
 mass = 100000.0
 gravity_scale = 0.0
 angular_damp = 5.0
@@ -26,10 +26,9 @@ script = ExtResource("1_3bg38")
 pirate_ship = ExtResource("3_c6fo0")
 navy_ship = ExtResource("3_c6fo0")
 merchant_ship = ExtResource("4_ovko2")
-floater = NodePath("floater")
 target_arrow = NodePath("target_arrow")
-ship_pivot = NodePath("ship_pivot")
 loot = ExtResource("4_a0oot")
+floater = NodePath("floater")
 canons_port = [NodePath("ship_pivot/Canon"), NodePath("ship_pivot/Canon2"), NodePath("ship_pivot/Canon3")]
 canons_starboard = [NodePath("ship_pivot/Canon4"), NodePath("ship_pivot/Canon5"), NodePath("ship_pivot/Canon6")]
 

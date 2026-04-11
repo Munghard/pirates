@@ -24,6 +24,7 @@ var accumulated_damage := 0.0
 var damage_threshold := 1.0
 
 @export var loot: PackedScene
+@export var floater: Node3D
 
 @export var canons_port: Array[Canon]
 @export var canons_starboard: Array[Canon]
@@ -31,6 +32,7 @@ var damage_threshold := 1.0
 @onready var ship_pivot = $ship_pivot
 
 var attacker: Node3D
+
 
 signal recieved_gold(amount: int)
 signal recieved_damage(amount: float, attacker: Node3D)

@@ -9,10 +9,12 @@ class_name EnemyShip
 @export var target_arrow: Node3D
 
 var change_route := 10.0
-var route_timer := 0.0
+var route_timer := change_route
 var ai_state: AIState = AIState.IDLE
 var combat_state: CombatState = CombatState.PURSUE
 var target_point: Vector3
+
+var water: Water
 
 var agro_dist := 100.0
 var pursue_dist := 200.0
@@ -33,6 +35,9 @@ var CombatStateNames = {
 	CombatState.PURSUE: "PURSUE",
 	CombatState.FLEE: "FLEE",
 }
+
+func _enter_tree() -> void:
+	floater.water = water
 
 func _ready() -> void:
 	super._ready()

@@ -13,6 +13,7 @@
 [ext_resource type="Material" uid="uid://cypyf8n66hyww" path="res://water_shader.tres" id="7_ikia7"]
 [ext_resource type="Script" uid="uid://ckymdnssopogk" path="res://Scripts/Water.gd" id="8_7yui6"]
 [ext_resource type="PackedScene" uid="uid://c4w0h65nmvokw" path="res://Scenes/maelstrom.tscn" id="14_e0ngr"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="14_kn0ld"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_7yui6"]
 material = ExtResource("7_ikia7")
@@ -55,6 +56,14 @@ use_particle_trails = true
 material = SubResource("StandardMaterial3D_t2t4p")
 shape = 0
 curve = SubResource("Curve_hgpy0")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e0ngr"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_hgpy0"]
+material = SubResource("StandardMaterial3D_e0ngr")
+radius = 2.0
+height = 4.0
 
 [node name="world" type="Node3D" unique_id=418889483]
 script = ExtResource("1_e0ngr")
@@ -168,12 +177,13 @@ text = "Notifications"
 transform = Transform3D(0.70710677, -0.5, 0.50000006, 0, 0.7071068, 0.70710677, -0.7071068, -0.49999997, 0.5, 0, 3.3022847, 0)
 shadow_enabled = true
 
-[node name="water" type="MeshInstance3D" parent="." unique_id=2117390099 node_paths=PackedStringArray("target")]
+[node name="water" type="MeshInstance3D" parent="." unique_id=2117390099]
+transform = Transform3D(0.9993799, 0, 0, 0, 0.9993799, 0, 0, 0, 0.9993799, 0, 0, 0)
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
-target = NodePath("../PlayerShip")
 freq = 1.0
 amp = 5.0
+wind_direction = Vector3(1, 0, 0)
 
 [node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") instance=ExtResource("1_fo5ed")]
 linear_damp = 1.0
@@ -181,6 +191,12 @@ script = ExtResource("3_5v1tr")
 loot = ExtResource("5_5v1tr")
 canons_port = [null, null, null]
 canons_starboard = [null, null, null]
+
+[node name="ship_pivot" parent="PlayerShip" index="0" unique_id=1303226422]
+transform = Transform3D(0.78063333, -0.58492184, -0.22017728, 0.5964053, 0.80249554, -0.01736469, 0.18684827, -0.117759444, 0.9753053, 0, 1.7490382, 0)
+
+[node name="floater" parent="PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
+water = NodePath("../../water")
 
 [node name="wind_particle" type="GPUParticles3D" parent="." unique_id=1543477643]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.970101, 0)
@@ -201,21 +217,71 @@ target = NodePath("../PlayerShip")
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -20.001)
 size = 30.0
 
-[node name="ships" type="Node3D" parent="." unique_id=130823351]
+[node name="ships" type="Node3D" parent="." unique_id=130823351 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("4_k7acu")
 bounds = Vector3(100, 0, 100)
+water = NodePath("../water")
 
-[node name="barrels" type="Node3D" parent="." unique_id=714804176]
+[node name="barrels" type="Node3D" parent="." unique_id=714804176 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("5_5v1tr")
 amount = 5
 bounds = Vector3(100, 0, 100)
+water = NodePath("../water")
 
-[node name="maelstroms" type="Node3D" parent="." unique_id=1431239431]
+[node name="maelstroms" type="Node3D" parent="." unique_id=1431239431 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("14_e0ngr")
 amount = 2
 bounds = Vector3(100, 0, 100)
+water = NodePath("../water")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1965066874]
+transform = Transform3D(-0.9170907, -0.3542684, 0.18286212, -0.3796031, 0.91612023, -0.12893844, -0.121844865, -0.18766324, -0.9746468, -27.446453, 1.6565938, -17.981817)
+mesh = SubResource("SphereMesh_hgpy0")
+
+[node name="Node3D" type="Node3D" parent="MeshInstance3D" unique_id=690275594 node_paths=PackedStringArray("target", "water")]
+script = ExtResource("14_kn0ld")
+target = NodePath("..")
+water = NodePath("../../water")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="." unique_id=2063163620]
+transform = Transform3D(-0.933387, -0.18218017, 0.3091912, -0.12776972, 0.973809, 0.18807165, -0.3353561, 0.13603836, -0.9322178, 3.064436, 4.2632027, 11.505857)
+mesh = SubResource("SphereMesh_hgpy0")
+
+[node name="Node3D" type="Node3D" parent="MeshInstance3D5" unique_id=1120590225 node_paths=PackedStringArray("target", "water")]
+script = ExtResource("14_kn0ld")
+target = NodePath("..")
+water = NodePath("../../water")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=617448731]
+transform = Transform3D(-0.963734, -0.25609985, 0.07503112, -0.2549202, 0.9666373, 0.02506131, -0.07894607, 0.0050254865, -0.9968662, -30.105095, -0.31739607, 33.925022)
+mesh = SubResource("SphereMesh_hgpy0")
+
+[node name="Node3D" type="Node3D" parent="MeshInstance3D2" unique_id=369287721 node_paths=PackedStringArray("target", "water")]
+script = ExtResource("14_kn0ld")
+target = NodePath("..")
+water = NodePath("../../water")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=456461154]
+transform = Transform3D(-0.9256176, 0.24240434, 0.29064125, 0.29292524, 0.9451352, 0.14461753, -0.23963939, 0.21899666, -0.94584006, 21.715603, -3.716708, -34.687466)
+mesh = SubResource("SphereMesh_hgpy0")
+
+[node name="Node3D" type="Node3D" parent="MeshInstance3D3" unique_id=9778472 node_paths=PackedStringArray("target", "water")]
+script = ExtResource("14_kn0ld")
+target = NodePath("..")
+water = NodePath("../../water")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="." unique_id=367992486]
+transform = Transform3D(-0.9029498, 0.34897825, 0.25079054, 0.39159623, 0.9085326, 0.14567369, -0.17701443, 0.22974461, -0.95701796, 20.750443, -2.844602, 25.912045)
+mesh = SubResource("SphereMesh_hgpy0")
+
+[node name="Node3D" type="Node3D" parent="MeshInstance3D4" unique_id=1870156519 node_paths=PackedStringArray("target", "water")]
+script = ExtResource("14_kn0ld")
+target = NodePath("..")
+water = NodePath("../../water")
 
 [connection signal="pressed" from="MarginContainer/HUD/wind_panel/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
+
+[editable path="PlayerShip"]
