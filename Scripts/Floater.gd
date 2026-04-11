@@ -5,9 +5,20 @@ extends Node3D
 @export var magnitude := 0.1
 @export var target: Node3D
 
-
 func _process(_delta):
 	if not target:
 		return
-	target.position.y = sin(Time.get_ticks_msec() / 1000.0 * speed) * magnitude
-	target.rotate_x(deg_to_rad(sin(Time.get_ticks_msec() / 1000.0 * speed / 2.0) * magnitude / 2.0))
+	var pos = target.global_position - GM.water.global_position
+	var wave_data = GM.water.get_wave_data(pos)
+	target.global_position.y = wave_data.height + GM.water.global_position.y
+	# lerping once its correct
+	# target.position.y = lerp(target.position.y, wave_data.height, 5.0 * _delta)
+	
+	var up = wave_data.normal
+	var forward = target.global_transform.basis.z.normalized()
+
+	# rebuild rotation from normal
+	var right = forward.cross(up).normalized()
+	forward = up.cross(right).normalized()
+
+	target.global_transform.basis = Basis(right, up, forward)

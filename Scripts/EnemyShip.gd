@@ -5,13 +5,14 @@ class_name EnemyShip
 @export var pirate_ship: PackedScene
 @export var navy_ship: PackedScene
 @export var merchant_ship: PackedScene
-@export var floater: Node3D
+
 @export var target_arrow: Node3D
 
 var change_route := 10.0
 var route_timer := 0.0
 var ai_state: AIState = AIState.IDLE
 var combat_state: CombatState = CombatState.PURSUE
+var target_point: Vector3
 
 var agro_dist := 100.0
 var pursue_dist := 200.0
@@ -34,7 +35,8 @@ var CombatStateNames = {
 }
 
 func _ready() -> void:
-	var s
+	super._ready()
+	var s: Node3D
 	ship_name = "Navy"
 	max_hit_points = 75.0
 	s = navy_ship.instantiate()
@@ -53,9 +55,7 @@ func _ready() -> void:
 			max_hit_points = 50.0
 			s = pirate_ship.instantiate()
 
-	add_child(s)
-	
-	floater.target = s
+	ship_pivot.add_child(s)
 	
 	# roll some stats
 	top_speed = randf_range(0.0, 3.0)
@@ -97,6 +97,7 @@ func set_random_dir_and_speed():
 	yaw_deg = randf_range(0.0, 359.0)
 
 func _process(delta):
+	super._process(delta)
 	var dist_to_attacker := 0.0
 	var dir_to_attacker := Vector3.ZERO
 	if attacker and ai_state == AIState.COMBAT:
@@ -142,8 +143,17 @@ func _process(delta):
 	
 func en_route_behaviour(delta: float):
 	route_timer += delta
-	if route_timer >= change_route:
+	if route_timer >= change_route or (global_position - target_point).length() < 5.0:
 		target_speed = 1.0
 		change_route = randf_range(5.0, 20.0)
 		route_timer = 0
-		yaw_deg = randf_range(0.0, 359.0)
+		target_point = get_new_waypoint()
+		set_rotation_to_target_point(target_point)
+
+
+func get_new_waypoint() -> Vector3:
+	return Vector3(randf_range(-50.0, 50.0), 0, randf_range(-50.0, 50.0))
+
+func set_rotation_to_target_point(_target_point: Vector3):
+	var direction_to_target_point = (_target_point - global_position).normalized()
+	yaw_deg = rad_to_deg(atan2(direction_to_target_point.z, direction_to_target_point.x))

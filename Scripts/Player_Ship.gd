@@ -3,6 +3,7 @@ extends Ship
 class_name PlayerShip
 
 func _ready() -> void:
+	super._ready()
 	ship_name = "Player"
 	top_speed = 5
 	agility = 2
@@ -10,11 +11,22 @@ func _ready() -> void:
 	defense = 2
 
 	connect("recieved_gold", Callable(self , "_on_recieved_gold"))
+	
+	active_starboard(true)
+	active_port(true)
+	#hud not ready yet
+	await get_tree().create_timer(1.0).timeout
+	GM.hud.selected_ship = self
 
 func _on_recieved_gold(amount: int):
-	gameManager.hud.new_notification("Recieved: %2.f" % amount)
+	GM.hud.new_notification("Recieved: %2.f" % amount)
+
+func sink():
+	# dont call super, were overriding behaviour
+	get_tree().reload_current_scene()
 
 func _process(_delta: float) -> void:
+	super._process(_delta)
 	# Continuous steering logic
 	if Input.is_key_pressed(KEY_A):
 		yaw_deg += _delta * agility * 10.0

@@ -8,4 +8,8 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [resource]
+MarginContainer/constants/margin_bottom = 10
+MarginContainer/constants/margin_left = 10
+MarginContainer/constants/margin_right = 10
+MarginContainer/constants/margin_top = 10
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_j2q5q")

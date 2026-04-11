@@ -4,7 +4,7 @@ class_name Canon
 @export var cannon_ball: PackedScene
 @export var canon: Node3D
 @export var particle: GPUParticles3D
-@onready var canon_mesh := canon.get_node("mesh")
+@onready var canon_mesh: Node3D = canon.get_node("mesh")
 var force := 25.0
 var damage := 5.0
 var pitch := 0.0
@@ -13,6 +13,9 @@ var line: Node3D
 
 var fire_rate = 5.0
 var fire_timer = 0.0
+var active := false
+
+signal _fire_timer_changed(value: float)
 
 func shoot(attack: float, shooter: Node3D):
 	if not fire_timer <= 0.0:
@@ -30,9 +33,13 @@ func shoot(attack: float, shooter: Node3D):
 	particle.restart()
 
 func _process(delta):
-	fire_timer -= delta
-	canon_mesh.rotation.x = deg_to_rad(pitch)
-	create_line()
+	if fire_timer > 0.0:
+		fire_timer -= delta
+		emit_signal("_fire_timer_changed", fire_timer)
+	#visual
+	canon_mesh.rotation_degrees.x = - pitch + 90
+	if active:
+		create_line()
 
 func create_line():
 	var mesh_instance
