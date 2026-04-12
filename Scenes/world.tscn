@@ -181,11 +181,12 @@ shadow_enabled = true
 [node name="wind" type="Node3D" parent="." unique_id=496872810]
 script = ExtResource("5_kn0ld")
 
-[node name="water" type="MeshInstance3D" parent="." unique_id=2117390099]
-transform = Transform3D(0.9993799, 0, 0, 0, 0.9993799, 0, 0, 0, 0.9993799, 0, 0, 0)
+[node name="water" type="MeshInstance3D" parent="." unique_id=2117390099 node_paths=PackedStringArray("target")]
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
+target = NodePath("../camrig")
 freq = 1.0
+amp = 5.0
 wind_direction = Vector3(1, 0, 0)
 
 [node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") instance=ExtResource("1_fo5ed")]
@@ -196,7 +197,7 @@ canons_port = [null, null, null]
 canons_starboard = [null, null, null]
 
 [node name="ship_pivot" parent="PlayerShip" index="0" unique_id=1303226422 node_paths=PackedStringArray("ship")]
-transform = Transform3D(0.99907726, -0.042948946, 0, 0.042946666, 0.9990242, -0.01030467, 0.0004425747, 0.010295161, 0.9999469, 0, -0.7543243, 0)
+transform = Transform3D(0.9393541, -0.3429487, 0, 0.34220368, 0.93731344, -0.06587941, 0.02259326, 0.061884098, 0.9978276, 0, 1.9916025, 0)
 ship = NodePath("..")
 
 [node name="floater" parent="PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
@@ -246,7 +247,7 @@ bounds = Vector3(100, 0, 100)
 water = NodePath("../water")
 
 [node name="buoyu" type="MeshInstance3D" parent="." unique_id=1965066874]
-transform = Transform3D(0.99598765, -0.08949073, 0, 0.089484155, 0.9959145, -0.0121205645, 0.0010846781, 0.012071933, 0.99992657, -27.446453, -0.049317867, -17.981817)
+transform = Transform3D(0.933183, -0.35940152, 0, 0.35860118, 0.9311049, 0.066699505, -0.023971904, -0.062242843, 0.9977731, -37.45922, -0.19179733, -34.785652)
 mesh = SubResource("SphereMesh_hgpy0")
 
 [node name="Node3D" type="Node3D" parent="buoyu" unique_id=690275594 node_paths=PackedStringArray("target", "water")]
@@ -255,7 +256,7 @@ target = NodePath("..")
 water = NodePath("../../water")
 
 [node name="buoyu2" type="MeshInstance3D" parent="." unique_id=617448731]
-transform = Transform3D(0.99996537, -0.008318713, 0, 0.008318028, 0.9998829, -0.012838851, 0.00010680273, 0.012838406, 0.99991757, -30.105095, 0.008530113, 33.925022)
+transform = Transform3D(0.9803062, -0.1974836, 0, 0.19710003, 0.9784022, 0.0622959, -0.012302418, -0.061069056, 0.9980577, -37.15082, 0.42423496, 37.758625)
 mesh = SubResource("SphereMesh_hgpy0")
 
 [node name="Node3D" type="Node3D" parent="buoyu2" unique_id=369287721 node_paths=PackedStringArray("target", "water")]
@@ -264,7 +265,7 @@ target = NodePath("..")
 water = NodePath("../../water")
 
 [node name="buoyu3" type="MeshInstance3D" parent="." unique_id=456461154]
-transform = Transform3D(0.99489975, 0.10086802, 0, -0.100867994, 0.99489963, -0.00062450813, -6.299289e-05, 0.000621323, 0.9999998, 21.715603, 0.16797268, -34.687466)
+transform = Transform3D(0.99972934, -0.023265377, 0, 0.023255067, 0.99928635, -0.02976632, 0.00069252466, 0.029758263, 0.9995569, 21.715603, -2.4773893, -34.687466)
 mesh = SubResource("SphereMesh_hgpy0")
 
 [node name="Node3D" type="Node3D" parent="buoyu3" unique_id=9778472 node_paths=PackedStringArray("target", "water")]
@@ -273,7 +274,7 @@ target = NodePath("..")
 water = NodePath("../../water")
 
 [node name="buoyu4" type="MeshInstance3D" parent="." unique_id=367992486]
-transform = Transform3D(0.99676806, 0.0803332, 0, -0.08032361, 0.99664885, 0.015458259, 0.0012418116, -0.015408298, 0.9998805, 20.750443, 0.24116373, 25.912045)
+transform = Transform3D(0.99980223, -0.019887978, 0, 0.019870494, 0.9989231, -0.04192528, 0.00083380914, 0.041916985, 0.9991208, 20.750443, -2.4047604, 25.912045)
 mesh = SubResource("SphereMesh_hgpy0")
 
 [node name="Node3D" type="Node3D" parent="buoyu4" unique_id=1870156519 node_paths=PackedStringArray("target", "water")]

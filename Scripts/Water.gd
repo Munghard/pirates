@@ -76,7 +76,7 @@ func get_wave_data(world_pos: Vector3) -> Dictionary:
 	var slope = raw_slope * power_derivative
 
 	# 4. Final Scale
-	var height = final_wave * amp * wave_height_scale
+	var _height = final_wave * amp * wave_height_scale
 	# Slope must also be scaled by the same factor
 	var final_slope = slope * amp * wave_height_scale
 
