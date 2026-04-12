@@ -14,13 +14,17 @@ var time := 0.0
 var world_size := Vector2(100, 100)
 @export var wind_direction: Vector3
 
+@onready var gameManager: GameManager = get_node("/root/GameManager")
+
 
 func _process(_delta):
 	time += _delta
-	if GM and "wind" in GM:
-		# wind_direction = GM.wind.direction
-		wind_direction = Vector3.RIGHT
-		print(wind_direction.normalized())
+	if gameManager and "wind" in gameManager:
+		wind_direction = gameManager.wind.direction
+		# wind_direction = Vector3.RIGHT
+
+		amp = gameManager.wind.strength
+	# print(amp);
 
 	if target:
 		position = target.position
@@ -32,12 +36,11 @@ func _process(_delta):
 		mat.set_shader_parameter("freq", freq)
 		mat.set_shader_parameter("amp", amp)
 		mat.set_shader_parameter("wave_height_scale", wave_height_scale)
-		mat.set_shader_parameter("wind_dir", wind_direction)
+		mat.set_shader_parameter("wind_dir", Vector2(wind_direction.x, wind_direction.z))
 		
 		
 func get_wave_data(world_pos: Vector3) -> Dictionary:
-	var wind = wind_direction.normalized()
-	var wind2 = Vector2(wind.x, wind.z)
+	var wind2 = Vector2(wind_direction.x, wind_direction.z)
 
 	var along = Vector2(world_pos.x, world_pos.z).dot(wind2)
 	var across = Vector2(world_pos.x, world_pos.z).dot(Vector2(-wind2.y, wind2.x))

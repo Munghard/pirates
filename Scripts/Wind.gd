@@ -1,45 +1,50 @@
-extends Node3D
 class_name Wind
+extends Node3D
 
-var direction: Vector3
+signal wind_changed(wind: Wind)
+
+var direction: Vector3 = Vector3.FORWARD
+var target_direction: Vector3 = Vector3.FORWARD
+
+var strength: float = 0.0
+var target_strength: float = 0.0
+
 var max_wind_speed: float = 5.0
 
-var next_change := 0.0
 var timer := 0.0
-
-var target_direction
+var next_change := 0.0
 var timer_enable := true
 
-signal wind_changed(dir: Vector3)
 
-
-func _ready() -> void:
-	randomize_direction()
+func _ready():
+	randomize_wind()
 
 
 func _process(delta):
-	direction = direction.lerp(target_direction, delta / 100.0)
+	# smooth direction (unit vector)
+	direction = direction.lerp(target_direction, delta * 0.5).normalized()
 
-	if not timer_enable:
-		return
+	# smooth strength
+	strength = lerp(strength, target_strength, delta * 0.5)
 
-	timer += delta
-	if timer >= next_change:
-		randomize_direction()
-		timer = 0.0
-		next_change = randf_range(5.0, 100.0)
+	if timer_enable:
+		timer += delta
+		if timer >= next_change:
+			randomize_wind()
+			timer = 0.0
+			next_change = randf_range(5.0, 100.0)
 
-func set_direction(_direction: Vector3):
-	# direction = _direction * randf_range(0, max_wind_speed)
-	target_direction = _direction * randf_range(0, max_wind_speed)
-	emit_signal("wind_changed", target_direction)
 
-func randomize_direction():
+func get_wind_vector() -> Vector3:
+	return direction * strength
+
+
+func set_direction(dir: Vector3):
+	target_direction = dir.normalized()
+	target_strength = randf_range(0.0, max_wind_speed)
+	emit_signal("wind_changed", self )
+
+
+func randomize_wind():
 	var dir = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
 	set_direction(dir)
-
-func set_enable_wind(value: bool):
-	timer_enable = value
-	if value:
-		randomize_direction()
-	emit_signal("wind_changed", target_direction)

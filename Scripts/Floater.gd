@@ -7,6 +7,7 @@ extends Node3D
 
 func _process(_delta):
 	if not target or not water:
+		water = get_node("/root/GameManager").water
 		return
 	var pos = target.global_position
 	var wave_data = water.get_wave_data(pos)
@@ -22,3 +23,4 @@ func _process(_delta):
 	forward = - up.cross(right).normalized()
 
 	target.global_transform.basis = Basis(right, up, forward)
+	target.rotation_degrees.y = 0

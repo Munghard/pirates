@@ -41,26 +41,26 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	super._ready()
-	var s: Node3D
+	# var s: Node3D
 	ship_name = "Navy"
 	max_hit_points = 75.0
-	s = navy_ship.instantiate()
+	# s = navy_ship.instantiate()
 	defense = randi_range(1, 4)
 	gold = randi_range(0, 200)
 	if randf() > 0.5:
 		ship_name = "Merchant"
 		defense = randi_range(1, 2)
 		max_hit_points = 10.0
-		s = merchant_ship.instantiate()
+		# s = merchant_ship.instantiate()
 		gold = randi_range(0, 1000)
 		if randf() > 0.5:
 			gold = randi_range(0, 100)
 			ship_name = "Pirate"
 			defense = randi_range(1, 3)
 			max_hit_points = 50.0
-			s = pirate_ship.instantiate()
+			# s = pirate_ship.instantiate()
 
-	ship_pivot.add_child(s)
+	# ship_pivot.add_child(s)
 	
 	# roll some stats
 	top_speed = randf_range(0.0, 3.0)

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dlft2jwgwtr2u"]
 
-[ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scenes/ship_pivot.gd" id="1_8aq7e"]
+[ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="1_8aq7e"]
 [ext_resource type="PackedScene" uid="uid://cr7y5ey7ppmmp" path="res://Models/Sail ship.fbx" id="1_l3rv8"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_4cq66"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="2_6ejuo"]
@@ -20,10 +20,12 @@ mass = 100000.0
 gravity_scale = 0.0
 angular_damp = 5.0
 
-[node name="ship_pivot" type="Node3D" parent="." unique_id=1303226422 node_paths=PackedStringArray("canons_port", "canons_starboard")]
+[node name="ship_pivot" type="Node3D" parent="." unique_id=1303226422 node_paths=PackedStringArray("ship", "canons_port", "canons_starboard", "ship_model")]
 script = ExtResource("1_8aq7e")
+ship = NodePath("Sail ship")
 canons_port = [NodePath("Canon"), NodePath("Canon2"), NodePath("Canon3")]
 canons_starboard = [NodePath("Canon4"), NodePath("Canon5"), NodePath("Canon6")]
+ship_model = NodePath("Sail ship")
 
 [node name="Sail ship" parent="ship_pivot" unique_id=116400657 instance=ExtResource("1_l3rv8")]
 
@@ -54,17 +56,19 @@ script = ExtResource("2_4cq66")
 target = NodePath("../ship_pivot")
 
 [node name="forward_arrow" type="Node3D" parent="." unique_id=93642959]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9536269, 3.7172842)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.717)
 
 [node name="Sprite3D" type="Sprite3D" parent="forward_arrow" unique_id=116250369]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 1.0000001)
 texture = ExtResource("3_xxxu3")
 
 [node name="healthbar" type="Node3D" parent="." unique_id=1762244683]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.602669, 3.962, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.602669, 4.9325676, 0)
 
 [node name="Sprite3D" type="Sprite3D" parent="healthbar" unique_id=1595779960]
 transform = Transform3D(5, 0, 0, 0, 1, 0, 0, 0, 1, -1.6109953, 0, 0)
 billboard = 2
 double_sided = false
 texture = SubResource("GradientTexture2D_xxxu3")
+
+[editable path="ship_pivot/Sail ship"]

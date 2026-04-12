@@ -29,7 +29,9 @@ var damage_threshold := 1.0
 @export var canons_port: Array[Canon]
 @export var canons_starboard: Array[Canon]
 
-@onready var ship_pivot = $ship_pivot
+@onready var ship_pivot: Node3D = $ship_pivot
+
+@onready var gameManager: GameManager = get_node("/root/GameManager")
 
 var attacker: Node3D
 
@@ -51,6 +53,7 @@ func _process(_delta):
 	if not destroyed:
 		repair(_delta)
 	healthbar.scale.x = hit_points / max_hit_points
+	ship_pivot.position = Vector3.ZERO
 
 func repair(_delta):
 	if hit_points < max_hit_points:
@@ -73,10 +76,10 @@ func _physics_process(_delta: float) -> void:
 	rotation.x = lerp_angle(rotation.x, 0, _delta)
 	rotation.z = lerp_angle(rotation.z, 0, _delta)
 	forward_arrow.scale.z = target_speed
-	# position.y = GM.water.get_height_at(position)
+	# position.y = gameManager.water.get_height_at(position)
 
 	var forward = global_basis.z
-	var wind_along_forward = GM.wind.direction.dot(-forward)
+	var wind_along_forward = gameManager.wind.direction.dot(-forward)
 
 	actual_speed = target_speed * (1.0 + wind_along_forward)
 
@@ -119,11 +122,11 @@ func give_loot(_gold: int):
 
 
 func damage(_damage: float, _position: Vector3, _attacker: Node3D):
-	# GM.hud.selected_ship = self
+	# gameManager.hud.selected_ship = self
 	accumulated_damage += _damage
 	if accumulated_damage >= damage_threshold:
 		var s = "%.1f" % accumulated_damage
-		GM.hud.ddd_label(s, _position)
+		gameManager.hud.ddd_label(s, _position)
 		accumulated_damage = 0
 
 	attacker = _attacker
@@ -132,7 +135,7 @@ func damage(_damage: float, _position: Vector3, _attacker: Node3D):
 
 	if hit_points <= 0 and not destroyed:
 		destroyed = true
-		GM.hud.ddd_label("SUNK!", position)
+		gameManager.hud.ddd_label("SUNK!", position)
 
 
 func port_pitch(value: float):

@@ -4,11 +4,13 @@ class_name Loot
 
 var gold := 0
 var recieved := false
+var water: Water
 
 func set_gold(_gold: int):
 	gold = randi_range(0, _gold)
 
 func _ready():
+	$floater.water = water
 	if gold == 0:
 		gold = randi_range(0, 50)
 

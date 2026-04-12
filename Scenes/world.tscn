@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://8rxhn3koiq02"]
 
-[ext_resource type="Script" uid="uid://dlmrgn1ttek83" path="res://Scripts/world.gd" id="1_e0ngr"]
+[ext_resource type="Script" uid="uid://bdldn5w2gpqpk" path="res://Scripts/GameManager.gd" id="1_5ukr8"]
 [ext_resource type="PackedScene" uid="uid://dlft2jwgwtr2u" path="res://Scenes/ship.tscn" id="1_fo5ed"]
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://new_theme.tres" id="2_0fj1v"]
 [ext_resource type="Script" uid="uid://x6pu3p80ufph" path="res://Scripts/CameraFollow.gd" id="2_5ukr8"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://bis8b8asmxsqh" path="res://Scripts/Scatterer.gd" id="3_o06y3"]
 [ext_resource type="PackedScene" uid="uid://bwq7hpvxdd4pi" path="res://Scenes/enemy_ship.tscn" id="4_k7acu"]
 [ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/barrels.tscn" id="5_5v1tr"]
+[ext_resource type="Script" uid="uid://cvq33ekw76o45" path="res://Scripts/Wind.gd" id="5_kn0ld"]
 [ext_resource type="Material" uid="uid://cypyf8n66hyww" path="res://water_shader.tres" id="7_ikia7"]
 [ext_resource type="Script" uid="uid://ckymdnssopogk" path="res://Scripts/Water.gd" id="8_7yui6"]
 [ext_resource type="PackedScene" uid="uid://c4w0h65nmvokw" path="res://Scenes/maelstrom.tscn" id="14_e0ngr"]
@@ -65,8 +66,8 @@ material = SubResource("StandardMaterial3D_e0ngr")
 radius = 2.0
 height = 4.0
 
-[node name="world" type="Node3D" unique_id=418889483]
-script = ExtResource("1_e0ngr")
+[node name="GameManager" type="Node3D" unique_id=418889483]
+script = ExtResource("1_5ukr8")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=954428007]
 anchors_preset = 15
@@ -177,12 +178,14 @@ text = "Notifications"
 transform = Transform3D(0.70710677, -0.5, 0.50000006, 0, 0.7071068, 0.70710677, -0.7071068, -0.49999997, 0.5, 0, 3.3022847, 0)
 shadow_enabled = true
 
+[node name="wind" type="Node3D" parent="." unique_id=496872810]
+script = ExtResource("5_kn0ld")
+
 [node name="water" type="MeshInstance3D" parent="." unique_id=2117390099]
 transform = Transform3D(0.9993799, 0, 0, 0, 0.9993799, 0, 0, 0, 0.9993799, 0, 0, 0)
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
 freq = 1.0
-amp = 5.0
 wind_direction = Vector3(1, 0, 0)
 
 [node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") instance=ExtResource("1_fo5ed")]
@@ -192,11 +195,15 @@ loot = ExtResource("5_5v1tr")
 canons_port = [null, null, null]
 canons_starboard = [null, null, null]
 
-[node name="ship_pivot" parent="PlayerShip" index="0" unique_id=1303226422]
-transform = Transform3D(0.78063333, -0.58492184, -0.22017728, 0.5964053, 0.80249554, -0.01736469, 0.18684827, -0.117759444, 0.9753053, 0, 1.7490382, 0)
+[node name="ship_pivot" parent="PlayerShip" index="0" unique_id=1303226422 node_paths=PackedStringArray("ship")]
+transform = Transform3D(0.99907726, -0.042948946, 0, 0.042946666, 0.9990242, -0.01030467, 0.0004425747, 0.010295161, 0.9999469, 0, -0.7543243, 0)
+ship = NodePath("..")
 
 [node name="floater" parent="PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
 water = NodePath("../../water")
+
+[node name="Sprite3D" parent="PlayerShip/forward_arrow" parent_id_path=PackedInt32Array(7143519, 93642959) index="0" unique_id=116250369]
+no_depth_test = true
 
 [node name="wind_particle" type="GPUParticles3D" parent="." unique_id=1543477643]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.970101, 0)
@@ -209,12 +216,13 @@ process_material = SubResource("ParticleProcessMaterial_hgpy0")
 draw_pass_1 = SubResource("RibbonTrailMesh_0pcbe")
 
 [node name="camrig" type="Node3D" parent="." unique_id=596184847 node_paths=PackedStringArray("target")]
-transform = Transform3D(1, 0, 0, 0, 0.49999997, -0.86602545, 0, 0.86602545, 0.49999997, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 script = ExtResource("2_5ukr8")
 target = NodePath("../PlayerShip")
 
 [node name="Camera3D" type="Camera3D" parent="camrig" unique_id=389494367]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -20.001)
+projection = 1
 size = 30.0
 
 [node name="ships" type="Node3D" parent="." unique_id=130823351 node_paths=PackedStringArray("water")]
@@ -237,47 +245,38 @@ amount = 2
 bounds = Vector3(100, 0, 100)
 water = NodePath("../water")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1965066874]
-transform = Transform3D(-0.9170907, -0.3542684, 0.18286212, -0.3796031, 0.91612023, -0.12893844, -0.121844865, -0.18766324, -0.9746468, -27.446453, 1.6565938, -17.981817)
+[node name="buoyu" type="MeshInstance3D" parent="." unique_id=1965066874]
+transform = Transform3D(0.99598765, -0.08949073, 0, 0.089484155, 0.9959145, -0.0121205645, 0.0010846781, 0.012071933, 0.99992657, -27.446453, -0.049317867, -17.981817)
 mesh = SubResource("SphereMesh_hgpy0")
 
-[node name="Node3D" type="Node3D" parent="MeshInstance3D" unique_id=690275594 node_paths=PackedStringArray("target", "water")]
+[node name="Node3D" type="Node3D" parent="buoyu" unique_id=690275594 node_paths=PackedStringArray("target", "water")]
 script = ExtResource("14_kn0ld")
 target = NodePath("..")
 water = NodePath("../../water")
 
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="." unique_id=2063163620]
-transform = Transform3D(-0.933387, -0.18218017, 0.3091912, -0.12776972, 0.973809, 0.18807165, -0.3353561, 0.13603836, -0.9322178, 3.064436, 4.2632027, 11.505857)
+[node name="buoyu2" type="MeshInstance3D" parent="." unique_id=617448731]
+transform = Transform3D(0.99996537, -0.008318713, 0, 0.008318028, 0.9998829, -0.012838851, 0.00010680273, 0.012838406, 0.99991757, -30.105095, 0.008530113, 33.925022)
 mesh = SubResource("SphereMesh_hgpy0")
 
-[node name="Node3D" type="Node3D" parent="MeshInstance3D5" unique_id=1120590225 node_paths=PackedStringArray("target", "water")]
+[node name="Node3D" type="Node3D" parent="buoyu2" unique_id=369287721 node_paths=PackedStringArray("target", "water")]
 script = ExtResource("14_kn0ld")
 target = NodePath("..")
 water = NodePath("../../water")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=617448731]
-transform = Transform3D(-0.963734, -0.25609985, 0.07503112, -0.2549202, 0.9666373, 0.02506131, -0.07894607, 0.0050254865, -0.9968662, -30.105095, -0.31739607, 33.925022)
+[node name="buoyu3" type="MeshInstance3D" parent="." unique_id=456461154]
+transform = Transform3D(0.99489975, 0.10086802, 0, -0.100867994, 0.99489963, -0.00062450813, -6.299289e-05, 0.000621323, 0.9999998, 21.715603, 0.16797268, -34.687466)
 mesh = SubResource("SphereMesh_hgpy0")
 
-[node name="Node3D" type="Node3D" parent="MeshInstance3D2" unique_id=369287721 node_paths=PackedStringArray("target", "water")]
+[node name="Node3D" type="Node3D" parent="buoyu3" unique_id=9778472 node_paths=PackedStringArray("target", "water")]
 script = ExtResource("14_kn0ld")
 target = NodePath("..")
 water = NodePath("../../water")
 
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=456461154]
-transform = Transform3D(-0.9256176, 0.24240434, 0.29064125, 0.29292524, 0.9451352, 0.14461753, -0.23963939, 0.21899666, -0.94584006, 21.715603, -3.716708, -34.687466)
+[node name="buoyu4" type="MeshInstance3D" parent="." unique_id=367992486]
+transform = Transform3D(0.99676806, 0.0803332, 0, -0.08032361, 0.99664885, 0.015458259, 0.0012418116, -0.015408298, 0.9998805, 20.750443, 0.24116373, 25.912045)
 mesh = SubResource("SphereMesh_hgpy0")
 
-[node name="Node3D" type="Node3D" parent="MeshInstance3D3" unique_id=9778472 node_paths=PackedStringArray("target", "water")]
-script = ExtResource("14_kn0ld")
-target = NodePath("..")
-water = NodePath("../../water")
-
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="." unique_id=367992486]
-transform = Transform3D(-0.9029498, 0.34897825, 0.25079054, 0.39159623, 0.9085326, 0.14567369, -0.17701443, 0.22974461, -0.95701796, 20.750443, -2.844602, 25.912045)
-mesh = SubResource("SphereMesh_hgpy0")
-
-[node name="Node3D" type="Node3D" parent="MeshInstance3D4" unique_id=1870156519 node_paths=PackedStringArray("target", "water")]
+[node name="Node3D" type="Node3D" parent="buoyu4" unique_id=1870156519 node_paths=PackedStringArray("target", "water")]
 script = ExtResource("14_kn0ld")
 target = NodePath("..")
 water = NodePath("../../water")
@@ -285,3 +284,4 @@ water = NodePath("../../water")
 [connection signal="pressed" from="MarginContainer/HUD/wind_panel/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
 
 [editable path="PlayerShip"]
+[editable path="PlayerShip/ship_pivot/Sail ship"]

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c4w0h65nmvokw"]
 
 [ext_resource type="Script" uid="uid://busan32mauwi4" path="res://Scripts/maelstrom.gd" id="1_8s505"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_1v7sr"]
 
 [sub_resource type="Curve" id="Curve_c5t2i"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.15862069, 1), 0.0, 0.0, 0, 0, Vector2(0.97931033, 0), -2.317815, 0.0, 0, 0]
@@ -46,6 +47,10 @@ draw_pass_1 = SubResource("QuadMesh_hgpy0")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=928381288]
 shape = SubResource("SphereShape3D_c5t2i")
+
+[node name="Node3D" type="Node3D" parent="." unique_id=1349484250 node_paths=PackedStringArray("target")]
+script = ExtResource("2_1v7sr")
+target = NodePath("..")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

@@ -15,9 +15,11 @@ var canon_mc: MarginContainer
 
 var selected_ship: Ship
 
-func _ready() -> void:
+@onready var gameManager: GameManager = get_node("/root/GameManager")
+
+func init_hud() -> void:
 	# update wind direction gauge
-	GM.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
+	gameManager.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
 	#init notification label as 0 alpha
 	notification_label.modulate.a = 0
 
@@ -88,9 +90,9 @@ func _show_notifications() -> void:
 		await get_tree().create_timer(0.5).timeout # optional fade-out time
 	showing_notifications = false
 
-func _on_update_wind(dir: Vector3):
-	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [dir.length(), rad_to_deg(atan2(dir.z, dir.x)), str(GM.wind.timer_enable), GM.wind.next_change - GM.wind.timer]
-	create_tween().tween_property(wind_control, "rotation_degrees", rad_to_deg(atan2(dir.z, dir.x) + PI / 2), 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT) # ease in, out, or both
+func _on_update_wind(wind: Wind):
+	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.z, wind.direction.x)), str(wind.timer_enable), wind.next_change - wind.timer]
+	create_tween().tween_property(wind_control, "rotation_degrees", rad_to_deg(atan2(wind.direction.z, wind.direction.x) + PI / 2), 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT) # ease in, out, or both
 
 func update_label(ship: Ship):
 	ship_label_h.text = "%s" % ship.ship_name
@@ -107,10 +109,10 @@ func _process(_delta):
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		var mouse_pos = get_viewport().get_mouse_position()
 
-		var from = GM.camera.project_ray_origin(mouse_pos)
-		var to = from + GM.camera.project_ray_normal(mouse_pos) * 1000
+		var from = gameManager.camera.project_ray_origin(mouse_pos)
+		var to = from + gameManager.camera.project_ray_normal(mouse_pos) * 1000
 
-		var space = GM.camera.get_world_3d().direct_space_state
+		var space = gameManager.camera.get_world_3d().direct_space_state
 		var result = space.intersect_ray(
 			PhysicsRayQueryParameters3D.create(from, to)
 		)
@@ -127,5 +129,5 @@ func _process(_delta):
 
 
 func _on_button_pressed() -> void:
-	GM.wind.set_direction(Vector3.ZERO)
-	GM.wind.set_enable_wind(!GM.wind.timer_enable)
+	gameManager.wind.set_direction(Vector3.ZERO)
+	gameManager.wind.set_enable_wind(!gameManager.wind.timer_enable)

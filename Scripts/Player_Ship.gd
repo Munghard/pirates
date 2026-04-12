@@ -16,10 +16,10 @@ func _ready() -> void:
 	active_port(true)
 	#hud not ready yet
 	await get_tree().create_timer(1.0).timeout
-	GM.hud.selected_ship = self
+	gameManager.hud.selected_ship = self
 
 func _on_recieved_gold(amount: int):
-	GM.hud.new_notification("Recieved: %2.f" % amount)
+	gameManager.hud.new_notification("Recieved: %2.f" % amount)
 
 func sink():
 	# dont call super, were overriding behaviour

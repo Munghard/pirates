@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/barrels.tscn" id="4_a0oot"]
 [ext_resource type="PackedScene" uid="uid://0csv1fk2jl65" path="res://Models/BoatWSail.fbx" id="4_ovko2"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="5_a0oot"]
-[ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scenes/ship_pivot.gd" id="5_ovko2"]
+[ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="5_ovko2"]
 [ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="6_c6fo0"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="7_c6fo0"]
 
@@ -32,10 +32,14 @@ floater = NodePath("floater")
 canons_port = [NodePath("ship_pivot/Canon"), NodePath("ship_pivot/Canon2"), NodePath("ship_pivot/Canon3")]
 canons_starboard = [NodePath("ship_pivot/Canon4"), NodePath("ship_pivot/Canon5"), NodePath("ship_pivot/Canon6")]
 
-[node name="ship_pivot" type="Node3D" parent="." unique_id=831570815 node_paths=PackedStringArray("canons_port", "canons_starboard")]
+[node name="ship_pivot" type="Node3D" parent="." unique_id=831570815 node_paths=PackedStringArray("ship", "canons_port", "canons_starboard", "ship_model")]
 script = ExtResource("5_ovko2")
+ship = NodePath("..")
 canons_port = [NodePath("Canon"), NodePath("Canon2"), NodePath("Canon3")]
 canons_starboard = [NodePath("Canon4"), NodePath("Canon5"), NodePath("Canon6")]
+ship_model = NodePath("Sail ship")
+
+[node name="Sail ship" parent="ship_pivot" unique_id=2112990505 instance=ExtResource("3_c6fo0")]
 
 [node name="Canon" parent="ship_pivot" unique_id=101832743 instance=ExtResource("7_c6fo0")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.45781922, 0.5402633, 0.7390715)
@@ -64,10 +68,11 @@ script = ExtResource("5_a0oot")
 target = NodePath("../ship_pivot")
 
 [node name="forward_arrow" type="Node3D" parent="." unique_id=2049236311]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9536269, 3.8348532)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.835)
 
 [node name="Sprite3D" type="Sprite3D" parent="forward_arrow" unique_id=963629054]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 1.0000001)
+no_depth_test = true
 texture = ExtResource("6_c6fo0")
 
 [node name="target_arrow" type="Node3D" parent="." unique_id=148711982]

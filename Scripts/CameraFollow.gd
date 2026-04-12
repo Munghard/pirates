@@ -7,8 +7,8 @@ func _process(_delta: float) -> void:
 	global_position = lerp(global_position, target.global_position, _delta * 5.0)
 
 func set_zoom(value: float):
-	# camera.size = clamp(camera.size + value, 1, 200)
-	camera.position.z = clamp(camera.position.z + value, -200.0, -1.0)
+	camera.size = clamp(camera.size + value, 1, 50)
+	# camera.position.z = clamp(camera.position.z + value, -200.0, -1.0)
 
 func add_pitch(value: float):
 	rotation.x = clamp(rotation.x + deg_to_rad(value), 0, 90)
