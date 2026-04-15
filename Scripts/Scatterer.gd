@@ -10,7 +10,7 @@ func _ready():
 	if not prefab:
 		push_warning("No prefab assigned!")
 		return
-    
+	
 	for i in range(amount):
 		var instance = prefab.instantiate()
 		# Random position within bounds

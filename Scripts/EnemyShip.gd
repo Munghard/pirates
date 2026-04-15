@@ -2,6 +2,8 @@ extends Ship
 
 class_name EnemyShip
 
+@export var lifeboat: PackedScene
+
 @export var pirate_ship: PackedScene
 @export var navy_ship: PackedScene
 @export var merchant_ship: PackedScene
@@ -42,20 +44,21 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	super._ready()
 	# var s: Node3D
-	ship_name = "Navy"
+	ship_name = ShipNames.get_random_name()
+	faction = "Navy"
 	max_hit_points = 75.0
 	# s = navy_ship.instantiate()
 	defense = randi_range(1, 4)
 	gold = randi_range(0, 200)
 	if randf() > 0.5:
-		ship_name = "Merchant"
+		faction = "Merchant"
 		defense = randi_range(1, 2)
 		max_hit_points = 10.0
 		# s = merchant_ship.instantiate()
 		gold = randi_range(0, 1000)
 		if randf() > 0.5:
 			gold = randi_range(0, 100)
-			ship_name = "Pirate"
+			faction = "Pirate"
 			defense = randi_range(1, 3)
 			max_hit_points = 50.0
 			# s = pirate_ship.instantiate()
@@ -68,6 +71,7 @@ func _ready() -> void:
 	hit_points = max_hit_points
 
 	connect("recieved_damage", Callable(self , "_on_damage_recieved"))
+	connect("on_sink", Callable(self , "_on_ship_sunk"))
 	
 	set_state(AIState.ENROUTE)
 
@@ -162,3 +166,12 @@ func get_new_waypoint() -> Vector3:
 func set_rotation_to_target_point(_target_point: Vector3):
 	var direction_to_target_point = (_target_point - global_position).normalized()
 	yaw_deg = rad_to_deg(atan2(direction_to_target_point.z, direction_to_target_point.x))
+
+func _on_ship_sunk():
+	spawn_lifeboat()
+
+func spawn_lifeboat():
+	var l = lifeboat.instantiate()
+	get_tree().current_scene.add_child(l)
+	l.global_position = global_position
+	l.global_position.y = 0

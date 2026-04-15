@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://c2gmrhcs7xk63"]
+
+[ext_resource type="PackedScene" uid="uid://ss3kpb6gx38y" path="res://Models/Port/Port_SecondAge_Level1.fbx" id="1_s2k7l"]
+[ext_resource type="Script" uid="uid://qgd5q2n4avh1" path="res://Scripts/Port.gd" id="2_pyx3s"]
+[ext_resource type="PackedScene" uid="uid://b3nnix6jurcl3" path="res://UI/Port_panel.tscn" id="3_gfjmb"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pg0n7"]
+size = Vector3(2.1062012, 2.366211, 6.6029663)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vjq20"]
+size = Vector3(2.1062012, 2.366211, 4.06369)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_d8raq"]
+size = Vector3(6.8618164, 2.366211, 4.877655)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c4eob"]
+size = Vector3(7.257324, 2.3586426, 7.6870117)
+
+[node name="Port" type="StaticBody3D" unique_id=1497539839]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=328988235]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2930908, -0.68310547, 4.0177307)
+shape = SubResource("BoxShape3D_pg0n7")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=1663657879]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7069092, -0.68310547, 2.7480927)
+shape = SubResource("BoxShape3D_vjq20")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="." unique_id=929660736]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0857439, -0.68310547, -1.7778206)
+shape = SubResource("BoxShape3D_d8raq")
+
+[node name="Port_SecondAge_Level1" parent="." unique_id=1489965803 instance=ExtResource("1_s2k7l")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
+
+[node name="port" type="Area3D" parent="." unique_id=699995195]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2036757, 0, 4.2950306)
+script = ExtResource("2_pyx3s")
+port_ui = ExtResource("3_gfjmb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="port" unique_id=1028552808]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0637207, -0.68, 1.848877)
+shape = SubResource("BoxShape3D_c4eob")
+
+[connection signal="body_entered" from="port" to="port" method="_on_body_entered"]
+[connection signal="body_exited" from="port" to="port" method="_on_body_exited"]

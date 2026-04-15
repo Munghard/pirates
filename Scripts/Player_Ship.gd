@@ -2,6 +2,7 @@ extends Ship
 
 class_name PlayerShip
 
+
 func _ready() -> void:
 	super._ready()
 	ship_name = "Player"
@@ -11,18 +12,24 @@ func _ready() -> void:
 	defense = 2
 
 	connect("recieved_gold", Callable(self , "_on_recieved_gold"))
+	connect("recieved_damage", Callable(self , "_on_recieved_damage"))
 	
 	active_starboard(true)
 	active_port(true)
-	#hud not ready yet
-	await get_tree().create_timer(1.0).timeout
-	gameManager.hud.selected_ship = self
+
+
+func _on_recieved_damage(_amount: float, _attacker: Node3D):
+	gameManager.camerarig.secondary_target = _attacker
+
 
 func _on_recieved_gold(amount: int):
-	gameManager.hud.new_notification("Recieved: %2.f" % amount)
+	gameManager.hud.new_notification("Recieved: %2.f gold" % amount)
 
 func sink():
 	# dont call super, were overriding behaviour
+	gameManager.hud.new_notification("You sunk my battleship...")
+	await get_tree().create_timer(5.0).timeout
+	
 	get_tree().reload_current_scene()
 
 func _process(_delta: float) -> void:
@@ -51,3 +58,5 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_DOWN:
 			starboard_pitch(-5)
 			port_pitch(-5)
+		if event.keycode == KEY_Q:
+			yaw_deg = yaw_deg - 180.0

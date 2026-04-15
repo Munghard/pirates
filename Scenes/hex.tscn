@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://caxh3etf4bekl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lfrua"]
+albedo_color = Color(0.54, 0.52524, 0.31860003, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lfrua"]
+material = SubResource("StandardMaterial3D_lfrua")
+top_radius = 2.0
+bottom_radius = 2.0
+radial_segments = 6
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lfrua"]
+radius = 2.0
+
+[node name="hex" type="MeshInstance3D" unique_id=286380318]
+mesh = SubResource("CylinderMesh_lfrua")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=802942366]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1654762184]
+shape = SubResource("CylinderShape3D_lfrua")

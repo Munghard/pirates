@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://ckaa2vwp8oesh"]
+
+[ext_resource type="Script" uid="uid://dtlxahdop0nj" path="res://Scripts/Lifeboat.gd" id="1_xgbxg"]
+[ext_resource type="PackedScene" uid="uid://bsfwskoayomyy" path="res://UI/Lifeboat_panel.tscn" id="2_mtjrd"]
+[ext_resource type="PackedScene" uid="uid://0csv1fk2jl65" path="res://Models/BoatWSail.fbx" id="3_1wwl6"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="4_52p0d"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
+size = Vector3(0.77734375, 2.6954365, 1.5878906)
+
+[node name="lifeboat" type="RigidBody3D" unique_id=1008296709]
+gravity_scale = 0.0
+contact_monitor = true
+max_contacts_reported = 1
+script = ExtResource("1_xgbxg")
+lifeboat_ui = ExtResource("2_mtjrd")
+
+[node name="BoatWSail" parent="." unique_id=931200576 instance=ExtResource("3_1wwl6")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1226719022]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3429117, -0.00045776367)
+shape = SubResource("BoxShape3D_4cq66")
+
+[node name="floater" type="Node3D" parent="." unique_id=741225022 node_paths=PackedStringArray("target")]
+script = ExtResource("4_52p0d")
+target = NodePath("..")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

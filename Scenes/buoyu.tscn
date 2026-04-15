@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://2lfnk45q46j3"]
+
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="1_dho7k"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e0ngr"]
+albedo_color = Color(1, 0.5856108, 0.52471584, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_hgpy0"]
+material = SubResource("StandardMaterial3D_e0ngr")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_h321j"]
+top_radius = 0.1
+bottom_radius = 0.2
+
+[node name="buoyu" type="MeshInstance3D" unique_id=1096655489]
+transform = Transform3D(0.9377431, -0.3473296, 0, 0.34456888, 0.93028945, 0.12583217, -0.04370524, -0.11799824, 0.99205154, 0, 0, 0)
+mesh = SubResource("SphereMesh_hgpy0")
+
+[node name="floater" type="Node3D" parent="." unique_id=1695429950 node_paths=PackedStringArray("target")]
+script = ExtResource("1_dho7k")
+target = NodePath("..")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1670948660]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.0000001, -1.8626451e-08, 1.4018568, -1.4901163e-08)
+mesh = SubResource("CylinderMesh_h321j")

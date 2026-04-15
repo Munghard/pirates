@@ -5,15 +5,10 @@
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_4cq66"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="2_6ejuo"]
 [ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="3_xxxu3"]
+[ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="6_cmder"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
 size = Vector3(1.1582031, 1.4629517, 4.74115)
-
-[sub_resource type="Gradient" id="Gradient_xxxu3"]
-colors = PackedColorArray(0.94989246, 0, 0.3525211, 1, 0.5680001, 1, 0.04000002, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_xxxu3"]
-gradient = SubResource("Gradient_xxxu3")
 
 [node name="ship" type="RigidBody3D" unique_id=1823530110]
 mass = 100000.0
@@ -62,13 +57,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.717)
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 1.0000001)
 texture = ExtResource("3_xxxu3")
 
-[node name="healthbar" type="Node3D" parent="." unique_id=1762244683]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.602669, 4.9325676, 0)
-
-[node name="Sprite3D" type="Sprite3D" parent="healthbar" unique_id=1595779960]
-transform = Transform3D(5, 0, 0, 0, 1, 0, 0, 0, 1, -1.6109953, 0, 0)
-billboard = 2
-double_sided = false
-texture = SubResource("GradientTexture2D_xxxu3")
+[node name="world_bars" parent="." unique_id=1446492284 instance=ExtResource("6_cmder")]
 
 [editable path="ship_pivot/Sail ship"]

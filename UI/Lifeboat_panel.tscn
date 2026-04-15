@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://bsfwskoayomyy"]
+
+[ext_resource type="Script" uid="uid://butvxx3jk35lt" path="res://Scripts/Lifeboat_panel.gd" id="1_ak33a"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://new_theme.tres" id="1_rdnuk"]
+
+[node name="Lifeboat_panel" type="PanelContainer" unique_id=1628449947 node_paths=PackedStringArray("label")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -94.0
+offset_top = -129.5
+offset_right = 94.0
+offset_bottom = 125.5
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_rdnuk")
+script = ExtResource("1_ak33a")
+label = NodePath("MarginContainer/VBoxContainer/VBoxContainer/Label")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1187583902]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=2097843404]
+layout_mode = 2
+theme_override_constants/separation = 45
+
+[node name="Label_h" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1693317528]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Crew intercepted"
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1935982771]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=338053772]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Kill the crew or try to recruit them?"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=998925103]
+layout_mode = 2
+theme_override_constants/separation = 50
+alignment = 1
+
+[node name="Button2" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1282511959]
+layout_mode = 2
+text = "Kill"
+
+[node name="Button3" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=969997403]
+layout_mode = 2
+text = "Recruit"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/Button2" to="." method="_on_button_kill_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/Button3" to="." method="_on_button_recruit_pressed"]

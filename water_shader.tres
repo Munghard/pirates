@@ -3,10 +3,22 @@
 [ext_resource type="Shader" uid="uid://bmeepjtlunggb" path="res://water.gdshader" id="1_cytmc"]
 [ext_resource type="Texture2D" uid="uid://kce1mo70d6f6" path="res://Textures/ocean_normal2.jpg" id="2_1gghw"]
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_1gghw"]
+noise_type = 2
+frequency = 0.0024
+fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_lvilb"]
+width = 1024
+height = 1024
+noise = SubResource("FastNoiseLite_1gghw")
+seamless = true
+
 [resource]
 render_priority = 0
 shader = ExtResource("1_cytmc")
 shader_parameter/normal_map = ExtResource("2_1gghw")
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_lvilb")
 shader_parameter/albedo = Color(0.011704604, 0.20844549, 0.36397272, 1)
 shader_parameter/crest_color = Color(0.029400002, 0.49, 0.39020333, 1)
 shader_parameter/foam_color = Color(1, 1, 1, 1)
@@ -15,9 +27,9 @@ shader_parameter/normal_map_strength = 0.3850000182875
 shader_parameter/scale = 0.178000008455
 shader_parameter/crest_threshold_min = 0.37200001767
 shader_parameter/crest_threshold_max = 1.0
-shader_parameter/foam_threshold_min = 0.8410000399475001
+shader_parameter/foam_threshold_min = 0.5210000247475
 shader_parameter/foam_threshold_max = 1.0
-shader_parameter/time = 8388.144677029986
+shader_parameter/time = 16.69163900000093
 shader_parameter/freq = 1.0
 shader_parameter/amp = 5.0
 shader_parameter/wave_height_scale = 1.0

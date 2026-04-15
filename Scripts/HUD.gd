@@ -1,17 +1,19 @@
 extends Control
 class_name HUD
 
-@export var ship_label_h: Label
-@export var ship_label: Label
-@export var ship_pb: ProgressBar
+@export var ship_panel: Control
+@export var ship_panel_player: Control
+
 @export var wind_label: Label
 @export var wind_control: Control
+
 
 @export var notification_label: Label
 var notification_queue: Array[String] = []
 var showing_notifications = false
 
 var canon_mc: MarginContainer
+var canon_fc: FoldableContainer
 
 var selected_ship: Ship
 
@@ -23,16 +25,24 @@ func init_hud() -> void:
 	#init notification label as 0 alpha
 	notification_label.modulate.a = 0
 
+
 func select_ship(ship: Ship):
 	selected_ship = ship
-	create_canon_ui(ship)
+	gameManager.camerarig.secondary_target = selected_ship
+	update_ship_panel(selected_ship, ship_panel)
+	if ship:
+		create_canon_ui(ship, ship_panel)
 
-func create_canon_ui(ship: Ship):
-	if canon_mc:
-		canon_mc.queue_free()
+func create_canon_ui(ship: Ship, _ship_panel: Control):
+	if canon_fc:
+		canon_fc.queue_free()
+	if ship == null:
+		return
+	canon_fc = FoldableContainer.new()
 	canon_mc = MarginContainer.new()
 	var vb = VBoxContainer.new()
-	add_child(canon_mc)
+	canon_fc.add_child(canon_mc)
+	_ship_panel.get_node("MarginContainer/VBoxContainer").add_child(canon_fc)
 	canon_mc.add_child(vb)
 	var lh = Label.new()
 	lh.text = "Cannons"
@@ -45,7 +55,8 @@ func create_canon_ui(ship: Ship):
 		pb.max_value = canon.fire_rate
 		pb.value = pb.max_value - canon.fire_timer
 		vb.add_child(pb)
-		canon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
+		if not canon.is_connected("_fire_timer_changed", Callable(self , "update_pb").bind(pb)):
+			canon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
 
 	var ls = Label.new()
 	ls.text = "Starboard"
@@ -55,7 +66,8 @@ func create_canon_ui(ship: Ship):
 		pb.max_value = canon.fire_rate
 		pb.value = pb.max_value - canon.fire_timer
 		vb.add_child(pb)
-		canon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
+		if not canon.is_connected("_fire_timer_changed", Callable(self , "update_pb").bind(pb)):
+			canon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
 	
 func update_pb(value: float, pb):
 	if pb:
@@ -94,19 +106,53 @@ func _on_update_wind(wind: Wind):
 	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.z, wind.direction.x)), str(wind.timer_enable), wind.next_change - wind.timer]
 	create_tween().tween_property(wind_control, "rotation_degrees", rad_to_deg(atan2(wind.direction.z, wind.direction.x) + PI / 2), 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT) # ease in, out, or both
 
-func update_label(ship: Ship):
-	ship_label_h.text = "%s" % ship.ship_name
+func update_ship_panel(ship: Ship, _ship_panel: Control):
+	var ship_label_h := _ship_panel.get_node("MarginContainer/VBoxContainer/Label_h")
+	var ship_label := _ship_panel.get_node("MarginContainer/VBoxContainer/Label")
+	var ship_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_health")
+	var ship_crew_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_crew")
+	_ship_panel.visible = ship != null
+	var ship_name = ""
+	if ship:
+		ship_name = ship.ship_name
+	ship_label_h.text = "%s" % ship_name
 	var ai_text = ""
-	if ship is EnemyShip:
+	if ship and ship is EnemyShip:
 		ai_text = "State: %s\n" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
 		ai_text += "SubState: %s\n" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
-	var ship_text = "Hp: %.2f/%.2f\nTarg.Spd: %.2f/%.2f\nAct.Spd: %.2f\nHeading: %.2f\nAgility: %.2f\nAttack: %.2f\nDefense: %.2f\nGold: %.2f\nYaw: %.2f\nY pos: %.2f" % [ship.hit_points, ship.max_hit_points, ship.target_speed, ship.top_speed, ship.actual_speed, rad_to_deg(ship.rotation.y), ship.agility, ship.attack, ship.defense, ship.gold, ship.yaw_deg, ship.global_position.y]
+	
+	var ship_text = ""
+	if ship:
+		ship_text += "Crew: %s/%s" % [ship.crew, ship.max_crew]
+		ship_text += "\nHp: %.2f/%.2f" % [ship.hit_points, ship.max_hit_points]
+		ship_text += "\nIn combat: %.s" % [str(ship.in_combat)]
+		ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
+		ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
+		ship_text += "\nHeading: %.2f" % [rad_to_deg(ship.rotation.y)]
+		ship_text += "\nAgility: %.2f" % [ship.agility]
+		ship_text += "\nAttack: %.2f" % [ship.attack]
+		ship_text += "\nDefense: %.2f" % [ship.defense]
+		ship_text += "\nGold: %.2f" % [ship.gold]
+	
+		
+		ship_crew_pb.max_value = ship.max_crew
+		ship_crew_pb.value = ship.crew
+		
+		ship_pb.max_value = ship.max_hit_points
+		ship_pb.value = ship.hit_points
+
 	ship_label.text = ai_text + ship_text
-	ship_pb.max_value = ship.max_hit_points
-	ship_pb.value = ship.hit_points
 
 func _process(_delta):
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	if selected_ship:
+		update_ship_panel(selected_ship, ship_panel)
+	
+	update_ship_panel(gameManager.player_ship, ship_panel_player)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		print("clicking at non ui");
 		var mouse_pos = get_viewport().get_mouse_position()
 
 		var from = gameManager.camera.project_ray_origin(mouse_pos)
@@ -119,15 +165,27 @@ func _process(_delta):
 
 		if result:
 			if result.collider is not Ship:
+				select_ship(null)
 				return
 			var ship = result.collider
-			if selected_ship != ship:
+			if selected_ship != ship and gameManager.player_ship != ship:
 				select_ship(ship)
-				update_label(selected_ship)
-	if selected_ship:
-		update_label(selected_ship)
 
+		else:
+			select_ship(null)
+
+
+# ================================================================================================================
+# WIND
+# ================================================================================================================
 
 func _on_button_pressed() -> void:
-	gameManager.wind.set_direction(Vector3.ZERO)
 	gameManager.wind.set_enable_wind(!gameManager.wind.timer_enable)
+
+
+# ================================================================================================================
+# PORT
+# ================================================================================================================
+
+func _on_button_2_pressed() -> void:
+	gameManager.port.depart()

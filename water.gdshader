@@ -1,6 +1,8 @@
 shader_type spatial;
 
 uniform sampler2D normal_map :hint_normal;
+
+uniform sampler2D noise_tex;
 uniform vec3 albedo : source_color = vec3(0.1, 0.3, 0.5);
 uniform vec3 crest_color : source_color = vec3(0.4, 0.7, 1.0);
 uniform vec3 foam_color : source_color = vec3(1.0, 1.0, 1.0);
@@ -21,9 +23,10 @@ uniform float wave_height_scale;
 uniform vec2 wind_dir;
 
 varying float v_height;
+varying vec3 world_pos;
 
 void vertex() {
-	vec3 world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	//world_pos -= NODE_POSITION_WORLD;
 
 	vec2 wind = normalize(vec2(wind_dir.x, wind_dir.y));
@@ -42,10 +45,17 @@ void vertex() {
 	float w1 = sin(along * f * 0.2 + t) * 0.5;
 	float w2 = sin(across * f * 0.1 + t * 2.0) * 0.3;
 	float w3 = sin((along * 0.35 + across * 0.1) * f + t * 1.2) * 0.2;
+	
+	
 
 	float wave = w1 + w2 + w3;
 	wave = sign(wave) * pow(abs(wave), 1.3);
 	wave *= amp * wave_height_scale;
+	
+	//vec3 maelstrom = vec3(10.0,0,10.0);
+	//float dist = distance(world_pos,maelstrom);
+	//dist = clamp(dist,0,20.0);
+	//VERTEX.y += wave + dist;
 
 	VERTEX.y += wave;
 	v_height = wave;
@@ -85,9 +95,14 @@ void fragment() {
     float foam_mask = smoothstep(foam_threshold_min, foam_threshold_max, h); 
     
     vec3 color = mix(albedo, crest_color, crest_mask);
-    color = mix(color, foam_color, foam_mask);
-    
-    ALBEDO = color;
+
+	vec2 uv = vec2(world_pos.x, world_pos.z) * 0.1;
+	float n = texture(noise_tex, uv + TIME * 0.1).r;
+
+	float foam = smoothstep(0.5, 1.0, n);
+	foam *= foam_mask;
+	
+    ALBEDO = color + foam;
     METALLIC = 0.0;
     ROUGHNESS = 0.05; // Low roughness = shiny water
     SPECULAR = 0.8;

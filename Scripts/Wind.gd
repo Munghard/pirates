@@ -19,13 +19,25 @@ var timer_enable := true
 func _ready():
 	randomize_wind()
 
+func set_enable_wind(value: bool):
+	timer_enable = value
+	if not timer_enable:
+		target_strength = 0.0
+		set_direction(Vector3.ZERO)
+	else:
+		randomize_wind()
 
 func _process(delta):
+	var changed := false
 	# smooth direction (unit vector)
-	direction = direction.lerp(target_direction, delta * 0.5).normalized()
+	if direction != target_direction:
+		direction = direction.lerp(target_direction, delta * 0.5).normalized()
+		changed = true
 
 	# smooth strength
-	strength = lerp(strength, target_strength, delta * 0.5)
+	if strength != target_strength:
+		strength = lerp(strength, target_strength, delta * 0.5)
+		changed = true
 
 	if timer_enable:
 		timer += delta
@@ -33,7 +45,10 @@ func _process(delta):
 			randomize_wind()
 			timer = 0.0
 			next_change = randf_range(5.0, 100.0)
-
+			changed = true
+	
+	if changed:
+		emit_signal("wind_changed", self )
 
 func get_wind_vector() -> Vector3:
 	return direction * strength

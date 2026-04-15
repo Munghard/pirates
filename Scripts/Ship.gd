@@ -4,6 +4,9 @@ class_name Ship
 @onready var forward_arrow: Node3D = $forward_arrow
 
 var ship_name := "Ship"
+var faction := "NAVY"
+var max_crew := 20
+var crew := max_crew
 var max_hit_points := 100.0
 var hit_points := max_hit_points
 var top_speed := 5.0
@@ -18,11 +21,17 @@ var target_speed := 0.0
 var yaw_deg := 0.0
 
 var destroyed := false
+var incapacitated := false
 var sink_speed := 0.5
 
 var accumulated_damage := 0.0
 var damage_threshold := 1.0
 
+var damage_sustained := 0.0
+var crew_health := 10.0
+
+
+@export var rigidbody: RigidBody3D = self
 @export var loot: PackedScene
 @export var floater: Node3D
 
@@ -34,12 +43,16 @@ var damage_threshold := 1.0
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 var attacker: Node3D
-
+var in_combat: bool = false
+var last_damage_time: int = 0
+var out_of_combat_time: int = 20000 # 10 seconds without taking damage to be considered out of combat
 
 signal recieved_gold(amount: int)
 signal recieved_damage(amount: float, attacker: Node3D)
+signal on_sink
 
-@onready var healthbar: Node3D = $healthbar
+@onready var ship_healthbar: Node3D = $world_bars/ship_healthbar
+@onready var crew_healthbar: Node3D = $world_bars/crew_healthbar
 
 
 func _ready():
@@ -49,27 +62,49 @@ func _ready():
 	canons_port = ship_pivot.canons_port
 	canons_starboard = ship_pivot.canons_starboard
 
+func gain_crew(amount: int):
+	gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
+	crew += amount
+	crew = min(crew, max_crew)
+
+func kill_crew(amount: int):
+	gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
+	crew -= amount
+	crew = max(crew, 0)
+	crew_healthbar.scale.x = float(crew) / float(max_crew)
+	if crew <= 0:
+		destroyed = true
+
 func _process(_delta):
+	if incapacitated and not destroyed:
+		pass
+
 	if not destroyed:
 		repair(_delta)
-	healthbar.scale.x = hit_points / max_hit_points
+	ship_healthbar.scale.x = hit_points / max_hit_points
 	ship_pivot.position = Vector3.ZERO
+	# check if in combat
+	if in_combat and Time.get_ticks_msec() - last_damage_time > out_of_combat_time:
+		in_combat = false
 
 func repair(_delta):
-	if hit_points < max_hit_points:
-		hit_points += _delta * 0.1
+	if not in_combat and hit_points < max_hit_points:
+		hit_points += _delta * 1.0 * (float(crew) / float(max_crew))
 
 func sink():
 	spawn_loot()
 	queue_free()
+	emit_signal("on_sink")
 
 func _physics_process(_delta: float) -> void:
 	if destroyed:
-		apply_central_force(Vector3.UP * -sink_speed * mass)
+		if floater:
+			floater.queue_free()
+		apply_central_force(Vector3.DOWN * sink_speed * mass)
 		# position += -basis.y * sink_speed * delta
 		apply_torque(Vector3.UP * 5.0 * mass)
 		# rotation.y += delta # radians per second
-		if global_position.y <= -5.0:
+		if ship_pivot.global_position.y <= -5.0:
 			sink()
 		return
 
@@ -79,9 +114,9 @@ func _physics_process(_delta: float) -> void:
 	# position.y = gameManager.water.get_height_at(position)
 
 	var forward = global_basis.z
-	var wind_along_forward = gameManager.wind.direction.dot(-forward)
+	var wind_along_forward = gameManager.wind.direction.dot(forward)
 
-	actual_speed = target_speed * (1.0 + wind_along_forward)
+	actual_speed = target_speed * (1.0 + -wind_along_forward)
 
 	apply_central_force(forward * actual_speed * mass * 5.0)
 	# position += forward * actual_speed * delta
@@ -108,17 +143,19 @@ func _physics_process(_delta: float) -> void:
 	
 	
 func spawn_loot():
-	var l: Loot = loot.instantiate()
-	get_tree().current_scene.add_child(l)
-	l.global_position = global_position
-	l.global_position.y = 0
-	l.set_gold(gold)
+	var split = 5.0
+	for i in split:
+		var l: Loot = loot.instantiate()
+		get_tree().current_scene.add_child(l)
+		var offset = Vector3(randf_range(-1.0, 1.0) * 5.0, 0, randf_range(-1.0, 1.0) * 5.0)
+		l.global_position = global_position + offset
+		l.global_position.y = 0
+		l.set_gold(gold / split)
 
 
 func give_loot(_gold: int):
 	gold += _gold
 	emit_signal("recieved_gold", _gold)
-	print("Recieved: ", gold);
 
 
 func damage(_damage: float, _position: Vector3, _attacker: Node3D):
@@ -132,11 +169,19 @@ func damage(_damage: float, _position: Vector3, _attacker: Node3D):
 	attacker = _attacker
 	hit_points = clamp(hit_points - (_damage / defense), 0, max_hit_points)
 	emit_signal("recieved_damage", (_damage / defense), _attacker)
+	in_combat = true
+	last_damage_time = Time.get_ticks_msec()
 
-	if hit_points <= 0 and not destroyed:
-		destroyed = true
-		gameManager.hud.ddd_label("SUNK!", position)
-
+	if hit_points <= 0 and not incapacitated:
+		incapacitated = true
+		gameManager.hud.ddd_label("INCAPACITATED!", position)
+	
+	if incapacitated:
+		damage_sustained += _damage
+		while damage_sustained >= crew_health:
+			damage_sustained -= crew_health
+			kill_crew(1)
+		
 
 func port_pitch(value: float):
 	for canon in canons_port:
