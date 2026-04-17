@@ -32,7 +32,7 @@ var damage_threshold := 1.0
 var damage_sustained := 0.0
 var crew_health := 1.0
 
-
+@export var arrow: PackedScene
 @export var rigidbody: RigidBody3D = self
 @export var loot: PackedScene
 @export var floater: Node3D
@@ -49,7 +49,9 @@ var in_combat: bool = false
 var last_damage_time: int = 0
 var out_of_combat_time: int = 20000 # 10 seconds without taking damage to be considered out of combat
 
-signal recieved_gold(amount: int)
+signal gold_changed(amount: int, gained: bool)
+signal crew_changed(amount: int, gained: bool)
+signal supplies_changed(amount: int, gained: bool)
 signal recieved_damage(amount: float, attacker: Node3D)
 signal on_sink
 
@@ -69,18 +71,40 @@ func _ready():
 func set_faction_texture():
 	faction_texture.texture = FactionsData.get_faction_icon(faction)
 
+# GET AND REMOVE STATS
+
+func gain_gold(_gold: int):
+	gold += _gold
+	emit_signal("gold_changed", _gold, true)
+
+func remove_gold(_gold: int):
+	gold -= _gold
+	emit_signal("gold_changed", _gold, false)
+
+func gain_supplies(_supplies: int):
+	supplies += _supplies
+	emit_signal("supplies_changed", supplies, true)
+
+func lose_supplies(_supplies: int):
+	supplies -= _supplies
+	emit_signal("supplies_changed", supplies, false)
+
 func gain_crew(amount: int):
 	gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
 	crew += amount
 	crew = min(crew, max_crew)
+	emit_signal("crew_changed", crew, true)
 
 func kill_crew(amount: int):
 	gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
 	crew -= amount
 	crew = max(crew, 0)
 	crew_healthbar.scale.x = float(crew) / float(max_crew)
+	emit_signal("crew_changed", crew, false)
 	if crew <= 0:
 		destroyed = true
+
+# GET AND REMOVE STATS
 
 func _process(_delta):
 	if not destroyed:
@@ -101,6 +125,7 @@ func sink():
 	queue_free()
 	emit_signal("on_sink")
 
+var previous_speed
 func _physics_process(_delta: float) -> void:
 	if destroyed:
 		if floater:
@@ -116,8 +141,16 @@ func _physics_process(_delta: float) -> void:
 
 	rotation.x = lerp_angle(rotation.x, 0, _delta)
 	rotation.z = lerp_angle(rotation.z, 0, _delta)
-	forward_arrow.scale.z = target_speed
-	# position.y = gameManager.water.get_height_at(position)
+
+	if previous_speed != target_speed:
+		for child in forward_arrow.get_children():
+			child.queue_free()
+		for i in range(target_speed):
+			var a = arrow.instantiate()
+			forward_arrow.add_child(a)
+			a.position = Vector3(0, 0, i * 2.0)
+	#forward_arrow.scale.z = target_speed
+	previous_speed = target_speed
 
 	var forward = global_basis.z
 	var wind_along_forward = gameManager.wind.direction.dot(forward)
@@ -162,11 +195,6 @@ func spawn_loot():
 		l.global_position = global_position + offset
 		l.global_position.y = 0
 		l.set_gold(gold / split)
-
-
-func give_loot(_gold: int):
-	gold += _gold
-	emit_signal("recieved_gold", _gold)
 
 
 func damage(_damage: float, _position: Vector3, _attacker: Node3D):

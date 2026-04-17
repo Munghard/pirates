@@ -80,6 +80,8 @@ static func get_faction_color(faction: Faction) -> Color:
 			color = Color(0, 0.5, 1)
 		Faction.SLAVER:
 			color = Color(0.5, 0.5, 0.5)
+		_:
+			color = Color(1, 1, 1)
 	return color
 
 static func get_faction_icon(faction: Faction) -> Texture:
@@ -93,17 +95,19 @@ static func get_faction_icon(faction: Faction) -> Texture:
 			texture = preload("res://Textures/anchor.png")
 		Faction.SLAVER:
 			texture = preload("res://Textures/handcuffs.png")
+		_:
+			texture = preload("res://Textures/sailboat.png")
 	return texture
 
 static func get_faction_stats(faction: Faction) -> FactionStats:
 	match faction:
 		Faction.PIRATE:
-			return FactionStats.new(1.5, 1.0, 4.0, 4, 75.0, 0, 100, 100)
+			return FactionStats.new(1.5, 1.0, 4.0, 4, 75.0, 75, 100, 100)
 		Faction.MERCHANT:
-			return FactionStats.new(0.5, 0.75, 5.0, 1, 10.0, 1000, 50, 50)
+			return FactionStats.new(0.5, 0.75, 5.0, 1, 10.0, 200, 50, 50)
 		Faction.NAVY:
-			return FactionStats.new(1.0, 1.5, 3.0, 6, 75.0, 0, 150, 200)
+			return FactionStats.new(1.0, 1.5, 3.0, 6, 75.0, 50, 150, 200)
 		Faction.SLAVER:
-			return FactionStats.new(0.5, 0.5, 3.5, 2, 50.0, 0, 75, 150)
-
-	return null
+			return FactionStats.new(0.5, 0.5, 3.5, 2, 50.0, 20, 75, 150)
+		_:
+			return FactionStats.new(0.5, 0.5, 2.5, 0, 50.0, 20, 20, 10)

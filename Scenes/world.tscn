@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://2lfnk45q46j3" path="res://Scenes/buoyu.tscn" id="15_hgpy0"]
 [ext_resource type="PackedScene" uid="uid://c2gmrhcs7xk63" path="res://Scenes/port.tscn" id="16_hgpy0"]
 [ext_resource type="Script" uid="uid://bxdp73tg0wwul" path="res://Scripts/Terrain.gd" id="17_0pcbe"]
+[ext_resource type="PackedScene" uid="uid://5u1uqatga6r7" path="res://UI/arrow.tscn" id="17_xbk3s"]
 [ext_resource type="PackedScene" uid="uid://caxh3etf4bekl" path="res://Scenes/hex.tscn" id="18_1cojt"]
 [ext_resource type="PackedScene" uid="uid://dsdgtegub08f0" path="res://Models/Palm Tree/Environment_PalmTree_1.fbx" id="18_axeuq"]
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="21_pyn1s"]
@@ -273,6 +274,7 @@ wind_direction = Vector3(1, 0, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 24.77214)
 linear_damp = 1.0
 script = ExtResource("3_5v1tr")
+arrow = ExtResource("17_xbk3s")
 loot = ExtResource("5_5v1tr")
 canons_port = [null, null, null]
 canons_starboard = [null, null, null]
@@ -283,9 +285,6 @@ ship = NodePath("..")
 
 [node name="floater" parent="PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
 water = NodePath("../../World/Water")
-
-[node name="Sprite3D" parent="PlayerShip/forward_arrow" parent_id_path=PackedInt32Array(7143519, 93642959) index="0" unique_id=116250369]
-no_depth_test = true
 
 [node name="wind_particle" type="GPUParticles3D" parent="." unique_id=1543477643]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.775418, 0)

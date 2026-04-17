@@ -13,25 +13,37 @@ func _ready() -> void:
 	attack = faction_stats.attack
 	defense = faction_stats.defense
 	top_speed = faction_stats.speed
+	
 	guns = faction_stats.guns
 	gold = faction_stats.gold
 	supplies = faction_stats.supplies
 	crew = faction_stats.max_crew
 	max_crew = faction_stats.max_crew
 
-	connect("recieved_gold", Callable(self , "_on_recieved_gold"))
+	connect("crew_changed", Callable(self , "_on_crew_changed"))
+	connect("supplies_changed", Callable(self , "_on_supplies_changed"))
+	connect("gold_changed", Callable(self , "_on_gold_changed"))
 	connect("recieved_damage", Callable(self , "_on_recieved_damage"))
 	
 	active_starboard(true)
 	active_port(true)
 	set_faction_texture()
 
+
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
 	gameManager.camerarig.secondary_target = _attacker
 
+func _on_crew_changed(amount: int, gained: bool):
+	var text = "Gained" if gained else "Lost"
+	gameManager.hud.new_notification("%s: %d crew" % [text, amount])
 
-func _on_recieved_gold(amount: int):
-	gameManager.hud.new_notification("Recieved: %2.f gold" % amount)
+func _on_supplies_changed(amount: int, gained: bool):
+	var text = "Gained" if gained else "Lost"
+	gameManager.hud.new_notification("%s: %d supplies" % [text, amount])
+
+func _on_gold_changed(amount: int, gained: bool):
+	var text = "Gained" if gained else "Lost"
+	gameManager.hud.new_notification("%s: %d gold" % [text, amount])
 
 func sink():
 	# dont call super, were overriding behaviour

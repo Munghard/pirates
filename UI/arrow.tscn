@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://5u1uqatga6r7"]
+
+[ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="1_sjvn6"]
+
+[node name="arrow" type="Sprite3D" unique_id=2112457400]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+no_depth_test = true
+texture = ExtResource("1_sjvn6")

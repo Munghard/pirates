@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="2_6mpvb"]
 [ext_resource type="PackedScene" uid="uid://cr7y5ey7ppmmp" path="res://Models/Sail ship.fbx" id="3_c6fo0"]
 [ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/barrels.tscn" id="4_a0oot"]
+[ext_resource type="PackedScene" uid="uid://5u1uqatga6r7" path="res://UI/arrow.tscn" id="4_b21is"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="5_a0oot"]
 [ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="5_ovko2"]
 [ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="6_c6fo0"]
@@ -23,6 +24,7 @@ pirate_ship = ExtResource("3_c6fo0")
 navy_ship = ExtResource("3_c6fo0")
 merchant_ship = ExtResource("3_c6fo0")
 target_arrow = NodePath("target_arrow")
+arrow = ExtResource("4_b21is")
 loot = ExtResource("4_a0oot")
 floater = NodePath("floater")
 canons_port = [NodePath("ship_pivot/Canon"), NodePath("ship_pivot/Canon2"), NodePath("ship_pivot/Canon3")]

@@ -21,5 +21,5 @@ func _on_body_entered(body: Node) -> void:
 	var ship := body as Ship
 	if ship and not recieved:
 		recieved = true
-		ship.give_loot(gold)
+		ship.gain_gold(gold)
 		queue_free()
