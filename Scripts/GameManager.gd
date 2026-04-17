@@ -20,7 +20,7 @@ func _ready() -> void:
 	water = $World/Water
 	wind = $World/Wind
 	terrain = $World/Terrain
-	wind_particle = $wind_particle_cpu
+	wind_particle = $World/wind_particle_cpu
 	port = $World/Port/port
 	
 	wind.randomize_wind()
