@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://gdpbesjrlip7"]
+
+[sub_resource type="Gradient" id="Gradient_no8kt"]
+offsets = PackedFloat32Array(0, 0.9350649, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_xbk3s"]
+gradient = SubResource("Gradient_no8kt")
+width = 8
+height = 8
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.84615386, 0.14957266)
+
+[node name="blip" type="TextureRect" unique_id=1210765341]
+offset_right = 8.0
+offset_bottom = 8.0
+pivot_offset_ratio = Vector2(0.5, 0.5)
+texture = SubResource("GradientTexture2D_xbk3s")

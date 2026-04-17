@@ -65,3 +65,11 @@ func hire_crew():
 	if player_ship.gold >= crew_cost:
 		player_ship.gold -= crew_cost
 		player_ship.gain_crew(1)
+
+func upgrade_guns():
+	if not player_ship:
+		return
+	var upgrade_cost := 500
+	if player_ship.gold >= upgrade_cost:
+		player_ship.gold -= upgrade_cost
+		player_ship.upgrade_guns()

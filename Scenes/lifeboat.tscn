@@ -8,7 +8,8 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
 size = Vector3(0.77734375, 2.6954365, 1.5878906)
 
-[node name="lifeboat" type="RigidBody3D" unique_id=1008296709]
+[node name="lifeboat" type="RigidBody3D" unique_id=1008296709 groups=["Floaters"]]
+mass = 1000.0
 gravity_scale = 0.0
 contact_monitor = true
 max_contacts_reported = 1

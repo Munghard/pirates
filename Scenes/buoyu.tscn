@@ -10,16 +10,28 @@ material = SubResource("StandardMaterial3D_e0ngr")
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_h321j"]
 top_radius = 0.1
-bottom_radius = 0.2
+bottom_radius = 0.1
+height = 1.0
 
-[node name="buoyu" type="MeshInstance3D" unique_id=1096655489]
-transform = Transform3D(0.9377431, -0.3473296, 0, 0.34456888, 0.93028945, 0.12583217, -0.04370524, -0.11799824, 0.99205154, 0, 0, 0)
-mesh = SubResource("SphereMesh_hgpy0")
+[sub_resource type="SphereShape3D" id="SphereShape3D_xbk3s"]
+radius = 1.0398971
 
-[node name="floater" type="Node3D" parent="." unique_id=1695429950 node_paths=PackedStringArray("target")]
+[node name="Buoyu" type="RigidBody3D" unique_id=512447965 groups=["Floaters"]]
+mass = 100.0
+gravity_scale = 0.0
+angular_damp = 10.0
+
+[node name="floater" type="Node3D" parent="." unique_id=1365151318 node_paths=PackedStringArray("target")]
+transform = Transform3D(0.9377431, -0.3473296, 0, 0.34456888, 0.9302894, 0.12583216, -0.04370524, -0.117998235, 0.9920515, 0, 0, 0)
 script = ExtResource("1_dho7k")
 target = NodePath("..")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1670948660]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.0000001, -1.8626451e-08, 1.4018568, -1.4901163e-08)
+[node name="mesh" type="MeshInstance3D" parent="." unique_id=960190994]
+mesh = SubResource("SphereMesh_hgpy0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1552572305]
+transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CylinderMesh_h321j")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1378509880]
+shape = SubResource("SphereShape3D_xbk3s")

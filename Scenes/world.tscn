@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://bis8b8asmxsqh" path="res://Scripts/Scatterer.gd" id="3_o06y3"]
 [ext_resource type="Texture2D" uid="uid://b8o1q5yo06h06" path="res://Textures/wind.png" id="4_0pcbe"]
 [ext_resource type="PackedScene" uid="uid://bwq7hpvxdd4pi" path="res://Scenes/enemy_ship.tscn" id="4_k7acu"]
+[ext_resource type="PackedScene" uid="uid://gdpbesjrlip7" path="res://UI/blip.tscn" id="4_no8kt"]
 [ext_resource type="PackedScene" uid="uid://p3nxxrnpqsjj" path="res://UI/Ship_panel.tscn" id="4_yq1aw"]
 [ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/barrels.tscn" id="5_5v1tr"]
 [ext_resource type="Script" uid="uid://dlmrgn1ttek83" path="res://Scripts/World.gd" id="5_axeuq"]
@@ -22,6 +23,18 @@
 [ext_resource type="PackedScene" uid="uid://caxh3etf4bekl" path="res://Scenes/hex.tscn" id="18_1cojt"]
 [ext_resource type="PackedScene" uid="uid://dsdgtegub08f0" path="res://Models/Palm Tree/Environment_PalmTree_1.fbx" id="18_axeuq"]
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="21_pyn1s"]
+
+[sub_resource type="Gradient" id="Gradient_pyn1s"]
+offsets = PackedFloat32Array(0, 0.9331307, 0.96103895, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.030768208, 0.26677826, 0.3218483, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_no8kt"]
+gradient = SubResource("Gradient_pyn1s")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.84615386, 0.14957266)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_7yui6"]
 material = ExtResource("7_ikia7")
@@ -39,7 +52,7 @@ curve = SubResource("Curve_e0ngr")
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_hgpy0"]
 emission_shape = 3
 emission_box_extents = Vector3(50, 1, 50)
-direction = Vector3(0, 0, -1)
+direction = Vector3(0, 0, 1)
 spread = 0.0
 flatness = 1.0
 initial_velocity_min = 5.0
@@ -48,6 +61,9 @@ gravity = Vector3(0, 0, 0)
 scale_min = 0.19999999
 alpha_curve = SubResource("CurveTexture_kn0ld")
 turbulence_noise_strength = 0.01
+turbulence_noise_scale = 2.272
+turbulence_influence_min = 0.661
+turbulence_influence_max = 0.665
 
 [sub_resource type="Curve" id="Curve_hgpy0"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1e-05, 0), 5.65065, 5.65065, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -5.34667, 0.0, 0, 0]
@@ -62,8 +78,27 @@ use_particle_trails = true
 
 [sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_0pcbe"]
 material = SubResource("StandardMaterial3D_t2t4p")
-shape = 0
+sections = 20
+section_length = 1.0
 curve = SubResource("Curve_hgpy0")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pyn1s"]
+transparency = 1
+vertex_color_use_as_albedo = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_no8kt"]
+material = SubResource("StandardMaterial3D_pyn1s")
+size = Vector2(1, 10)
+center_offset = Vector3(0, 0, 5)
+orientation = 1
+
+[sub_resource type="Curve" id="Curve_xbk3s"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_i4fjy"]
+offsets = PackedFloat32Array(0, 0.48026314, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
 
 [node name="GameManager" type="Node3D" unique_id=418889483]
 script = ExtResource("1_5ukr8")
@@ -79,7 +114,7 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "wind_label", "wind_control", "port_panel", "notification_label")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "wind_label", "wind_control", "minimap", "minimap_scale_slider", "notification_label")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
@@ -88,21 +123,33 @@ ship_panel = NodePath("Target_ship_panel")
 ship_panel_player = NodePath("Player_ship_panel")
 wind_label = NodePath("Wind_panel/wind_panel/VBoxContainer/Label")
 wind_control = NodePath("wind_gauge")
-port_panel = NodePath("")
+minimap = NodePath("Minimap/Minimap")
+minimap_scale_slider = NodePath("Minimap/VSlider")
+blip_scene = ExtResource("4_no8kt")
 notification_label = NodePath("notification_Label")
 
 [node name="Target_ship_panel" parent="MarginContainer/HUD" unique_id=1821436781 instance=ExtResource("4_yq1aw")]
 layout_mode = 1
-anchors_preset = 2
+anchors_preset = 0
 anchor_left = 0.0
+anchor_top = 0.0
 anchor_right = 0.0
+anchor_bottom = 0.0
 offset_left = 0.0
+offset_top = 0.0
 offset_right = 150.0
+offset_bottom = 253.0
 grow_horizontal = 1
+grow_vertical = 1
 
 [node name="Player_ship_panel" parent="MarginContainer/HUD" unique_id=2138049534 instance=ExtResource("4_yq1aw")]
 layout_mode = 1
-offset_top = -253.0
+anchors_preset = 1
+anchor_top = 0.0
+anchor_bottom = 0.0
+offset_top = 0.0
+offset_bottom = 253.0
+grow_vertical = 1
 
 [node name="wind_gauge" type="TextureRect" parent="MarginContainer/HUD" unique_id=1041010364]
 layout_mode = 1
@@ -121,12 +168,15 @@ texture = ExtResource("4_0pcbe")
 
 [node name="Wind_panel" type="FoldableContainer" parent="MarginContainer/HUD" unique_id=1278558953]
 layout_mode = 1
-anchors_preset = 1
+anchors_preset = 3
 anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
+anchor_bottom = 1.0
 offset_left = -129.0
-offset_bottom = 148.0
+offset_top = -148.0
 grow_horizontal = 0
+grow_vertical = 0
 
 [node name="wind_panel" type="MarginContainer" parent="MarginContainer/HUD/Wind_panel" unique_id=811836826]
 layout_mode = 2
@@ -162,6 +212,26 @@ offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
 text = "Notifications"
+
+[node name="Minimap" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1823764123]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -128.0
+offset_right = 148.0
+grow_vertical = 0
+
+[node name="VSlider" type="VSlider" parent="MarginContainer/HUD/Minimap" unique_id=561449846]
+layout_mode = 2
+min_value = 50.0
+max_value = 200.0
+value = 50.0
+
+[node name="Minimap" type="TextureRect" parent="MarginContainer/HUD/Minimap" unique_id=1979647928]
+clip_children = 2
+layout_mode = 2
+texture = SubResource("GradientTexture2D_no8kt")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=85683695]
 transform = Transform3D(0.70710677, -0.5, 0.50000006, 0, 0.7071068, 0.70710677, -0.7071068, -0.49999997, 0.5, 0, 3.3022847, 0)
@@ -199,7 +269,7 @@ freq = 1.0
 amp = 5.0
 wind_direction = Vector3(1, 0, 0)
 
-[node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") instance=ExtResource("1_fo5ed")]
+[node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") groups=["Ships"] instance=ExtResource("1_fo5ed")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 24.77214)
 linear_damp = 1.0
 script = ExtResource("3_5v1tr")
@@ -208,7 +278,7 @@ canons_port = [null, null, null]
 canons_starboard = [null, null, null]
 
 [node name="ship_pivot" parent="PlayerShip" index="0" unique_id=1303226422 node_paths=PackedStringArray("ship")]
-transform = Transform3D(0.9389182, 0.3441404, 0, -0.34405, 0.93867135, 0.022924237, 0.007889157, -0.02152398, 0.9997372, 0, -4.474809, 0)
+transform = Transform3D(0.98866093, 0.15016502, 0, -0.14828178, 0.97626203, 0.1578764, 0.023707513, -0.15608624, 0.9874589, 0, 1.482443, 0)
 ship = NodePath("..")
 
 [node name="floater" parent="PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
@@ -218,7 +288,8 @@ water = NodePath("../../World/Water")
 no_depth_test = true
 
 [node name="wind_particle" type="GPUParticles3D" parent="." unique_id=1543477643]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.970101, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.775418, 0)
+visible = false
 amount = 100
 lifetime = 2.0
 preprocess = 10.0
@@ -233,7 +304,7 @@ script = ExtResource("2_5ukr8")
 target = NodePath("../PlayerShip")
 
 [node name="Camera3D" type="Camera3D" parent="camrig" unique_id=389494367]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -20.001)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -3.7413856e-06, 0, -62.797466)
 projection = 1
 size = 30.0
 near = 0.001
@@ -261,39 +332,40 @@ water = NodePath("../World/Water")
 [node name="lifeboats" type="Node3D" parent="." unique_id=1914553766 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("21_pyn1s")
-amount = 50
+amount = 5
+bounds = Vector3(100, 0, 100)
+rotation_range_min = Vector3(0, -180, 0)
+rotation_range_max = Vector3(0, 180, 0)
+water = NodePath("../World/Water")
+
+[node name="buoyus" type="Node3D" parent="." unique_id=1595812411 node_paths=PackedStringArray("water")]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("15_hgpy0")
 bounds = Vector3(100, 0, 100)
 water = NodePath("../World/Water")
 
-[node name="buoyu" parent="." unique_id=1096655489 instance=ExtResource("15_hgpy0")]
-transform = Transform3D(0.9657218, -0.25957927, 0, 0.25733468, 0.9573712, 0.1312223, -0.03406259, -0.12672424, 0.9913529, -27.396664, -1.0853502, -30.88736)
-
-[node name="floater" parent="buoyu" index="0" unique_id=1695429950 node_paths=PackedStringArray("water")]
-water = NodePath("../../World/Water")
-
-[node name="buoyu2" parent="." unique_id=1610034745 instance=ExtResource("15_hgpy0")]
-transform = Transform3D(0.92018104, -0.3914931, 0, 0.39037144, 0.91754466, 0.07564381, -0.02961403, -0.069606, 0.9971349, -25.481102, -1.2225838, 24.526955)
-
-[node name="floater" parent="buoyu2" index="0" unique_id=1695429950 node_paths=PackedStringArray("water")]
-water = NodePath("../../World/Water")
-
-[node name="buoyu3" parent="." unique_id=1511587339 instance=ExtResource("15_hgpy0")]
-transform = Transform3D(0.98460716, 0.17478162, 0, -0.17373613, 0.97871745, 0.109214246, 0.019088643, -0.10753312, 0.99401826, 24.822235, 0.13093416, -30.287373)
-
-[node name="floater" parent="buoyu3" index="0" unique_id=1695429950 node_paths=PackedStringArray("water")]
-water = NodePath("../../World/Water")
-
-[node name="buoyu4" parent="." unique_id=38684298 instance=ExtResource("15_hgpy0")]
-transform = Transform3D(0.98003525, 0.19882374, 0, -0.19823718, 0.977144, 0.07675646, 0.015261007, -0.07522404, 0.99704987, 23.495033, -1.1552651, 20.011326)
-
-[node name="floater" parent="buoyu4" index="0" unique_id=1695429950 node_paths=PackedStringArray("water")]
-water = NodePath("../../World/Water")
+[node name="wind_particle_cpu" type="CPUParticles3D" parent="." unique_id=1851781407]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.222906, 0)
+amount = 100
+lifetime = 5.0
+local_coords = true
+mesh = SubResource("QuadMesh_no8kt")
+emission_shape = 3
+emission_box_extents = Vector3(50, 1, 50)
+direction = Vector3(0, 0, 1)
+spread = 0.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 5.0
+initial_velocity_max = 5.0
+split_scale = true
+scale_curve_x = null
+scale_curve_y = null
+scale_curve_z = SubResource("Curve_xbk3s")
+color = Color(1, 1, 1, 0.03529412)
+color_ramp = SubResource("Gradient_i4fjy")
 
 [connection signal="pressed" from="MarginContainer/HUD/Wind_panel/wind_panel/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
+[connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD" method="_on_v_slider_value_changed"]
 
 [editable path="PlayerShip"]
 [editable path="PlayerShip/ship_pivot/Sail ship"]
-[editable path="buoyu"]
-[editable path="buoyu2"]
-[editable path="buoyu3"]
-[editable path="buoyu4"]

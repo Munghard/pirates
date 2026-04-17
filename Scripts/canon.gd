@@ -17,9 +17,9 @@ var active := false
 
 signal _fire_timer_changed(value: float)
 
-func shoot(attack: float, shooter: Node3D):
+func shoot(attack: float, shooter: Node3D) -> bool:
 	if not fire_timer <= 0.0:
-		return
+		return false
 	fire_timer = fire_rate
 
 	var dir: Vector3 = canon.global_basis.z
@@ -31,6 +31,7 @@ func shoot(attack: float, shooter: Node3D):
 	var shoot_dir = (dir + (Vector3.UP * deg_to_rad(pitch))).normalized()
 	b.apply_impulse(shoot_dir * force)
 	particle.restart()
+	return true
 
 func _process(delta):
 	if fire_timer > 0.0:

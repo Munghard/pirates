@@ -19,7 +19,7 @@ func _process(delta):
 
 	# Convert wind into ship local space
 	var local_wind = ship.global_transform.basis.inverse() * wind_dir
-	var target_rot_y = atan2(-local_wind.x, -local_wind.z)
+	var target_rot_y = atan2(local_wind.x, local_wind.z)
 
 	for sail in sails:
 		var rot = sail.rotation

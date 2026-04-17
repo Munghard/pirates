@@ -1,7 +1,8 @@
 extends Area3D
 
 var bodies: Array[Node3D] = []
-var pull_strength: float = 100.0 # max units per second the pull can move
+@export var pull_strength: float = 100.0 # max units per second the pull can move
+@export var spin_strength: float = 100.0
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is RigidBody3D:
@@ -16,6 +17,7 @@ func _on_body_exited(body: Node3D) -> void:
 			bodies.erase(rb)
 
 func _process(delta):
+	rotate_y(spin_strength * delta)
 	for body in bodies:
 		if not body:
 			continue

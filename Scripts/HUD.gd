@@ -7,6 +7,10 @@ class_name HUD
 @export var wind_label: Label
 @export var wind_control: Control
 
+@export var minimap: Control
+@export var minimap_scale_slider: VSlider
+@export var blip_scene: PackedScene
+var minimap_scale = 0.5
 
 @export var notification_label: Label
 var notification_queue: Array[String] = []
@@ -19,19 +23,64 @@ var selected_ship: Ship
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
+func _ready():
+	minimap_scale_slider.value = minimap_scale
+
+# ================================================================================================================
+# MINIMAP 
+# ================================================================================================================
+
+func update_minimap():
+	for child in minimap.get_children():
+		child.queue_free()
+	
+	add_blip_to_minimap(gameManager.player_ship.global_position, Color(1, 1, 1), 1.5)
+
+	for ship: Ship in get_tree().get_nodes_in_group("Ships"):
+		if ship == gameManager.player_ship:
+			continue
+		var color = FactionsData.get_faction_color(ship.faction)
+		add_blip_to_minimap(ship.global_position, color, 1)
+	
+	for floater: Node3D in get_tree().get_nodes_in_group("Floaters"):
+		var color = Color(1, 1, 1, 0.5)
+		add_blip_to_minimap(floater.global_position, color, 0.5)
+		
+
+func add_blip_to_minimap(_position: Vector3, color: Color, _scale: float):
+	var _blip: TextureRect = blip_scene.instantiate()
+	_blip.modulate = color
+	_blip.scale = Vector2.ONE * _scale
+	minimap.add_child(_blip)
+	var pos = world_to_minimap(_position)
+	pos = Vector2(pos.x * -1 + minimap.size.x, pos.y * -1 + minimap.size.y) # flip y-axis
+	pos = pos - _blip.size / 2
+	_blip.position = pos
+
+func world_to_minimap(_position: Vector3) -> Vector2:
+	var player_pos = gameManager.player_ship.global_position
+	var relative_pos = _position - player_pos
+	return Vector2(relative_pos.x, relative_pos.z) * minimap_scale + minimap.size / 2
+
+# ================================================================================================================
+# MINIMAP 
+# ================================================================================================================
+
 func init_hud() -> void:
 	# update wind direction gauge
 	gameManager.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
 	#init notification label as 0 alpha
 	notification_label.modulate.a = 0
+	update_ship_panel(null, ship_panel)
 
 
 func select_ship(ship: Ship):
 	selected_ship = ship
 	gameManager.camerarig.secondary_target = selected_ship
 	update_ship_panel(selected_ship, ship_panel)
-	if ship:
-		create_canon_ui(ship, ship_panel)
+	
+	#if ship:
+	#	create_canon_ui(ship, ship_panel)
 
 func create_canon_ui(ship: Ship, _ship_panel: Control):
 	if canon_fc:
@@ -104,20 +153,30 @@ func _show_notifications() -> void:
 
 func _on_update_wind(wind: Wind):
 	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.z, wind.direction.x)), str(wind.timer_enable), wind.next_change - wind.timer]
-	create_tween().tween_property(wind_control, "rotation_degrees", rad_to_deg(atan2(wind.direction.z, wind.direction.x) + PI / 2), 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT) # ease in, out, or both
+	wind_control.rotation = atan2(wind.direction.z, wind.direction.x) + deg_to_rad(-90)
+	#create_tween().tween_property(wind_control, "rotation", atan2(wind.direction.z, wind.direction.x), 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT) # ease in, out, or both
 
 func update_ship_panel(ship: Ship, _ship_panel: Control):
 	var ship_label_h := _ship_panel.get_node("MarginContainer/VBoxContainer/Label_h")
+	var ship_label_f: Label = _ship_panel.get_node("MarginContainer/VBoxContainer/Label_f")
 	var ship_label := _ship_panel.get_node("MarginContainer/VBoxContainer/Label")
 	var ship_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_health")
 	var ship_crew_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_crew")
 	_ship_panel.visible = ship != null
+	if ship == null:
+		return
+	
 	var ship_name = ""
-	if ship:
-		ship_name = ship.ship_name
+	
+	ship_name = ship.ship_name
 	ship_label_h.text = "%s" % ship_name
+	ship_label_f.text = "%s" % FactionsData.FACTION_NAMES[ship.faction]
+	
+	var color = FactionsData.get_faction_color(ship.faction)
+	ship_label_f.self_modulate = color
+
 	var ai_text = ""
-	if ship and ship is EnemyShip:
+	if ship is EnemyShip:
 		ai_text = "State: %s\n" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
 		ai_text += "SubState: %s\n" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
 	
@@ -126,13 +185,16 @@ func update_ship_panel(ship: Ship, _ship_panel: Control):
 		ship_text += "Crew: %s/%s" % [ship.crew, ship.max_crew]
 		ship_text += "\nHp: %.2f/%.2f" % [ship.hit_points, ship.max_hit_points]
 		ship_text += "\nIn combat: %.s" % [str(ship.in_combat)]
-		ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
-		ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
-		ship_text += "\nHeading: %.2f" % [rad_to_deg(ship.rotation.y)]
+		# debug info
+		# ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
+		# ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
+		# ship_text += "\nHeading: %.2f" % [rad_to_deg(ship.rotation.y)]
 		ship_text += "\nAgility: %.2f" % [ship.agility]
 		ship_text += "\nAttack: %.2f" % [ship.attack]
 		ship_text += "\nDefense: %.2f" % [ship.defense]
 		ship_text += "\nGold: %.2f" % [ship.gold]
+		ship_text += "\nSupplies: %.2f" % [ship.supplies]
+		ship_text += "\nGuns: %.2f" % [ship.guns]
 	
 		
 		ship_crew_pb.max_value = ship.max_crew
@@ -142,12 +204,16 @@ func update_ship_panel(ship: Ship, _ship_panel: Control):
 		ship_pb.value = ship.hit_points
 
 	ship_label.text = ai_text + ship_text
+	
 
 func _process(_delta):
 	if selected_ship:
 		update_ship_panel(selected_ship, ship_panel)
 	
 	update_ship_panel(gameManager.player_ship, ship_panel_player)
+	
+	if Time.get_ticks_msec() % 1000 < 50: # update minimap every second
+		update_minimap()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -189,3 +255,8 @@ func _on_button_pressed() -> void:
 
 func _on_button_2_pressed() -> void:
 	gameManager.port.depart()
+
+
+func _on_v_slider_value_changed(value: float) -> void:
+	minimap_scale = value / 100.0
+	update_minimap()

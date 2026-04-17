@@ -25,6 +25,11 @@ layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Ship name"
 
+[node name="Label_f" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1605319951]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Faction"
+
 [node name="pb_crew" type="ProgressBar" parent="MarginContainer/VBoxContainer" unique_id=1849111011]
 layout_mode = 2
 theme_type_variation = &"crew_pb"

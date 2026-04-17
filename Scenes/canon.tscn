@@ -8,26 +8,42 @@ top_radius = 0.05
 bottom_radius = 0.05
 height = 0.5
 
+[sub_resource type="Curve" id="Curve_0jbhj"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.9560447, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_h5dys"]
+curve = SubResource("Curve_0jbhj")
+
 [sub_resource type="Curve" id="Curve_dqm4n"]
-_data = [Vector2(0, 0), 0.0, 9.928193, 0, 0, Vector2(0.262069, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.7039616, 0.0, 0, 0]
-point_count = 3
+_data = [Vector2(0, 0), 0.0, 2.3835273, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [sub_resource type="CurveTexture" id="CurveTexture_0jbhj"]
 curve = SubResource("Curve_dqm4n")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_h5dys"]
 direction = Vector3(0, 0, 1)
-spread = 17.308
+spread = 8.633
 flatness = 1.0
 initial_velocity_min = 1.0
-initial_velocity_max = 3.0
-gravity = Vector3(0, 0, 0)
+initial_velocity_max = 2.0
+gravity = Vector3(0, 0.2, 0)
+damping_min = 0.5
+damping_max = 3.0000002
 scale_min = 0.099999994
 scale_max = 0.5
 scale_curve = SubResource("CurveTexture_0jbhj")
+alpha_curve = SubResource("CurveTexture_h5dys")
+turbulence_noise_strength = 0.1
+turbulence_noise_scale = 10.0
 
-[sub_resource type="QuadMesh" id="QuadMesh_x2mam"]
-orientation = 1
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x2mam"]
+transparency = 1
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_dqm4n"]
+material = SubResource("StandardMaterial3D_x2mam")
 
 [node name="Canon" type="Node3D" unique_id=101832743 node_paths=PackedStringArray("canon", "particle")]
 script = ExtResource("1_qskhg")
@@ -44,8 +60,10 @@ mesh = SubResource("CylinderMesh_qskhg")
 
 [node name="GPUParticles3D" type="GPUParticles3D" parent="direction" unique_id=2121790140]
 emitting = false
+amount = 32
+lifetime = 5.0
 one_shot = true
 explosiveness = 1.0
 randomness = 0.31
 process_material = SubResource("ParticleProcessMaterial_h5dys")
-draw_pass_1 = SubResource("QuadMesh_x2mam")
+draw_pass_1 = SubResource("SphereMesh_dqm4n")

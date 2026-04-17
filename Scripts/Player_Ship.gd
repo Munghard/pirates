@@ -6,17 +6,25 @@ class_name PlayerShip
 func _ready() -> void:
 	super._ready()
 	ship_name = "Player"
-	top_speed = 5
-	agility = 2
-	attack = 2
-	defense = 2
+	faction = FactionsData.Faction.PIRATE
+	var faction_stats = FactionsData.get_faction_stats(faction)
+	
+	max_hit_points = faction_stats.max_hit_points
+	attack = faction_stats.attack
+	defense = faction_stats.defense
+	top_speed = faction_stats.speed
+	guns = faction_stats.guns
+	gold = faction_stats.gold
+	supplies = faction_stats.supplies
+	crew = faction_stats.max_crew
+	max_crew = faction_stats.max_crew
 
 	connect("recieved_gold", Callable(self , "_on_recieved_gold"))
 	connect("recieved_damage", Callable(self , "_on_recieved_damage"))
 	
 	active_starboard(true)
 	active_port(true)
-
+	set_faction_texture()
 
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
 	gameManager.camerarig.secondary_target = _attacker
@@ -31,6 +39,9 @@ func sink():
 	await get_tree().create_timer(5.0).timeout
 	
 	get_tree().reload_current_scene()
+
+func upgrade_guns():
+	guns += 1
 
 func _process(_delta: float) -> void:
 	super._process(_delta)
@@ -59,4 +70,6 @@ func _input(event: InputEvent) -> void:
 			starboard_pitch(-5)
 			port_pitch(-5)
 		if event.keycode == KEY_Q:
-			yaw_deg = yaw_deg - 180.0
+			yaw_deg = yaw_deg + 90.0
+		if event.keycode == KEY_E:
+			yaw_deg = yaw_deg - 90.0

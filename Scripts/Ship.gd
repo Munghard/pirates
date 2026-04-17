@@ -4,7 +4,7 @@ class_name Ship
 @onready var forward_arrow: Node3D = $forward_arrow
 
 var ship_name := "Ship"
-var faction := "NAVY"
+var faction: FactionsData.Faction = FactionsData.Faction.NAVY
 var max_crew := 20
 var crew := max_crew
 var max_hit_points := 100.0
@@ -14,6 +14,8 @@ var agility := 1.0
 var attack := 1.0
 var defense := 1.0
 var gold := 0
+var supplies := 100
+var guns := 1
 
 var actual_speed := 0.0
 
@@ -28,7 +30,7 @@ var accumulated_damage := 0.0
 var damage_threshold := 1.0
 
 var damage_sustained := 0.0
-var crew_health := 10.0
+var crew_health := 1.0
 
 
 @export var rigidbody: RigidBody3D = self
@@ -53,6 +55,7 @@ signal on_sink
 
 @onready var ship_healthbar: Node3D = $world_bars/ship_healthbar
 @onready var crew_healthbar: Node3D = $world_bars/crew_healthbar
+@onready var faction_texture: Sprite3D = $world_bars/faction
 
 
 func _ready():
@@ -61,6 +64,10 @@ func _ready():
 	max_contacts_reported = 1
 	canons_port = ship_pivot.canons_port
 	canons_starboard = ship_pivot.canons_starboard
+	set_faction_texture()
+
+func set_faction_texture():
+	faction_texture.texture = FactionsData.get_faction_icon(faction)
 
 func gain_crew(amount: int):
 	gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
@@ -76,11 +83,9 @@ func kill_crew(amount: int):
 		destroyed = true
 
 func _process(_delta):
-	if incapacitated and not destroyed:
-		pass
-
 	if not destroyed:
 		repair(_delta)
+
 	ship_healthbar.scale.x = hit_points / max_hit_points
 	ship_pivot.position = Vector3.ZERO
 	# check if in combat
@@ -100,10 +105,11 @@ func _physics_process(_delta: float) -> void:
 	if destroyed:
 		if floater:
 			floater.queue_free()
-		apply_central_force(Vector3.DOWN * sink_speed * mass)
-		# position += -basis.y * sink_speed * delta
-		apply_torque(Vector3.UP * 5.0 * mass)
-		# rotation.y += delta # radians per second
+		freeze = true
+		# apply_central_force(Vector3.DOWN * sink_speed * mass)
+		position += -basis.y * sink_speed * _delta
+		# apply_torque(Vector3.UP * 5.0 * mass)
+		rotation.y += _delta # radians per second
 		if ship_pivot.global_position.y <= -5.0:
 			sink()
 		return
@@ -116,7 +122,12 @@ func _physics_process(_delta: float) -> void:
 	var forward = global_basis.z
 	var wind_along_forward = gameManager.wind.direction.dot(forward)
 
-	actual_speed = target_speed * (1.0 + -wind_along_forward)
+	# incapacitated check
+	var capable_speed = target_speed
+	if incapacitated:
+		capable_speed = 0.0
+
+	actual_speed = capable_speed * (1.0 + wind_along_forward)
 
 	apply_central_force(forward * actual_speed * mass * 5.0)
 	# position += forward * actual_speed * delta
@@ -187,31 +198,39 @@ func port_pitch(value: float):
 	for canon in canons_port:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
-		canon.pitch = clampf(canon.pitch, 0, 25.0)
+		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func starboard_pitch(value: float):
 	for canon in canons_starboard:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
-		canon.pitch = clampf(canon.pitch, 0, 25.0)
+		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func set_canon_pitch(value: float):
 	for canon in canons_starboard:
 		canon.pitch = value
-		canon.pitch = clampf(canon.pitch, 0, 25.0)
+		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 	for canon in canons_port:
 		canon.pitch = value
-		canon.pitch = clampf(canon.pitch, 0, 25.0)
+		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func shoot_port():
-	for canon in canons_port:
-		await get_tree().create_timer(randf() / 10.0).timeout
-		canon.shoot(attack, self )
+	shoot(canons_port)
 
 func shoot_starboard():
-	for canon in canons_starboard:
+	shoot(canons_starboard)
+
+func shoot(canons: Array[Canon]):
+	if supplies <= 0:
+		return
+	var guns_fired = 0
+	for canon in canons:
+		if guns_fired >= guns:
+			break
 		await get_tree().create_timer(randf() / 10.0).timeout
-		canon.shoot(attack, self )
+		if canon.shoot(attack, self ):
+			supplies -= 1
+			guns_fired += 1
 
 func active_starboard(value: bool):
 	for canon in canons_starboard:

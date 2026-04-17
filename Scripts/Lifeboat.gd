@@ -2,6 +2,7 @@ extends RigidBody3D
 
 @export var lifeboat_ui: PackedScene
 var crew := 5
+var supplies := 0
 var gold_per_crew := 20
 var chance := 0.2
 var lbu
@@ -18,7 +19,8 @@ func _on_body_entered(body: Node) -> void:
 
 
 func _on_kill_pressed(player_ship: PlayerShip):
-	player_ship.gold += crew * gold_per_crew
+	#player_ship.gold += crew * gold_per_crew
+	player_ship.supplies += supplies
 	#queue_free the lifeboat
 	queue_free()
 	lbu.queue_free()

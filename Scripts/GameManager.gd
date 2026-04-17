@@ -7,7 +7,7 @@ var hud: HUD
 var camera: Camera3D
 var camerarig: Camera
 var water: Water
-var wind_particle: GPUParticles3D
+var wind_particle: CPUParticles3D
 var wind: Wind
 var terrain: Terrain
 var port: Port
@@ -20,7 +20,7 @@ func _ready() -> void:
 	water = $World/Water
 	wind = $World/Wind
 	terrain = $World/Terrain
-	wind_particle = $wind_particle
+	wind_particle = $wind_particle_cpu
 	port = $World/Port/port
 	
 	wind.randomize_wind()
@@ -41,12 +41,14 @@ func _ready() -> void:
 func _on_wind_changed(_wind: Wind):
 	if not wind_particle:
 		return
-	var mat: ParticleProcessMaterial = wind_particle.process_material
+	# var mat: ParticleProcessMaterial = wind_particle.process_material
 	
-	mat.initial_velocity_min = 0
-	mat.initial_velocity_max = _wind.strength
-	wind_particle.rotation = Vector3.ZERO
-	mat.direction = _wind.direction
+	# mat.initial_velocity_min = _wind.strength * 1.0
+	# mat.initial_velocity_max = _wind.strength * 4.0
+	wind_particle.initial_velocity_min = _wind.strength * 1.0
+	wind_particle.initial_velocity_max = _wind.strength * 4.0
+	wind_particle.rotation = Vector3(0, atan2(_wind.direction.x, _wind.direction.z), 0)
+	#mat.direction = _wind.direction
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
@@ -54,4 +56,10 @@ func _input(event: InputEvent) -> void:
 			wind.randomize_wind()
 
 
+#IDEAS
+#figure out how to do terrain in a good way that can be plugged into water sim and shader
+# minimap showing other ships and ports
+# different ports, pirate port, navy port, merchant port, with different services
+
+# BAD IDEAS
 # TRY TO MAKE IT TURN BASED AND MOVEMENT USING CLICK, CREATE A VISUAL HEX GRID

@@ -1,5 +1,16 @@
 [gd_scene format=3 uid="uid://c8lqfix34gnpp"]
 
+[sub_resource type="Gradient" id="Gradient_74vo0"]
+offsets = PackedFloat32Array(0, 0.5792683, 0.625)
+colors = PackedColorArray(0, 0, 0, 1, 0.8796296, 0.8796296, 0.8796296, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_u6fdj"]
+gradient = SubResource("Gradient_74vo0")
+width = 512
+height = 512
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
 [sub_resource type="Gradient" id="Gradient_c6fo0"]
 offsets = PackedFloat32Array(0, 0.9935065)
 colors = PackedColorArray(0.94989246, 0, 0.3525211, 1, 1, 0.04000002, 0.04000002, 1)
@@ -15,6 +26,12 @@ colors = PackedColorArray(0.62704533, 0.29717067, 1, 1, 0.38574034, 0.47592175, 
 gradient = SubResource("Gradient_ovko2")
 
 [node name="world_bars" type="Node3D" unique_id=1446492284]
+
+[node name="faction" type="Sprite3D" parent="." unique_id=1376830827]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -0.008330941, 6.212, 0)
+billboard = 2
+double_sided = false
+texture = SubResource("GradientTexture2D_u6fdj")
 
 [node name="crew_healthbar" type="Node3D" parent="." unique_id=134804807]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.602669, 4.962, 0)

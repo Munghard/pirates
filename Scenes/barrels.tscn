@@ -11,12 +11,14 @@ height = 0.3
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ic0uy"]
 albedo_color = Color(0.49933165, 0.26008815, 0.1986669, 1)
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_asxl8"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_lhfjv"]
 
-[node name="barrels" type="RigidBody3D" unique_id=1134582906]
+[node name="barrels" type="RigidBody3D" unique_id=1134582906 groups=["Floaters"]]
+mass = 100.0
 gravity_scale = 0.0
 contact_monitor = true
 max_contacts_reported = 1
+angular_damp = 10.0
 script = ExtResource("1_lhfjv")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=2022293595]
@@ -39,6 +41,6 @@ script = ExtResource("1_1gic5")
 target = NodePath("..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=937266724]
-shape = SubResource("SphereShape3D_asxl8")
+shape = SubResource("BoxShape3D_lhfjv")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
