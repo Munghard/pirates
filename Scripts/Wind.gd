@@ -31,12 +31,12 @@ func _process(delta):
 	var changed := false
 	# smooth direction (unit vector)
 	if direction != target_direction:
-		direction = direction.lerp(target_direction, delta * 0.5).normalized()
+		direction = direction.lerp(target_direction, delta * 0.1).normalized()
 		changed = true
 
 	# smooth strength
 	if strength != target_strength:
-		strength = lerp(strength, target_strength, delta * 0.5)
+		strength = lerp(strength, target_strength, delta * 0.1)
 		changed = true
 
 	if timer_enable:

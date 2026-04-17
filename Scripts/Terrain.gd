@@ -17,6 +17,7 @@ class_name Terrain
 @export var height_min: float = 1.0
 @export var height_max: float = 8.0
 
+@export var heightmap: Texture2D
 var mesh_instance
 
 @export var regen := false:
@@ -25,6 +26,7 @@ var mesh_instance
 		regen = false
 
 var noise: FastNoiseLite
+signal heightmap_created(texture: Texture2D)
 
 func _ready():
 	create_terrain()
@@ -32,6 +34,8 @@ func _ready():
 func create_terrain():
 	create_terrain_mesh()
 	create_collision()
+	create_heightmap()
+
 
 func create_collision():
 	var static_body = StaticBody3D.new()
@@ -47,6 +51,16 @@ func setup_noise():
 	noise = FastNoiseLite.new()
 	noise.seed = 42
 	noise.frequency = noise_frequency
+
+func create_heightmap():
+	var heightmap_image = Image.create(world_size.x + 1, world_size.y + 1, false, Image.FORMAT_RF)
+
+	for z in range(world_size.y + 1):
+		for x in range(world_size.x + 1):
+			var h = get_height(x, z) / terrain_height
+			heightmap_image.set_pixel(x, z, Color(h, h, h))
+	heightmap = ImageTexture.create_from_image(heightmap_image)
+	emit_signal("heightmap_created", heightmap)
 
 func create_terrain_mesh():
 	setup_noise()

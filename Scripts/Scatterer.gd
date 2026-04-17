@@ -49,7 +49,6 @@ func scatter():
 
 		pos.y = h
 		instance.position = pos
-		print(pos.y);
 		var rot = Vector3(
 			randf_range(rotation_range_min.x, rotation_range_max.x),
 			randf_range(rotation_range_min.y, rotation_range_max.y),
