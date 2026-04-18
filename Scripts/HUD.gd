@@ -4,7 +4,7 @@ class_name HUD
 @export var ship_panel: Control
 @export var ship_panel_player: Control
 
-@export var wind_label: Label
+@export var wind_panel: Control
 @export var wind_control: Control
 
 @export var minimap: Control
@@ -25,6 +25,7 @@ var selected_ship: Ship
 
 func _ready():
 	minimap_scale_slider.value = minimap_scale
+	wind_panel.visible = false
 
 # ================================================================================================================
 # MINIMAP 
@@ -152,9 +153,9 @@ func _show_notifications() -> void:
 	showing_notifications = false
 
 func _on_update_wind(wind: Wind):
+	var wind_label: Label = wind_panel.get_node("MarginContainer/VBoxContainer/Label") as Label
 	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.z, wind.direction.x)), str(wind.timer_enable), wind.next_change - wind.timer]
 	wind_control.rotation = atan2(wind.direction.z, wind.direction.x) + deg_to_rad(-90)
-	#create_tween().tween_property(wind_control, "rotation", atan2(wind.direction.z, wind.direction.x), 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT) # ease in, out, or both
 
 func update_ship_panel(ship: Ship, _ship_panel: Control):
 	var ship_label_h := _ship_panel.get_node("MarginContainer/VBoxContainer/Label_h")
@@ -248,6 +249,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_button_pressed() -> void:
 	gameManager.wind.set_enable_wind(!gameManager.wind.timer_enable)
 
+func _on_wind_gauge_mouse_entered() -> void:
+	wind_panel.visible = !wind_panel.visible
 
 # ================================================================================================================
 # PORT
@@ -255,6 +258,10 @@ func _on_button_pressed() -> void:
 
 func _on_button_2_pressed() -> void:
 	gameManager.port.depart()
+
+# ================================================================================================================
+# MINIMAP
+# ================================================================================================================
 
 
 func _on_v_slider_value_changed(value: float) -> void:

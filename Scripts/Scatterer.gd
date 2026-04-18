@@ -3,7 +3,6 @@ extends Node3D
 # Inspector variables
 @export var prefab: PackedScene
 @export var amount: int = 10
-@export var bounds: Vector3 = Vector3(10, 0, 10) # X/Z bounds, Y ignored
 @export var rotation_range_min: Vector3 = Vector3(0, 0, 0)
 @export var rotation_range_max: Vector3 = Vector3(0, 0, 0)
 @export var water: Water
@@ -22,8 +21,8 @@ func scatter():
 		push_warning("No prefab assigned!")
 		return
 
-	var half_x = bounds.x * 0.5
-	var half_z = bounds.z * 0.5
+	var half_x = terrain.world_size.x * 0.5 * terrain.tile_size
+	var half_z = terrain.world_size.y * 0.5 * terrain.tile_size
 
 	for i in range(amount):
 		var pos: Vector3
@@ -34,14 +33,15 @@ func scatter():
 			0,
 			randf_range(-half_z, half_z)
 		)
-
 		h = terrain.get_height_world(pos.x, pos.z)
 
 		if spawn_in_water:
 			if h > water_level:
+				print("skipped: ", h)
 				continue # skip this spawn entirely
 		else:
 			if h < water_level:
+				print("skipped: ", h)
 				continue # skip this spawn entirely
 
 		var instance := prefab.instantiate()

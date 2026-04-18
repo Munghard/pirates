@@ -70,6 +70,7 @@ func _process(_delta: float) -> void:
 		mat.set_shader_parameter("water_level", water_level)
 		mat.set_shader_parameter("max_depth", max_depth)
 		mat.set_shader_parameter("terrain_size", terrain.world_size)
+		mat.set_shader_parameter("terrain_tile_size", terrain.tile_size)
 
 func get_wave_data(world_pos: Vector3) -> Dictionary:
 	# --- 1. Replicate Shader Terrain Sampling ---

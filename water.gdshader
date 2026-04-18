@@ -3,7 +3,7 @@ shader_type spatial;
 uniform sampler2D normal_map :hint_normal;
 
 uniform sampler2D noise_tex;
-uniform sampler2D heightmap;
+uniform sampler2D heightmap: filter_linear, repeat_disable;
 uniform vec3 albedo : source_color = vec3(0.1, 0.3, 0.5);
 uniform vec3 crest_color : source_color = vec3(0.4, 0.7, 1.0);
 uniform vec3 foam_color : source_color = vec3(1.0, 1.0, 1.0);
@@ -108,8 +108,8 @@ void fragment() {
     vec3 color = mix(albedo, crest_color, crest_mask);
 
 	vec2 uv = vec2(world_pos.x, world_pos.z) * 0.1;
-	float n = texture(noise_tex, uv + TIME * 0.1).r;
-	float n2 = texture(noise_tex, uv * 0.2 + TIME * 0.01).r;
+	float n = texture(noise_tex, uv + wind_dir * TIME * 0.1).r;
+	float n2 = texture(noise_tex, uv * 0.2 + wind_dir * TIME * 0.01).r;
 	
 
 	float foam = smoothstep(0.5, 1.0, n);
@@ -119,12 +119,42 @@ void fragment() {
 	
 	float foam_big_mixed = mix( 0,foam_big,amp / 5.0);
 	
-	float foam_total = clamp(foam + foam_big_mixed, 0.0, 1.0);
+	///////////////////////////// shoreline
+	vec2 terrain_size_total = terrain_size * terrain_tile_size;
+	
+	// Use the varying world_pos to get the static world UV
+	vec2 fragment_hm_uv = world_pos.xz / terrain_size_total;
+	
+	// Sample the height directly in the fragment shader for pixel-perfect locking
+	// This prevents the "swimming" effect when the camera moves
+	float terrain_h_at_frag = texture(heightmap, fragment_hm_uv).r * terrain_height_scale;
+	float frag_depth = max(0.0, water_level - terrain_h_at_frag);
+	float frag_v_depth = clamp(frag_depth / abs(max_depth), 0.0, 1.0);
+
+	float wave_freq = 40.0; 
+	float wave_speed = -2.0;
+	
+	// Use the NEW frag_v_depth instead of the varying v_depth
+	float wave_anim = sin(frag_v_depth * wave_freq - TIME * wave_speed);
+	wave_anim = wave_anim * 0.5 + 0.5; 
+	
+	float radiating_wave = smoothstep(0.6, 0.8, wave_anim);
+	
+	// Mask it using the new static depth
+	float shore_mask = smoothstep(0.2, 0.0, frag_v_depth);
+	float beach_waves = radiating_wave * shore_mask;
+	
+	///////////////////////////// shoreline
+	
+	float foam_total = clamp(foam + foam_big_mixed + beach_waves, 0.0, 1.0);
+	
 	vec3 final_color = mix(color, foam_color, foam_total);
     ALBEDO = final_color;
+    //ALBEDO = vec3(1.0,1.0,1.0) * beach_waves;
+	
     METALLIC = 0.0;
     ROUGHNESS = mix(0.05,1.0, foam_total); // Low roughness = shiny water
-    SPECULAR = 0.8;//mix(0.8,0.1,foam_total)
+    SPECULAR = mix(0.8,0.0,foam_total);
     
     // Fake some depth by making the peaks slightly more opaque
     //ALPHA = 0.9; 

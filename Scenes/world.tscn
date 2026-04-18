@@ -51,7 +51,7 @@ image = SubResource("Image_xbk3s")
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_7yui6"]
 material = ExtResource("7_ikia7")
-size = Vector2(100, 100)
+size = Vector2(500, 500)
 subdivide_width = 100
 subdivide_depth = 100
 
@@ -127,14 +127,14 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "wind_label", "wind_control", "minimap", "minimap_scale_slider", "notification_label")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "wind_panel", "wind_control", "minimap", "minimap_scale_slider", "notification_label")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
 script = ExtResource("2_k7acu")
 ship_panel = NodePath("Target_ship_panel")
 ship_panel_player = NodePath("Player_ship_panel")
-wind_label = NodePath("Wind_panel/wind_panel/VBoxContainer/Label")
+wind_panel = NodePath("Wind_panel")
 wind_control = NodePath("wind_gauge")
 minimap = NodePath("Minimap/Minimap")
 minimap_scale_slider = NodePath("Minimap/VSlider")
@@ -191,23 +191,23 @@ offset_top = -148.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="wind_panel" type="MarginContainer" parent="MarginContainer/HUD/Wind_panel" unique_id=811836826]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HUD/Wind_panel" unique_id=811836826]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/Wind_panel/wind_panel" unique_id=424878902]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/Wind_panel/MarginContainer" unique_id=424878902]
 layout_mode = 2
 
-[node name="Label_h" type="Label" parent="MarginContainer/HUD/Wind_panel/wind_panel/VBoxContainer" unique_id=345593295]
+[node name="Label_h" type="Label" parent="MarginContainer/HUD/Wind_panel/MarginContainer/VBoxContainer" unique_id=345593295]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Wind"
 
-[node name="Button" type="Button" parent="MarginContainer/HUD/Wind_panel/wind_panel/VBoxContainer" unique_id=282768948]
+[node name="Button" type="Button" parent="MarginContainer/HUD/Wind_panel/MarginContainer/VBoxContainer" unique_id=282768948]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Toggle wind"
 
-[node name="Label" type="Label" parent="MarginContainer/HUD/Wind_panel/wind_panel/VBoxContainer" unique_id=1783925917]
+[node name="Label" type="Label" parent="MarginContainer/HUD/Wind_panel/MarginContainer/VBoxContainer" unique_id=1783925917]
 layout_mode = 2
 text = "Wind"
 
@@ -219,11 +219,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -50.0
-offset_top = -11.5
+offset_top = -57.0
 offset_right = 50.0
-offset_bottom = 11.5
+offset_bottom = -34.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"HeaderLarge"
 text = "Notifications"
 
 [node name="Minimap" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1823764123]
@@ -268,7 +269,7 @@ height_max = 50.0
 heightmap = SubResource("ImageTexture_i4fjy")
 
 [node name="Water" type="MeshInstance3D" parent="World" unique_id=2117390099 node_paths=PackedStringArray("target", "terrain")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.361618, 0, 109.972694)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 246.53542, 0, 250.93323)
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
 target = NodePath("../../camrig")
@@ -284,47 +285,42 @@ script = ExtResource("5_kn0ld")
 [node name="ships" type="Node3D" parent="World" unique_id=130823351 node_paths=PackedStringArray("water", "terrain")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("4_k7acu")
-bounds = Vector3(100, 0, 100)
 water = NodePath("../Water")
 terrain = NodePath("../Terrain")
-water_level = -5.0
+water_level = 25.0
 
 [node name="barrels" type="Node3D" parent="World" unique_id=714804176 node_paths=PackedStringArray("water", "terrain")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("5_5v1tr")
 amount = 5
-bounds = Vector3(100, 0, 100)
 water = NodePath("../Water")
 terrain = NodePath("../Terrain")
-water_level = -5.0
+water_level = 25.0
 
 [node name="maelstroms" type="Node3D" parent="World" unique_id=1431239431 node_paths=PackedStringArray("water", "terrain")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("14_e0ngr")
 amount = 2
-bounds = Vector3(100, 0, 100)
 water = NodePath("../Water")
 terrain = NodePath("../Terrain")
-water_level = -5.0
+water_level = 25.0
 
 [node name="lifeboats" type="Node3D" parent="World" unique_id=1914553766 node_paths=PackedStringArray("water", "terrain")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("21_pyn1s")
 amount = 5
-bounds = Vector3(100, 0, 100)
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../Water")
 terrain = NodePath("../Terrain")
-water_level = -5.0
+water_level = 25.0
 
 [node name="buoyus" type="Node3D" parent="World" unique_id=1595812411 node_paths=PackedStringArray("water", "terrain")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("15_hgpy0")
-bounds = Vector3(100, 0, 100)
 water = NodePath("../Water")
 terrain = NodePath("../Terrain")
-water_level = -5.0
+water_level = 25.0
 
 [node name="wind_particle_cpu" type="CPUParticles3D" parent="World" unique_id=1851781407]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.222906, 0)
@@ -378,7 +374,7 @@ ship = NodePath("..")
 water = NodePath("../../World/Water")
 
 [node name="camrig" type="Node3D" parent="." unique_id=596184847 node_paths=PackedStringArray("target")]
-transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 59.361618, 0, 109.972694)
+transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 246.53542, 0, 250.93323)
 script = ExtResource("2_5ukr8")
 target = NodePath("../PlayerShip")
 
@@ -388,7 +384,8 @@ projection = 1
 size = 30.0
 near = 0.001
 
-[connection signal="pressed" from="MarginContainer/HUD/Wind_panel/wind_panel/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/HUD/wind_gauge" to="MarginContainer/HUD" method="_on_wind_gauge_mouse_entered"]
+[connection signal="pressed" from="MarginContainer/HUD/Wind_panel/MarginContainer/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
 [connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD" method="_on_v_slider_value_changed"]
 
 [editable path="PlayerShip"]
