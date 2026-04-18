@@ -54,6 +54,10 @@ func _ready() -> void:
 		faction = FactionsData.Faction.PIRATE
 	if randf() > 0.5:
 		faction = FactionsData.Faction.SLAVER
+	if randf() > 0.5:
+		faction = FactionsData.Faction.CARTOGRAPHER
+	if randf() > 0.5:
+		faction = FactionsData.Faction.BOUNTYHUNTER
 
 	var faction_stats = FactionsData.get_faction_stats(faction)
 
@@ -158,16 +162,34 @@ func _process(delta):
 
 func en_route_behaviour(delta: float):
 	route_timer += delta
+	draw_line_to_target_point(target_point, delta)
 	if route_timer >= change_route or (global_position - target_point).length() < 5.0:
 		target_speed = 1.0
-		change_route = randf_range(5.0, 20.0)
+		change_route = randf_range(100.0, 500.0)
 		route_timer = 0
-		target_point = get_new_waypoint()
+		target_point = await get_new_waypoint(delta)
 		set_rotation_to_target_point(target_point)
 
+var target_point_height: float
 
-func get_new_waypoint() -> Vector3:
-	return Vector3(randf_range(-50.0, 50.0), 0, randf_range(-50.0, 50.0))
+func get_new_waypoint(_delta: float) -> Vector3:
+	while target_point_height > gameManager.water.water_level or not is_path_clear(global_position, target_point):
+		await get_tree().create_timer(0.1).timeout
+		target_point = Vector3(randf_range(0, gameManager.terrain.world_size.x * gameManager.terrain.tile_size), 0, randf_range(0, gameManager.terrain.world_size.y * gameManager.terrain.tile_size))
+		target_point_height = gameManager.terrain.get_height_world(target_point.x, target_point.z)
+		gameManager.hud.ddd_label("Trying to get neww waypoint", global_position)
+	gameManager.hud.ddd_label("New waypoint acquired", global_position)
+	return target_point
+
+func is_path_clear(from: Vector3, to: Vector3) -> bool:
+	var space = get_world_3d().direct_space_state
+	
+	var query = PhysicsRayQueryParameters3D.create(from, to)
+	query.collide_with_areas = false
+	
+	var result = space.intersect_ray(query)
+	
+	return result.is_empty()
 
 func set_rotation_to_target_point(_target_point: Vector3):
 	var direction_to_target_point = (_target_point - global_position).normalized()
@@ -182,3 +204,23 @@ func spawn_lifeboat():
 	l.global_position = global_position
 	l.global_position.y = 0
 	l.supplies = supplies
+
+
+func draw_line_to_target_point(_target_point: Vector3, _delta: float):
+	var line = ImmediateMesh.new()
+	line.surface_begin(Mesh.PRIMITIVE_LINES)
+	line.surface_set_color(Color(1, 0, 0))
+	line.surface_add_vertex(global_position)
+	line.surface_add_vertex(_target_point)
+	line.surface_end()
+	var material = StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	var line_instance = MeshInstance3D.new()
+	line_instance.mesh = line
+	line_instance.material_override = material
+
+	get_tree().current_scene.add_child(line_instance)
+	await get_tree().create_timer(0.5).timeout
+	line_instance.queue_free()

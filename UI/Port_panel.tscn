@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b3nnix6jurcl3"]
 
-[ext_resource type="Script" uid="uid://ekar66terefb" path="res://Scripts/Port_panel.gd" id="1_4q7hl"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="2_fsihh"]
 
 [sub_resource type="Theme" id="Theme_5dwy5"]
 
@@ -17,10 +17,10 @@ offset_bottom = 125.5
 grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_5dwy5")
-script = ExtResource("1_4q7hl")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=830364857]
 layout_mode = 2
+theme = ExtResource("2_fsihh")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1524480552]
 layout_mode = 2
@@ -28,49 +28,10 @@ layout_mode = 2
 [node name="Label_h" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2005593663]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
-text = "Port blueballs"
+text = "Port"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1494731577]
-layout_mode = 2
-
-[node name="Label_h2" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=1795109457]
-layout_mode = 2
-theme_type_variation = &"HeaderSmall"
-text = "Ship"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=1085228498]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=704930191]
-layout_mode = 2
-text = "Something"
-
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=1679070442]
-layout_mode = 2
-text = "Buy"
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=2139951388]
-layout_mode = 2
-
-[node name="Label_h2" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer2" unique_id=1881892414]
-layout_mode = 2
-theme_type_variation = &"HeaderSmall"
-text = "Crew"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/VBoxContainer2" unique_id=289461206]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer2/HBoxContainer" unique_id=296026072]
-layout_mode = 2
-text = "Something"
-
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/VBoxContainer2/HBoxContainer" unique_id=1405103121]
-layout_mode = 2
-text = "Buy"
-
-[node name="Button2" type="Button" parent="MarginContainer/VBoxContainer" unique_id=5709390]
+[node name="DepartButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=5709390]
 layout_mode = 2
 text = "Depart"
 
-[connection signal="pressed" from="MarginContainer/VBoxContainer/VBoxContainer2/HBoxContainer/Button" to="." method="_on_button_hire_crew_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/Button2" to="." method="_on_button_depart_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/DepartButton" to="." method="_on_button_depart_pressed"]

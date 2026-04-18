@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bsfwskoayomyy"]
 
 [ext_resource type="Script" uid="uid://butvxx3jk35lt" path="res://Scripts/Lifeboat_panel.gd" id="1_ak33a"]
-[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://new_theme.tres" id="1_rdnuk"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_rdnuk"]
 
 [node name="Lifeboat_panel" type="PanelContainer" unique_id=1628449947 node_paths=PackedStringArray("label")]
 anchors_preset = 8

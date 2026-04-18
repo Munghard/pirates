@@ -53,11 +53,12 @@ signal gold_changed(amount: int, gained: bool)
 signal crew_changed(amount: int, gained: bool)
 signal supplies_changed(amount: int, gained: bool)
 signal recieved_damage(amount: float, attacker: Node3D)
+signal hit_points_changed(amount: float)
 signal on_sink
 
-@onready var ship_healthbar: Node3D = $world_bars/ship_healthbar
-@onready var crew_healthbar: Node3D = $world_bars/crew_healthbar
-@onready var faction_texture: Sprite3D = $world_bars/faction
+@onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
+@onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
+@onready var faction_texture: TextureRect = $world_bars/SubViewport/Control/faction_icon
 
 
 func _ready():
@@ -67,6 +68,22 @@ func _ready():
 	canons_port = ship_pivot.canons_port
 	canons_starboard = ship_pivot.canons_starboard
 	set_faction_texture()
+
+	connect("crew_changed", Callable(self , "_on_crew_changed"))
+	connect("hit_points_changed", Callable(self , "_on_hit_points_changed"))
+	# init values
+	crew_healthbar.value = crew
+	crew_healthbar.max_value = max_crew
+	ship_healthbar.value = hit_points
+	ship_healthbar.max_value = max_hit_points
+
+func _on_hit_points_changed(_amount: float):
+	ship_healthbar.value = hit_points
+	ship_healthbar.max_value = max_hit_points
+
+func _on_crew_changed(_amount: int, _gained: bool):
+	crew_healthbar.value = crew
+	crew_healthbar.max_value = max_crew
 
 func set_faction_texture():
 	faction_texture.texture = FactionsData.get_faction_icon(faction)
@@ -99,7 +116,6 @@ func kill_crew(amount: int):
 	gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
 	crew -= amount
 	crew = max(crew, 0)
-	crew_healthbar.scale.x = float(crew) / float(max_crew)
 	emit_signal("crew_changed", crew, false)
 	if crew <= 0:
 		destroyed = true
@@ -110,7 +126,6 @@ func _process(_delta):
 	if not destroyed:
 		repair(_delta)
 
-	ship_healthbar.scale.x = hit_points / max_hit_points
 	ship_pivot.position = Vector3.ZERO
 	# check if in combat
 	if in_combat and Time.get_ticks_msec() - last_damage_time > out_of_combat_time:
@@ -119,6 +134,7 @@ func _process(_delta):
 func repair(_delta):
 	if not in_combat and hit_points < max_hit_points:
 		hit_points += _delta * 1.0 * (float(crew) / float(max_crew))
+		emit_signal("hit_points_changed", hit_points)
 
 func sink():
 	spawn_loot()
@@ -208,6 +224,7 @@ func damage(_damage: float, _position: Vector3, _attacker: Node3D):
 	attacker = _attacker
 	hit_points = clamp(hit_points - (_damage / defense), 0, max_hit_points)
 	emit_signal("recieved_damage", (_damage / defense), _attacker)
+	emit_signal("hit_points_changed", hit_points)
 	in_combat = true
 	last_damage_time = Time.get_ticks_msec()
 
@@ -220,7 +237,6 @@ func damage(_damage: float, _position: Vector3, _attacker: Node3D):
 		while damage_sustained >= crew_health:
 			damage_sustained -= crew_health
 			kill_crew(1)
-		
 
 func port_pitch(value: float):
 	for canon in canons_port:

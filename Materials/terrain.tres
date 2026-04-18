@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://bhgu8dhy06683"]
 
-[ext_resource type="Shader" uid="uid://88jwxa4didv1" path="res://Scenes/terrain.gdshader" id="1_8rp5s"]
+[ext_resource type="Shader" uid="uid://88jwxa4didv1" path="res://Materials/terrain.gdshader" id="1_8rp5s"]
 
 [resource]
 render_priority = 0
@@ -9,7 +9,7 @@ shader_parameter/beach_color = Color(0.69, 0.64032, 0.31739998, 1)
 shader_parameter/grass_color = Color(0.19270001, 0.41, 0.21080832, 1)
 shader_parameter/dirt_color = Color(0.41, 0.25939333, 0.17220001, 1)
 shader_parameter/slope_color = Color(0.3024533, 0.2976, 0.32, 1)
-shader_parameter/rock = Vector2(0.16, 0.235)
-shader_parameter/dirt = Vector2(0.155, 0.19)
+shader_parameter/rock = Vector2(0.115, 0.14)
+shader_parameter/dirt = Vector2(0.045, 0.065)
 shader_parameter/beach_height = 0.87
 shader_parameter/land_height = 1.94

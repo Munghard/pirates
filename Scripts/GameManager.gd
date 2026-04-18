@@ -38,6 +38,10 @@ func _ready() -> void:
 
 	hud.init_hud()
 
+func _process(_delta: float) -> void:
+	wind_particle.rotation = Vector3(0, atan2(wind.direction.x, wind.direction.z), 0)
+	wind_particle.position = player_ship.position
+
 func _on_wind_changed(_wind: Wind):
 	if not wind_particle:
 		return

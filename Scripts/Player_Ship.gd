@@ -20,7 +20,7 @@ func _ready() -> void:
 	crew = faction_stats.max_crew
 	max_crew = faction_stats.max_crew
 
-	connect("crew_changed", Callable(self , "_on_crew_changed"))
+	#connect("crew_changed", Callable(self , "_on_crew_changed"))
 	connect("supplies_changed", Callable(self , "_on_supplies_changed"))
 	connect("gold_changed", Callable(self , "_on_gold_changed"))
 	connect("recieved_damage", Callable(self , "_on_recieved_damage"))

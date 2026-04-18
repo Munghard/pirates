@@ -1,4 +1,5 @@
 shader_type spatial;
+render_mode depth_draw_always;
 
 uniform sampler2D normal_map :hint_normal;
 
@@ -108,9 +109,15 @@ void fragment() {
     vec3 color = mix(albedo, crest_color, crest_mask);
 
 	vec2 uv = vec2(world_pos.x, world_pos.z) * 0.1;
-	float n = texture(noise_tex, uv + wind_dir * TIME * 0.1).r;
-	float n2 = texture(noise_tex, uv * 0.2 + wind_dir * TIME * 0.01).r;
+	vec2 wind_dir_normalized = normalize(wind_dir);
+	float n = texture(noise_tex, uv + wind_dir_normalized * TIME * 0.1).r;
+	float n2 = texture(noise_tex, uv * 0.2 + wind_dir_normalized * TIME * 0.01).r;
+	float n3 = texture(noise_tex, uv * 0.1 + wind_dir_normalized * TIME * -0.01).r;
+	n3 *= n3 * n3;
 	
+	n3 = clamp(n3,0.0,1.0);
+	
+	color = mix(color,crest_color,n3);
 
 	float foam = smoothstep(0.5, 1.0, n);
 	float foam_big = smoothstep(0.4, 1.0, n2);
@@ -157,5 +164,5 @@ void fragment() {
     SPECULAR = mix(0.8,0.0,foam_total);
     
     // Fake some depth by making the peaks slightly more opaque
-    //ALPHA = 0.9; 
+    ALPHA = 1.0 - shore_mask; 
 }

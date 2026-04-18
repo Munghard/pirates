@@ -1,12 +1,14 @@
 class_name FactionsData
 
-enum Faction {PIRATE, MERCHANT, NAVY, SLAVER}
+enum Faction {PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER}
 
 const FACTION_NAMES = {
 	Faction.PIRATE: "Pirate",
 	Faction.MERCHANT: "Merchant",
 	Faction.NAVY: "Navy",
-	Faction.SLAVER: "Slaver"
+	Faction.SLAVER: "Slaver",
+	Faction.CARTOGRAPHER: "Cartographer",
+	Faction.BOUNTYHUNTER: "Bounty Hunter",
 }
 
 const NAMES = [

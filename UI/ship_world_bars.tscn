@@ -1,52 +1,90 @@
 [gd_scene format=3 uid="uid://c8lqfix34gnpp"]
 
-[sub_resource type="Gradient" id="Gradient_74vo0"]
-offsets = PackedFloat32Array(0, 0.5792683, 0.625)
-colors = PackedColorArray(0, 0, 0, 1, 0.8796296, 0.8796296, 0.8796296, 1, 1, 1, 1, 0)
+[ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="1_u6fdj"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="2_tyw4e"]
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_u6fdj"]
-gradient = SubResource("Gradient_74vo0")
-width = 512
-height = 512
-fill = 1
-fill_from = Vector2(0.5, 0.5)
+[sub_resource type="ViewportTexture" id="ViewportTexture_74vo0"]
+viewport_path = NodePath("SubViewport")
 
-[sub_resource type="Gradient" id="Gradient_c6fo0"]
-offsets = PackedFloat32Array(0, 0.9935065)
-colors = PackedColorArray(0.94989246, 0, 0.3525211, 1, 1, 0.04000002, 0.04000002, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u6fdj"]
+resource_local_to_scene = true
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+shading_mode = 0
+albedo_texture = SubResource("ViewportTexture_74vo0")
+billboard_mode = 1
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_c6fo0"]
-gradient = SubResource("Gradient_c6fo0")
-
-[sub_resource type="Gradient" id="Gradient_ovko2"]
-offsets = PackedFloat32Array(0, 0.9935065)
-colors = PackedColorArray(0.62704533, 0.29717067, 1, 1, 0.38574034, 0.47592175, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_6mpvb"]
-gradient = SubResource("Gradient_ovko2")
+[sub_resource type="QuadMesh" id="QuadMesh_tyw4e"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_u6fdj")
+size = Vector2(5, 5)
 
 [node name="world_bars" type="Node3D" unique_id=1446492284]
 
-[node name="faction" type="Sprite3D" parent="." unique_id=1376830827]
-transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -0.008330941, 6.212, 0)
-billboard = 2
-double_sided = false
-texture = SubResource("GradientTexture2D_u6fdj")
+[node name="SubViewport" type="SubViewport" parent="." unique_id=16075736]
+disable_3d = true
+transparent_bg = true
+size = Vector2i(128, 128)
 
-[node name="crew_healthbar" type="Node3D" parent="." unique_id=134804807]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.602669, 4.962, 0)
+[node name="Control" type="Control" parent="SubViewport" unique_id=1252405834]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = 36.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
 
-[node name="Sprite3D" type="Sprite3D" parent="crew_healthbar" unique_id=2131054698]
-transform = Transform3D(5, 0, 0, 0, 1, 0, 0, 0, 1, -1.6109953, 0, 0)
-billboard = 2
-double_sided = false
-texture = SubResource("GradientTexture2D_c6fo0")
+[node name="faction_icon" type="TextureRect" parent="SubViewport/Control" unique_id=708740894]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -184.0
+offset_right = 256.0
+offset_bottom = 328.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.25, 0.25)
+pivot_offset_ratio = Vector2(0.5, 0)
+texture = ExtResource("1_u6fdj")
 
-[node name="ship_healthbar" type="Node3D" parent="." unique_id=1957389131]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.602669, 3.962, 0)
+[node name="VBoxContainer" type="VBoxContainer" parent="SubViewport/Control" unique_id=1272665272]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -82.0
+offset_top = -32.0
+offset_right = 82.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
 
-[node name="Sprite3D" type="Sprite3D" parent="ship_healthbar" unique_id=1973931325]
-transform = Transform3D(5, 0, 0, 0, 1, 0, 0, 0, 1, -1.6109953, 0, 0)
-billboard = 2
-double_sided = false
-texture = SubResource("GradientTexture2D_6mpvb")
+[node name="pb_crew" type="ProgressBar" parent="SubViewport/Control/VBoxContainer" unique_id=1338610037]
+layout_mode = 2
+theme = ExtResource("2_tyw4e")
+theme_type_variation = &"crew_pb"
+value = 15.78
+
+[node name="pb_ship" type="ProgressBar" parent="SubViewport/Control/VBoxContainer" unique_id=1686803407]
+layout_mode = 2
+theme = ExtResource("2_tyw4e")
+theme_type_variation = &"ship_pb"
+value = 15.78
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1565056926]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.750824, 0)
+mesh = SubResource("QuadMesh_tyw4e")

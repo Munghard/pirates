@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://p3nxxrnpqsjj"]
 
-[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://new_theme.tres" id="1_svv42"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_svv42"]
 
 [node name="Player_ship_panel" type="FoldableContainer" unique_id=1821436781]
 anchors_preset = 3
