@@ -16,7 +16,6 @@
 [ext_resource type="Script" uid="uid://cvq33ekw76o45" path="res://Scripts/Wind.gd" id="5_kn0ld"]
 [ext_resource type="Material" uid="uid://cypyf8n66hyww" path="res://Materials/water_shader.tres" id="7_ikia7"]
 [ext_resource type="Script" uid="uid://ckymdnssopogk" path="res://Scripts/Water.gd" id="8_7yui6"]
-[ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="9_hmc15"]
 [ext_resource type="Material" uid="uid://bhgu8dhy06683" path="res://Materials/terrain.tres" id="11_xbk3s"]
 [ext_resource type="PackedScene" uid="uid://c4w0h65nmvokw" path="res://Scenes/maelstrom.tscn" id="14_e0ngr"]
 [ext_resource type="PackedScene" uid="uid://2lfnk45q46j3" path="res://Scenes/buoyu.tscn" id="15_hgpy0"]
@@ -26,7 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://dsdgtegub08f0" path="res://Models/Palm Tree/Environment_PalmTree_1.fbx" id="18_axeuq"]
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="21_pyn1s"]
 [ext_resource type="Shader" uid="uid://bug7bbfblq2pu" path="res://Materials/toon_shader_pp.gdshader" id="25_i4fjy"]
-[ext_resource type="Script" uid="uid://bilgylkyj1kr3" path="res://Scenes/debug_draw.gd" id="26_pt3ps"]
+[ext_resource type="Script" uid="uid://bilgylkyj1kr3" path="res://Scripts/debug_draw.gd" id="26_pt3ps"]
 
 [sub_resource type="Gradient" id="Gradient_pyn1s"]
 offsets = PackedFloat32Array(0, 0.9331307, 0.96103895, 1)
@@ -267,11 +266,11 @@ script = ExtResource("5_axeuq")
 water = NodePath("Water")
 wind = NodePath("Wind")
 terrain = NodePath("Terrain")
+ports = 20
+port_scene = ExtResource("16_hgpy0")
 
 [node name="Port" parent="World" unique_id=1497539839 instance=ExtResource("16_hgpy0")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 253.56232, 1.3976197, 277.96515)
-
-[node name="world_bars" parent="World/Port" unique_id=1446492284 instance=ExtResource("9_hmc15")]
 
 [node name="Terrain" type="Node3D" parent="World" unique_id=476364891]
 script = ExtResource("17_0pcbe")
@@ -286,14 +285,13 @@ height_max = 50.0
 heightmap = SubResource("ImageTexture_hmc15")
 
 [node name="Water" type="MeshInstance3D" parent="World" unique_id=2117390099 node_paths=PackedStringArray("target", "terrain")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.196945, 0, 50.57361)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.196945, 0, 109.22395)
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
 target = NodePath("../../camrig")
 terrain = NodePath("../Terrain")
 freq = 2.0
 amp = 3.0
-water_level = 25.0
 max_depth = 10.0
 
 [node name="Wind" type="Node3D" parent="World" unique_id=496872810]
@@ -391,7 +389,7 @@ ship = NodePath("..")
 water = NodePath("../../World/Water")
 
 [node name="camrig" type="Node3D" parent="." unique_id=596184847 node_paths=PackedStringArray("target")]
-transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 50.196945, -1.5258789e-05, 50.57361)
+transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 50.196945, -1.5258789e-05, 109.22395)
 script = ExtResource("2_5ukr8")
 target = NodePath("../PlayerShip")
 

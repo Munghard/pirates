@@ -22,8 +22,9 @@ func _ready():
 func set_enable_wind(value: bool):
 	timer_enable = value
 	if not timer_enable:
+		target_direction = Vector3.ZERO
 		target_strength = 0.0
-		set_direction(Vector3.ZERO)
+		emit_signal("wind_changed", self )
 	else:
 		randomize_wind()
 

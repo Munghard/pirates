@@ -37,13 +37,14 @@ func scatter():
 			var valid := false
 
 			if spawn_in_water:
-				valid = h <= water.water_level
+				valid = h <= water.water_level_world_space - 5.0
 			else:
-				valid = h >= water.water_level
+				valid = h >= water.water_level_world_space - 5.0
 
 			if not valid:
 				continue
 
+			#print("found suitable height %s"%h);
 			var instance := prefab.instantiate()
 			add_child(instance)
 
@@ -63,9 +64,8 @@ func scatter():
 			break
 
 		if not placed:
-			print("Failed to place object ", i)
-
-
+			pass
+			#print("Failed to place object ", i)
 func _process(_delta):
 	var half_x = terrain.world_size.x * 0.5 * terrain.tile_size
 	var half_z = terrain.world_size.y * 0.5 * terrain.tile_size

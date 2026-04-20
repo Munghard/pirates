@@ -4,6 +4,7 @@ class_name Canon
 @export var cannon_ball: PackedScene
 @export var canon: Node3D
 @export var particle: GPUParticles3D
+@export var particle1: GPUParticles3D
 @onready var canon_mesh: Node3D = canon.get_node("mesh")
 var force := 25.0
 var damage := 5.0
@@ -31,6 +32,7 @@ func shoot(attack: float, shooter: Node3D) -> bool:
 	var shoot_dir = (dir + (Vector3.UP * deg_to_rad(pitch))).normalized()
 	b.apply_impulse(shoot_dir * force)
 	particle.restart()
+	particle1.restart()
 	return true
 
 func _process(delta):

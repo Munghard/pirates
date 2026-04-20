@@ -128,7 +128,7 @@ func ddd_label(text: String, _position: Vector3):
 	get_tree().current_scene.add_child(label3d)
 	label3d.text = text
 	label3d.font_size = 160
-	label3d.no_depth_test = true
+	# label3d.no_depth_test = true
 	label3d.global_position = _position
 	label3d.billboard = true
 	get_tree().create_tween().tween_property(label3d, "global_position", label3d.global_position + Vector3.UP * 10.0, 5.0)

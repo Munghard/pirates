@@ -1,6 +1,6 @@
 class_name FactionsData
 
-enum Faction {PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER}
+enum Faction {PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING}
 
 const FACTION_NAMES = {
 	Faction.PIRATE: "Pirate",
@@ -67,6 +67,17 @@ const NAMES = [
 	"Floaty McFloatface",
 	"The Leaky Bucket"
 ]
+
+static var enemy_factions := {
+	FactionsData.Faction.NAVY: [FactionsData.Faction.PIRATE, FactionsData.Faction.SLAVER],
+	FactionsData.Faction.PIRATE: [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.BOUNTYHUNTER],
+	FactionsData.Faction.MERCHANT: [FactionsData.Faction.PIRATE],
+	FactionsData.Faction.SLAVER: [FactionsData.Faction.NAVY],
+	FactionsData.Faction.BOUNTYHUNTER: [FactionsData.Faction.PIRATE],
+}
+
+static func is_enemy(f1, f2) -> bool:
+	return enemy_factions.get(f1, []).has(f2)
 
 static func get_random_name() -> String:
 	return NAMES[randi() % NAMES.size()]

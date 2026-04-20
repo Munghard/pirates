@@ -19,7 +19,7 @@ uniform float foam_threshold_max:hint_range(0.0, 1.0) = 0.7;
 
 uniform vec2 terrain_size = vec2(100.0,100.0);
 uniform float terrain_tile_size = 5.0;
-uniform float water_level = 0.0;
+uniform float water_level_terrain_space = 0.0;
 uniform float max_depth = -10.0;
 uniform float terrain_height_scale = 50.0;
 // from script
@@ -58,7 +58,7 @@ void vertex() {
 	
 	vec2 hm_uv = vec2(world_pos.x,world_pos.z) / (terrain_size * terrain_tile_size);
 	terrain_h = texture(heightmap, hm_uv).r * terrain_height_scale;
-	depth = max(0.0, water_level - terrain_h);
+	depth = max(0.0, water_level_terrain_space - terrain_h);
 	
 	float depth01 = clamp(depth / abs(max_depth), 0.0, 1.0);
 	v_depth = depth01;
@@ -135,7 +135,7 @@ void fragment() {
 	// Sample the height directly in the fragment shader for pixel-perfect locking
 	// This prevents the "swimming" effect when the camera moves
 	float terrain_h_at_frag = texture(heightmap, fragment_hm_uv).r * terrain_height_scale;
-	float frag_depth = max(0.0, water_level - terrain_h_at_frag);
+	float frag_depth = max(0.0, water_level_terrain_space - terrain_h_at_frag);
 	float frag_v_depth = clamp(frag_depth / abs(max_depth), 0.0, 1.0);
 
 	float wave_freq = 40.0; 

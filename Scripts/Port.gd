@@ -57,19 +57,45 @@ func entered_port():
 	player_ship.gameManager.hud.add_child(ui)
 	# connect depart button
 	ui.get_node("MarginContainer/VBoxContainer/DepartButton").pressed.connect(func(): depart())
-	
+	var ps = player_ship
+
 	# create upgrades
-	create_upgrade_ui(ui, "TESTI", "Testicle", 500, func(): print("TESTING!"))
-	create_upgrade_ui(ui, "CREW", "Hire crew", 100, func(): hire_crew())
-	create_upgrade_ui(ui, "GUNS", "Upgrade guns", 500, func(): upgrade_guns())
+	create_upgrade_ui(ui, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
+	create_upgrade_ui(ui, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
+	create_upgrade_ui(ui, "CREW", "Hire crew", 100, func(): ps.gain_crew(1))
+	create_upgrade_ui(ui, "CREW", "Recruit crew", 0, func(): ps.gain_crew(1))
+	create_upgrade_ui(ui, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
+	create_upgrade_ui(ui, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
+	create_upgrade_ui(ui, "COMBAT", "Upgrade defense", 500, func(): ps.defense += 1.0)
 
 
 func create_upgrade_ui(_ui: Control, category: String, upgrade_name: String, upgrade_cost: int, function: Callable):
-	var new_upgrade_vbox = VBoxContainer.new()
+	var root = _ui.get_node("MarginContainer/VBoxContainer")
+
+	# Try to find existing category container
+	var category_vbox: VBoxContainer = root.get_node_or_null(category)
+
+	if not category_vbox:
+		# Create category container once
+		category_vbox = VBoxContainer.new()
+		category_vbox.name = category
+
+		var category_label = Label.new()
+		category_label.text = category
+		category_label.theme_type_variation = "HeaderSmall"
+
+		category_vbox.add_child(category_label)
+		root.add_child(category_vbox)
+
+	# Create upgrade row
 	var new_upgrade_hbox = HBoxContainer.new()
-	var new_category_label = Label.new()
+
 	var new_upgrade_label = Label.new()
+	new_upgrade_label.text = upgrade_name
+
 	var new_upgrade_price_label = Label.new()
+	new_upgrade_price_label.text = str(upgrade_cost) + "g"
+
 	var new_upgrade_button = Button.new()
 	new_upgrade_button.text = "Buy"
 	new_upgrade_button.pressed.connect(func():
@@ -78,34 +104,13 @@ func create_upgrade_ui(_ui: Control, category: String, upgrade_name: String, upg
 		if player_ship.gold >= upgrade_cost:
 			player_ship.gold -= upgrade_cost
 			function.call()
+			player_ship.gameManager.hud.new_notification("Acquired %s" % upgrade_name)
 		else:
 			print("Not enough gold for upgrade: ", upgrade_name)
 	)
-	new_upgrade_label.text = upgrade_name
-	new_upgrade_price_label.text = str(upgrade_cost) + "g"
-	new_category_label.text = category
-	new_category_label.theme_type_variation = "HeaderSmall"
-	new_upgrade_vbox.add_child(new_category_label)
+
 	new_upgrade_hbox.add_child(new_upgrade_label)
 	new_upgrade_hbox.add_child(new_upgrade_price_label)
 	new_upgrade_hbox.add_child(new_upgrade_button)
-	new_upgrade_vbox.add_child(new_upgrade_hbox)
-	_ui.get_node("MarginContainer/VBoxContainer").add_child(new_upgrade_vbox)
 
-func hire_crew():
-	if not player_ship:
-		return
-	if player_ship.crew >= player_ship.max_crew:
-		return
-	var crew_cost := 100
-	if player_ship.gold >= crew_cost:
-		player_ship.gold -= crew_cost
-		player_ship.gain_crew(1)
-
-func upgrade_guns():
-	if not player_ship:
-		return
-	var upgrade_cost := 500
-	if player_ship.gold >= upgrade_cost:
-		player_ship.gold -= upgrade_cost
-		player_ship.upgrade_guns()
+	category_vbox.add_child(new_upgrade_hbox)

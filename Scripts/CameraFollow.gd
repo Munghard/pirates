@@ -4,13 +4,22 @@ class_name Camera
 @export var target: Node3D
 @export var secondary_target: Node3D
 @onready var camera := $Camera3D
+var target_position
 
-func _process(_delta: float) -> void:
-	var target_position = target.global_position
-	if secondary_target:
-		target_position = lerp(target.global_position, secondary_target.global_position, 0.5)
-	global_position = lerp(global_position, target_position, _delta * 5.0)
+func _process(delta: float) -> void:
+	var move := Vector3.ZERO
 
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		var mouse_delta = Input.get_last_mouse_velocity()
+		move = Vector3(mouse_delta.x, 0, mouse_delta.y) * 0.0005
+		target_position += move
+	else:
+		if secondary_target:
+			target_position = target.global_position.lerp(secondary_target.global_position, 0.5)
+		else:
+			target_position = target.global_position
+
+	global_position = global_position.lerp(target_position, delta * 5.0)
 func set_zoom(value: float):
 	camera.size = clamp(camera.size + value, 1, 50)
 	# camera.position.z = clamp(camera.position.z + value, -200.0, -1.0)

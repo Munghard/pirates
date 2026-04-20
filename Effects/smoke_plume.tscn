@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://dq1j8nemeakaq"]
+
+[sub_resource type="Curve" id="Curve_qebug"]
+_data = [Vector2(0, 1), 0.0, -1.0, 0, 1, Vector2(1, 0), -1.0, 0.0, 1, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_o2rbt"]
+curve = SubResource("Curve_qebug")
+
+[sub_resource type="Curve" id="Curve_1vso6"]
+_data = [Vector2(0, 1), 0.0, -5.237047, 0, 0, Vector2(0.40836012, 0), -0.12773286, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_3ua1v"]
+curve = SubResource("Curve_1vso6")
+
+[sub_resource type="Curve" id="Curve_r0ikl"]
+_data = [Vector2(0, 0.03173566), 0.0, 3.2731552, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_opbav"]
+curve = SubResource("Curve_r0ikl")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_coyub"]
+emission_shape = 2
+emission_sphere_radius = 0.2
+radial_velocity_min = 0.99997765
+radial_velocity_max = 1.9999776
+radial_velocity_curve = SubResource("CurveTexture_3ua1v")
+gravity = Vector3(0, 0, 0)
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_opbav")
+alpha_curve = SubResource("CurveTexture_o2rbt")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ochwf"]
+transparency = 1
+depth_draw_mode = 1
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_p5wkl"]
+material = SubResource("StandardMaterial3D_ochwf")
+
+[node name="smoke" type="GPUParticles3D" unique_id=1899817419]
+emitting = false
+lifetime = 5.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_coyub")
+draw_pass_1 = SubResource("SphereMesh_p5wkl")

@@ -108,6 +108,49 @@ func create_terrain_mesh():
 	# 2. Setup Trees (passing the same offset)
 	generate_trees_poisson(offset)
 
+func get_downhill_direction(x: float, z: float) -> Vector3:
+	var step := 1.0
+
+	var hL = get_height_world(x - step, z)
+	var hR = get_height_world(x + step, z)
+	var hD = get_height_world(x, z - step)
+	var hU = get_height_world(x, z + step)
+
+	var dir = Vector3(
+		hL - hR,
+		0.0,
+		hD - hU
+	)
+
+	return dir.normalized()
+
+func get_normal_world(x: float, z: float) -> Vector3:
+	var step := 1.0
+
+	var hL = noise.get_noise_2d((x - step) * noise_frequency, z * noise_frequency) * terrain_height
+	var hR = noise.get_noise_2d((x + step) * noise_frequency, z * noise_frequency) * terrain_height
+	var hD = noise.get_noise_2d(x * noise_frequency, (z - step) * noise_frequency) * terrain_height
+	var hU = noise.get_noise_2d(x * noise_frequency, (z + step) * noise_frequency) * terrain_height
+
+	var dx = hL - hR
+	var dz = hD - hU
+
+	var normal = Vector3(dx, 2.0, dz).normalized()
+	return normal
+
+func get_slope_world(x: float, z: float) -> float:
+	var step := 1.0 # world-space distance for sampling
+
+	var hL = noise.get_noise_2d((x - step) * noise_frequency, z * noise_frequency) * terrain_height
+	var hR = noise.get_noise_2d((x + step) * noise_frequency, z * noise_frequency) * terrain_height
+	var hD = noise.get_noise_2d(x * noise_frequency, (z - step) * noise_frequency) * terrain_height
+	var hU = noise.get_noise_2d(x * noise_frequency, (z + step) * noise_frequency) * terrain_height
+
+	var dx = hR - hL
+	var dz = hU - hD
+
+	return sqrt(dx * dx + dz * dz)
+
 func get_height_world(x: float, z: float) -> float:
 	var n = noise.get_noise_2d(
 		x * noise_frequency,
