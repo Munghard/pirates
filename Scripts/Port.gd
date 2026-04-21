@@ -42,7 +42,7 @@ func depart():
 	docked = false
 
 	if player_ship:
-		player_ship.linear_velocity = player_ship.global_basis.z * 20
+		player_ship.linear_velocity = player_ship.global_basis.z * player_ship.mass * 200.0
 
 	player_ship = null
 	

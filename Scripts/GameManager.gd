@@ -60,11 +60,10 @@ func _input(event: InputEvent) -> void:
 			var rotated = wind.target_direction.rotated(Vector3.UP, deg_to_rad(90))
 			wind.set_direction(rotated)
 		if event.keycode == KEY_F1:
-			spawn_ships_around_player()
+			spawn_ships_around_player(1)
 
-func spawn_ships_around_player():
+func spawn_ships_around_player(count: int):
 	var enemy_ship = preload("res://Scenes/enemy_ship.tscn")
-	var count := 10
 	var radius := 10.0
 
 	for i in range(count):

@@ -2,6 +2,7 @@ extends RigidBody3D
 class_name Ship
 
 @onready var forward_arrow: Node3D = $forward_arrow
+@onready var rotation_arrow: Node3D = $rotation_arrow
 
 var ship_name := "Ship"
 var faction: FactionsData.Faction = FactionsData.Faction.NAVY
@@ -19,6 +20,7 @@ var guns := 1
 
 var actual_speed := 0.0
 
+var side_to_side_speed := 0.0
 var target_speed := 0.0
 var yaw_deg := 0.0
 
@@ -32,6 +34,10 @@ var damage_threshold := 1.0
 var damage_sustained := 0.0
 var crew_health := 1.0
 
+var boarding_target: Ship
+var boarded_ship: Ship
+
+@export var boarding_area: Area3D
 @export var arrow: PackedScene
 @export var rigidbody: RigidBody3D = self
 @export var loot: PackedScene
@@ -55,6 +61,8 @@ signal supplies_changed(amount: int, gained: bool)
 signal recieved_damage(amount: float, attacker: Node3D)
 signal hit_points_changed(amount: float)
 signal on_sink
+signal boarding_target_changed(ship: Ship)
+signal boarding_changed(ship: Ship)
 
 @onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
@@ -165,10 +173,12 @@ func _physics_process(_delta: float) -> void:
 			var a = arrow.instantiate()
 			forward_arrow.add_child(a)
 			a.position = Vector3(0, 0, i * 2.0)
+	rotation_arrow.global_rotation_degrees = Vector3(0.0, yaw_deg, 0.0)
 	#forward_arrow.scale.z = target_speed
 	previous_speed = target_speed
 
 	var forward = global_basis.z
+	var right = global_basis.x
 	var wind_along_forward = gameManager.wind.direction.dot(forward)
 
 	# incapacitated check
@@ -177,8 +187,8 @@ func _physics_process(_delta: float) -> void:
 		capable_speed = 0.0
 
 	actual_speed = capable_speed * (1.0 + wind_along_forward)
-
-	apply_central_force(forward * actual_speed * mass * 5.0)
+	side_to_side_speed = clamp(side_to_side_speed, -top_speed, top_speed)
+	apply_central_force((right * side_to_side_speed) + (forward * actual_speed) * 5.0)
 	# position += forward * actual_speed * delta
 	# var new_yaw = lerp_angle(rotation.y, deg_to_rad(yaw_deg), delta)
 	# rotation = Vector3(0, new_yaw, 0)
@@ -189,7 +199,7 @@ func _physics_process(_delta: float) -> void:
 
 	# Apply a turning force based on how far we need to turn
 	# rotation = Vector3(0, new_yaw, 0)
-	apply_torque(Vector3.UP * rotation_diff * agility * mass / (target_speed + 1.0) * 10.0)
+	apply_torque(Vector3.UP * rotation_diff * agility / (target_speed + 1.0) * 10.0)
 
 	#clamp to top speed
 	var speed = linear_velocity.length()
@@ -283,6 +293,43 @@ func active_starboard(value: bool):
 func active_port(value: bool):
 	for canon in canons_port:
 		canon.active = value
+
+func set_boarded():
+	original_parent = get_parent()
+	if boarding_target:
+		boarding_target.reparent(self )
+	axis_lock_linear_x = true
+	axis_lock_linear_z = true
+	axis_lock_angular_y = true
+
+var original_parent: Node
+func set_unboarded():
+	if boarding_target:
+		boarding_target.reparent(original_parent)
+	axis_lock_linear_x = false
+	axis_lock_linear_z = false
+	axis_lock_angular_y = false
+
+func board_ship():
+	if not boarding_target:
+		return
+	boarding_target.set_boarded()
+	boarded_ship = boarding_target
+	emit_signal("boarding_changed", boarding_target)
+
+
+func unboard_ship():
+	if not boarded_ship:
+		return
+	print("unboarding: ", boarded_ship);
+	boarded_ship.set_unboarded()
+	boarded_ship = null
+	emit_signal("boarding_changed", null)
+
+func set_boarding_target(ship: Ship):
+	boarding_target = ship
+	emit_signal("boarding_target_changed", ship)
+	print("boarding target set: ", ship);
 
 func _on_body_entered(body: Node) -> void:
 	if body is not Ship:

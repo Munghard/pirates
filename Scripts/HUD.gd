@@ -12,6 +12,8 @@ class_name HUD
 @export var blip_scene: PackedScene
 var minimap_scale = 0.5
 
+@export var boarding_button: Button
+
 @export var notification_label: Label
 var notification_queue: Array[String] = []
 var showing_notifications = false
@@ -26,11 +28,14 @@ var selected_ship: Ship
 func _ready():
 	minimap_scale_slider.value = minimap_scale
 	wind_panel.visible = false
+	boarding_button.visible = false
+
+func _on_boarding_target_changed(ship: Ship):
+	boarding_button.visible = ship != null
 
 # ================================================================================================================
 # MINIMAP 
 # ================================================================================================================
-
 func update_minimap():
 	for child in minimap.get_children():
 		child.queue_free()
@@ -46,6 +51,10 @@ func update_minimap():
 	for floater: Node3D in get_tree().get_nodes_in_group("Floaters"):
 		var color = Color(1, 1, 1, 0.5)
 		add_blip_to_minimap(floater.global_position, color, 0.5)
+	
+	for port: Node3D in get_tree().get_nodes_in_group("Ports"):
+		var color = Color(0, 1, 0, 0.5)
+		add_blip_to_minimap(port.global_position, color, 1.5)
 		
 
 func add_blip_to_minimap(_position: Vector3, color: Color, _scale: float):
@@ -73,6 +82,7 @@ func init_hud() -> void:
 	#init notification label as 0 alpha
 	notification_label.modulate.a = 0
 	update_ship_panel(null, ship_panel)
+	gameManager.player_ship.connect("boarding_target_changed", Callable(self , "_on_boarding_target_changed"))
 
 
 func select_ship(ship: Ship):
@@ -163,7 +173,14 @@ func update_ship_panel(ship: Ship, _ship_panel: Control):
 	var ship_label := _ship_panel.get_node("MarginContainer/VBoxContainer/Label")
 	var ship_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_health")
 	var ship_crew_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_crew")
-	_ship_panel.visible = ship != null
+	var a = 1.0
+	if ship == null:
+		a = 0.0
+		_ship_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ship_panel.modulate.a = a
+	_ship_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	# _ship_panel.visible = ship != null
+
 	if ship == null:
 		return
 	
@@ -178,14 +195,15 @@ func update_ship_panel(ship: Ship, _ship_panel: Control):
 
 	var ai_text = ""
 	if ship is EnemyShip:
-		ai_text = "State: %s\n" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
-		ai_text += "SubState: %s\n" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
+		ai_text = "State: %s" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
+		ai_text += "\nSubState: %s" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
+		ai_text += "\nIn combat: %.s" % [str(ship.in_combat)]
+		if ship.attacker: ai_text += "\nTarget: %.s" % [str(ship.attacker.name)]
 	
 	var ship_text = ""
 	if ship:
-		ship_text += "Crew: %s/%s" % [ship.crew, ship.max_crew]
+		ship_text += "\nCrew: %s/%s" % [ship.crew, ship.max_crew]
 		ship_text += "\nHp: %.2f/%.2f" % [ship.hit_points, ship.max_hit_points]
-		ship_text += "\nIn combat: %.s" % [str(ship.in_combat)]
 		# debug info
 		# ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
 		# ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
@@ -267,3 +285,15 @@ func _on_button_2_pressed() -> void:
 func _on_v_slider_value_changed(value: float) -> void:
 	minimap_scale = value / 100.0
 	update_minimap()
+
+
+func _on_board_button_pressed() -> void:
+	if gameManager.player_ship.boarded_ship:
+		gameManager.player_ship.unboard_ship()
+	else:
+		gameManager.player_ship.board_ship()
+	
+	if gameManager.player_ship.boarded_ship != null:
+		boarding_button.text = "Unboard ship"
+	else:
+		boarding_button.text = "Board ship"

@@ -298,3 +298,17 @@ func draw_line_to_target_point(_line: ImmediateMesh, _target_point: Vector3, col
 	get_tree().current_scene.add_child(line_instance)
 	await get_tree().create_timer(0.1).timeout
 	line_instance.queue_free()
+
+
+func _on_boarding_area_body_entered(body: Node3D) -> void:
+	var ship
+	if body is Ship and body != self:
+		ship = body as Ship
+		boarding_target = ship
+
+func _on_boarding_area_body_exited(body: Node3D) -> void:
+	var ship
+	if body is Ship:
+		ship = body as Ship
+		if boarding_target == ship:
+			boarding_target = null

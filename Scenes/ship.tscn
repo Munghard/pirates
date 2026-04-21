@@ -4,15 +4,18 @@
 [ext_resource type="PackedScene" uid="uid://cr7y5ey7ppmmp" path="res://Models/Sail ship.fbx" id="1_l3rv8"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_4cq66"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="2_6ejuo"]
+[ext_resource type="Texture2D" uid="uid://ct57ceuvqy3k8" path="res://Textures/plain-arrow.png" id="5_cmder"]
 [ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="6_cmder"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
 size = Vector3(1.1582031, 1.4629517, 4.74115)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_8aq7e"]
+size = Vector3(4.1064453, 1, 1)
+
 [node name="ship" type="RigidBody3D" unique_id=1823530110]
 mass = 100000.0
 gravity_scale = 0.0
-angular_damp = 5.0
 
 [node name="ship_pivot" type="Node3D" parent="." unique_id=1303226422 node_paths=PackedStringArray("ship", "canons_port", "canons_starboard", "ship_model")]
 script = ExtResource("1_8aq7e")
@@ -52,6 +55,22 @@ target = NodePath("..")
 [node name="forward_arrow" type="Node3D" parent="." unique_id=93642959]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.717)
 
+[node name="rotation_arrow" type="Node3D" parent="." unique_id=1289260863]
+
+[node name="arrow" type="Sprite3D" parent="rotation_arrow" unique_id=1487089547]
+transform = Transform3D(0.5, 0, 0, 0, -2.1855694e-08, 0.5, 0, -0.5, -2.1855694e-08, 0, 0, 5)
+sorting_offset = 1000.0
+modulate = Color(0.3561068, 0.6850385, 1.92523e-07, 1)
+alpha_cut = 1
+render_priority = 127
+texture = ExtResource("5_cmder")
+
 [node name="world_bars" parent="." unique_id=1446492284 instance=ExtResource("6_cmder")]
+
+[node name="Area3D" type="Area3D" parent="." unique_id=167467948]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.39939904, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=490448218]
+shape = SubResource("BoxShape3D_8aq7e")
 
 [editable path="ship_pivot/Sail ship"]

@@ -139,7 +139,7 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "wind_panel", "wind_control", "minimap", "minimap_scale_slider", "notification_label")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "wind_panel", "wind_control", "minimap", "minimap_scale_slider", "boarding_button", "notification_label")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
@@ -151,6 +151,7 @@ wind_control = NodePath("wind_gauge")
 minimap = NodePath("Minimap/Minimap")
 minimap_scale_slider = NodePath("Minimap/VSlider")
 blip_scene = ExtResource("4_no8kt")
+boarding_button = NodePath("Button")
 notification_label = NodePath("notification_Label")
 
 [node name="Target_ship_panel" parent="MarginContainer/HUD" unique_id=1821436781 instance=ExtResource("4_yq1aw")]
@@ -260,6 +261,21 @@ value = 50.0
 clip_children = 2
 layout_mode = 2
 texture = SubResource("GradientTexture2D_no8kt")
+
+[node name="Button" type="Button" parent="MarginContainer/HUD" unique_id=1515037144]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -46.0
+offset_top = -111.0
+offset_right = 46.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Board ship"
 
 [node name="World" type="Node3D" parent="." unique_id=1431584057 node_paths=PackedStringArray("water", "wind", "terrain")]
 script = ExtResource("5_axeuq")
@@ -372,10 +388,11 @@ scale_curve_z = SubResource("Curve_xbk3s")
 color = Color(1, 1, 1, 0.03529412)
 color_ramp = SubResource("Gradient_i4fjy")
 
-[node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("canons_port", "canons_starboard") groups=["Ships"] instance=ExtResource("1_fo5ed")]
+[node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("boarding_area", "canons_port", "canons_starboard") groups=["Ships"] instance=ExtResource("1_fo5ed")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 238.50874, 0, 278.30396)
-linear_damp = 1.0
+mass = 1.0
 script = ExtResource("3_5v1tr")
+boarding_area = NodePath("Area3D")
 arrow = ExtResource("17_xbk3s")
 loot = ExtResource("5_5v1tr")
 canons_port = [null, null, null]
@@ -410,6 +427,9 @@ script = ExtResource("26_pt3ps")
 [connection signal="mouse_entered" from="MarginContainer/HUD/wind_gauge" to="MarginContainer/HUD" method="_on_wind_gauge_mouse_entered"]
 [connection signal="pressed" from="MarginContainer/HUD/Wind_panel/MarginContainer/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
 [connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD" method="_on_v_slider_value_changed"]
+[connection signal="pressed" from="MarginContainer/HUD/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
+[connection signal="body_entered" from="PlayerShip/Area3D" to="PlayerShip" method="_on_boarding_area_body_entered"]
+[connection signal="body_exited" from="PlayerShip/Area3D" to="PlayerShip" method="_on_boarding_area_body_exited"]
 
 [editable path="PlayerShip"]
 [editable path="PlayerShip/ship_pivot/Sail ship"]

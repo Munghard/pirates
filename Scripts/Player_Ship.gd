@@ -58,15 +58,19 @@ func upgrade_guns():
 func _process(_delta: float) -> void:
 	super._process(_delta)
 	# Continuous steering logic
-	if Input.is_key_pressed(KEY_A):
-		yaw_deg += _delta * agility * 10.0
-	if Input.is_key_pressed(KEY_D):
-		yaw_deg -= _delta * agility * 10.0
+	pass
 
+	
 func _input(event: InputEvent) -> void:
 	# One-time actions (like shooting or incremental speed changes) 
 	# stay here to prevent "machine-gun" firing or instant max speed
 	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_A:
+			side_to_side_speed += 1.0
+			print(side_to_side_speed)
+		if event.keycode == KEY_D:
+			side_to_side_speed -= 1.0
+			print(side_to_side_speed)
 		if event.keycode == KEY_W:
 			target_speed = clamp(target_speed + 1.0, 0, top_speed)
 		if event.keycode == KEY_S:
@@ -82,6 +86,21 @@ func _input(event: InputEvent) -> void:
 			starboard_pitch(-5)
 			port_pitch(-5)
 		if event.keycode == KEY_Q:
-			yaw_deg = yaw_deg + 90.0
+			yaw_deg = yaw_deg + 22.5
 		if event.keycode == KEY_E:
-			yaw_deg = yaw_deg - 90.0
+			yaw_deg = yaw_deg - 22.5
+
+
+func _on_boarding_area_body_entered(body: Node3D) -> void:
+	var ship
+	if body is Ship and body != self:
+		ship = body as Ship
+		set_boarding_target(ship)
+
+
+func _on_boarding_area_body_exited(body: Node3D) -> void:
+	var ship
+	if body is Ship:
+		ship = body as Ship
+		if boarding_target == ship:
+			set_boarding_target(null)
