@@ -76,6 +76,12 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0
 no_depth_test = true
 texture = ExtResource("6_c6fo0")
 
+[node name="right_arrow" type="Node3D" parent="." unique_id=2039705381]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 0)
+
+[node name="left_arrow" type="Node3D" parent="." unique_id=1705056774]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, 0)
+
 [node name="rotation_arrow" type="Node3D" parent="." unique_id=33603859]
 
 [node name="arrow" type="Sprite3D" parent="rotation_arrow" unique_id=1644756768]

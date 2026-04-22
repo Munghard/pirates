@@ -10,7 +10,11 @@ var water: Water
 var wind_particle: CPUParticles3D
 var wind: Wind
 var terrain: Terrain
-var port: Port
+var time: GameTime
+var sun: DirectionalLight3D
+var clouds: MeshInstance3D
+
+@export var sun_gradient: Gradient
 
 func _ready() -> void:
 	player_ship = $PlayerShip
@@ -21,10 +25,9 @@ func _ready() -> void:
 	wind = $World/Wind
 	terrain = $World/Terrain
 	wind_particle = $World/wind_particle_cpu
-	port = $World/Port/port
-	
-	wind.randomize_wind()
-	wind.connect("wind_changed", Callable(self , "_on_wind_changed"))
+	clouds = $World/Clouds
+	time = $World/Time
+	sun = $World/Sun
 
 	assert(wind != null, "wind is null in gamemanager start")
 	assert(player_ship != null, "player_ship is null in gamemanager start")
@@ -34,13 +37,46 @@ func _ready() -> void:
 	assert(camera != null, "camera is null in gamemanager start")
 	assert(camerarig != null, "camerarig is null in gamemanager start")
 	assert(terrain != null, "terrain is null in gamemanager start")
-	assert(port != null, "port is null in gamemanager start")
+	assert(time != null, "time is null in gamemanager start")
+	assert(sun != null, "sun is null in gamemanager start")
+	assert(clouds != null, "clouds is null in gamemanager start")
+
+	time.connect("time_changed", Callable(self , "_on_time_changed"))
+
+	wind.randomize_wind()
+	wind.connect("wind_changed", Callable(self , "_on_wind_changed"))
 
 	hud.init_hud()
 
-func _process(_delta: float) -> void:
+func _on_time_changed(_time: float):
+	var normalized_time = time.get_time_normalized()
+	var angle = 360.0 * normalized_time
+	sun.rotation_degrees.x = angle + 90.0
+	var t = normalized_time # 0–1
+	sun.light_energy = max(0.0, sin(t * PI)) * 2.0
+	sun.light_color = sun_gradient.sample(normalized_time)
+
+var offset: Vector2 = Vector2.ZERO
+
+func _process(delta: float) -> void:
 	wind_particle.rotation = Vector3(0, atan2(wind.direction.x, wind.direction.z), 0)
-	wind_particle.position = player_ship.position
+	
+	var cloud_pos = camerarig.global_position
+	var cloud_height = 20.0
+	cloud_pos.y = cloud_height
+
+	wind_particle.global_position = cloud_pos
+	clouds.global_position = cloud_pos
+	var wind_strength = wind.strength
+
+	offset += Vector2(-wind.direction.x, -wind.direction.z) * wind_strength * delta * 0.01
+	
+	var mat := clouds.get_active_material(0) as ShaderMaterial
+	mat.set_shader_parameter("offset", offset)
+
+func pass_time():
+	time.pass_time(1.0)
+	wind.randomize_wind()
 
 func _on_wind_changed(_wind: Wind):
 	if not wind_particle:

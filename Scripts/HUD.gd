@@ -4,6 +4,8 @@ class_name HUD
 @export var ship_panel: Control
 @export var ship_panel_player: Control
 
+@export var time_panel: Control
+
 @export var wind_panel: Control
 @export var wind_control: Control
 
@@ -29,6 +31,19 @@ func _ready():
 	minimap_scale_slider.value = minimap_scale
 	wind_panel.visible = false
 	boarding_button.visible = false
+
+func init_hud() -> void:
+	# update wind direction gauge
+	gameManager.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
+	#init notification label as 0 alpha
+	notification_label.modulate.a = 0
+	update_ship_panel(null, ship_panel)
+	gameManager.player_ship.connect("boarding_target_changed", Callable(self , "_on_boarding_target_changed"))
+	gameManager.time.connect("time_changed", Callable(self , "_on_time_changed"))
+
+func _on_time_changed(time: float):
+	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
+	label_time.text = gameManager.time.get_time_string()
 
 func _on_boarding_target_changed(ship: Ship):
 	boarding_button.visible = ship != null
@@ -75,14 +90,6 @@ func world_to_minimap(_position: Vector3) -> Vector2:
 # ================================================================================================================
 # MINIMAP 
 # ================================================================================================================
-
-func init_hud() -> void:
-	# update wind direction gauge
-	gameManager.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
-	#init notification label as 0 alpha
-	notification_label.modulate.a = 0
-	update_ship_panel(null, ship_panel)
-	gameManager.player_ship.connect("boarding_target_changed", Callable(self , "_on_boarding_target_changed"))
 
 
 func select_ship(ship: Ship):
@@ -297,3 +304,7 @@ func _on_board_button_pressed() -> void:
 		boarding_button.text = "Unboard ship"
 	else:
 		boarding_button.text = "Board ship"
+
+
+func _on_button_pass_time_pressed() -> void:
+	gameManager.pass_time()

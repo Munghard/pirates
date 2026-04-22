@@ -23,9 +23,15 @@
 [ext_resource type="Script" uid="uid://bxdp73tg0wwul" path="res://Scripts/Terrain.gd" id="17_0pcbe"]
 [ext_resource type="PackedScene" uid="uid://5u1uqatga6r7" path="res://UI/arrow.tscn" id="17_xbk3s"]
 [ext_resource type="PackedScene" uid="uid://dsdgtegub08f0" path="res://Models/Palm Tree/Environment_PalmTree_1.fbx" id="18_axeuq"]
+[ext_resource type="Script" uid="uid://dh5bsqrqcglgt" path="res://Scripts/time.gd" id="21_hmc15"]
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="21_pyn1s"]
+[ext_resource type="Shader" uid="uid://6an42f6pkuwg" path="res://Materials/clouds.gdshader" id="22_dt0r1"]
 [ext_resource type="Shader" uid="uid://bug7bbfblq2pu" path="res://Materials/toon_shader_pp.gdshader" id="25_i4fjy"]
 [ext_resource type="Script" uid="uid://bilgylkyj1kr3" path="res://Scripts/debug_draw.gd" id="26_pt3ps"]
+
+[sub_resource type="Gradient" id="Gradient_hmc15"]
+offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
+colors = PackedColorArray(0.25, 0.4375, 1, 1, 1, 0.36666667, 0, 1, 1, 1, 1, 1, 1, 0.36862746, 0, 1, 0.2509804, 0.4392157, 1, 1)
 
 [sub_resource type="Gradient" id="Gradient_pyn1s"]
 offsets = PackedFloat32Array(0, 0.9331307, 0.96103895, 1)
@@ -116,6 +122,28 @@ point_count = 2
 offsets = PackedFloat32Array(0, 0.48026314, 1)
 colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_qebug"]
+frequency = 0.0031
+fractal_lacunarity = 1.72
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_o2rbt"]
+noise = SubResource("FastNoiseLite_qebug")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1vso6"]
+render_priority = 0
+shader = ExtResource("22_dt0r1")
+shader_parameter/noise = SubResource("NoiseTexture2D_o2rbt")
+shader_parameter/color = Color(0.6872149, 0.68721503, 0.6872149, 1)
+shader_parameter/scale = 0.00999999977648
+shader_parameter/wind_speed_multiplier = 0.999999977648
+shader_parameter/offset = Vector2(0, 0)
+
+[sub_resource type="QuadMesh" id="QuadMesh_3ua1v"]
+material = SubResource("ShaderMaterial_1vso6")
+size = Vector2(100, 100)
+orientation = 1
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pt3ps"]
 render_priority = 0
 shader = ExtResource("25_i4fjy")
@@ -127,6 +155,7 @@ size = Vector2(53.42, 30.29)
 
 [node name="GameManager" type="Node3D" unique_id=418889483]
 script = ExtResource("1_5ukr8")
+sun_gradient = SubResource("Gradient_hmc15")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=954428007]
 anchors_preset = 15
@@ -139,13 +168,14 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "wind_panel", "wind_control", "minimap", "minimap_scale_slider", "boarding_button", "notification_label")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel", "ship_panel_player", "time_panel", "wind_panel", "wind_control", "minimap", "minimap_scale_slider", "boarding_button", "notification_label")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
 script = ExtResource("2_k7acu")
 ship_panel = NodePath("Target_ship_panel")
 ship_panel_player = NodePath("Player_ship_panel")
+time_panel = NodePath("Time_panel")
 wind_panel = NodePath("Wind_panel")
 wind_control = NodePath("wind_gauge")
 minimap = NodePath("Minimap/Minimap")
@@ -204,10 +234,8 @@ grow_horizontal = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HUD/Wind_panel" unique_id=811836826]
 layout_mode = 0
-offset_left = 4.0
-offset_top = 28.0
-offset_right = 125.0
-offset_bottom = 144.0
+offset_right = 121.0
+offset_bottom = 116.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/Wind_panel/MarginContainer" unique_id=424878902]
 layout_mode = 2
@@ -276,6 +304,37 @@ offset_bottom = -80.0
 grow_horizontal = 2
 grow_vertical = 0
 text = "Board ship"
+
+[node name="Time_panel" type="PanelContainer" parent="MarginContainer/HUD" unique_id=1006730175]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 171.0
+offset_top = -116.0
+offset_right = 274.0
+grow_vertical = 0
+pivot_offset_ratio = Vector2(0, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HUD/Time_panel" unique_id=1214287054]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/Time_panel/MarginContainer" unique_id=218929194]
+layout_mode = 2
+
+[node name="Label_h" type="Label" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=1209853354]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Time"
+
+[node name="Label_time" type="Label" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=1047749311]
+layout_mode = 2
+text = "12:00"
+
+[node name="Button2" type="Button" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=604320044]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Pass time"
 
 [node name="World" type="Node3D" parent="." unique_id=1431584057 node_paths=PackedStringArray("water", "wind", "terrain")]
 script = ExtResource("5_axeuq")
@@ -353,8 +412,8 @@ water = NodePath("../Water")
 terrain = NodePath("../Terrain")
 water_level = 25.0
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World" unique_id=85683695]
-transform = Transform3D(0.70710677, -0.5, 0.50000006, 0, 0.7071068, 0.70710677, -0.7071068, -0.49999997, 0.5, 0, 3.3022847, 0)
+[node name="Sun" type="DirectionalLight3D" parent="World" unique_id=85683695]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 3.3022847, 0)
 shadow_enabled = true
 
 [node name="wind_particle" type="GPUParticles3D" parent="World" unique_id=1543477643]
@@ -387,6 +446,13 @@ scale_curve_y = null
 scale_curve_z = SubResource("Curve_xbk3s")
 color = Color(1, 1, 1, 0.03529412)
 color_ramp = SubResource("Gradient_i4fjy")
+
+[node name="Time" type="Node3D" parent="World" unique_id=945669454]
+script = ExtResource("21_hmc15")
+
+[node name="Clouds" type="MeshInstance3D" parent="World" unique_id=874647956]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23, 0)
+mesh = SubResource("QuadMesh_3ua1v")
 
 [node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("boarding_area", "canons_port", "canons_starboard") groups=["Ships"] instance=ExtResource("1_fo5ed")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 238.50874, 0, 278.30396)
@@ -428,6 +494,7 @@ script = ExtResource("26_pt3ps")
 [connection signal="pressed" from="MarginContainer/HUD/Wind_panel/MarginContainer/VBoxContainer/Button" to="MarginContainer/HUD" method="_on_button_pressed"]
 [connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD" method="_on_v_slider_value_changed"]
 [connection signal="pressed" from="MarginContainer/HUD/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer/Button2" to="MarginContainer/HUD" method="_on_button_pass_time_pressed"]
 [connection signal="body_entered" from="PlayerShip/Area3D" to="PlayerShip" method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="PlayerShip/Area3D" to="PlayerShip" method="_on_boarding_area_body_exited"]
 

@@ -2,6 +2,8 @@ extends RigidBody3D
 class_name Ship
 
 @onready var forward_arrow: Node3D = $forward_arrow
+@onready var right_arrow: Node3D = $right_arrow
+@onready var left_arrow: Node3D = $left_arrow
 @onready var rotation_arrow: Node3D = $rotation_arrow
 
 var ship_name := "Ship"
@@ -150,6 +152,7 @@ func sink():
 	emit_signal("on_sink")
 
 var previous_speed
+var previous_h_speed
 func _physics_process(_delta: float) -> void:
 	if destroyed:
 		if floater:
@@ -167,12 +170,18 @@ func _physics_process(_delta: float) -> void:
 	rotation.z = lerp_angle(rotation.z, 0, _delta)
 
 	if previous_speed != target_speed:
-		for child in forward_arrow.get_children():
-			child.queue_free()
-		for i in range(target_speed):
-			var a = arrow.instantiate()
-			forward_arrow.add_child(a)
-			a.position = Vector3(0, 0, i * 2.0)
+		update_arrow(forward_arrow, floor(target_speed))
+	if side_to_side_speed != previous_h_speed:
+		if side_to_side_speed > 0:
+			update_arrow(left_arrow, floor(side_to_side_speed))
+			queue_free_children(right_arrow)
+		elif side_to_side_speed < 0:
+			update_arrow(right_arrow, abs(side_to_side_speed))
+			queue_free_children(left_arrow)
+		elif side_to_side_speed == 0:
+			queue_free_children(right_arrow)
+			queue_free_children(left_arrow)
+
 	rotation_arrow.global_rotation_degrees = Vector3(0.0, yaw_deg, 0.0)
 	#forward_arrow.scale.z = target_speed
 	previous_speed = target_speed
@@ -210,8 +219,21 @@ func _physics_process(_delta: float) -> void:
 	var angular_speed = angular_velocity.length()
 	if angular_speed > top_speed:
 		angular_velocity = angular_velocity / angular_speed * agility;
-	
-	
+
+func queue_free_children(node: Node3D):
+	for child in node.get_children():
+		child.queue_free()
+
+
+func update_arrow(container: Node3D, count: int):
+	queue_free_children(container)
+
+	for i in range(count):
+		var a = arrow.instantiate()
+		container.add_child(a)
+		a.position = Vector3(0, 0, i * 2.0)
+
+
 func spawn_loot():
 	var split = 5.0
 	for i in split:

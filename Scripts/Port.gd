@@ -13,6 +13,7 @@ func _process(delta):
 		var target = global_basis
 		player_ship.global_basis = current.slerp(target, delta)
 		player_ship.yaw_deg = global_rotation_degrees.y
+		player_ship.global_position = global_position
 		if player_ship.hit_points < player_ship.max_hit_points:
 			player_ship.hit_points += delta * 10.0
 			player_ship.hit_points = min(player_ship.hit_points, player_ship.max_hit_points)
@@ -45,7 +46,7 @@ func depart():
 		player_ship.linear_velocity = player_ship.global_basis.z * player_ship.mass * 200.0
 
 	player_ship = null
-	
+
 
 func entered_port():
 	# delete existing ui if any
