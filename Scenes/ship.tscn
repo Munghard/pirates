@@ -53,20 +53,21 @@ script = ExtResource("2_4cq66")
 target = NodePath("..")
 
 [node name="forward_arrow" type="Node3D" parent="." unique_id=93642959]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.717)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0741825, 3.717)
 
 [node name="right_arrow" type="Node3D" parent="." unique_id=266821496]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 0)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 2, 0)
 
 [node name="left_arrow" type="Node3D" parent="." unique_id=471492174]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 2, 0)
 
 [node name="rotation_arrow" type="Node3D" parent="." unique_id=1289260863]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
 [node name="arrow" type="Sprite3D" parent="rotation_arrow" unique_id=1487089547]
 transform = Transform3D(0.5, 0, 0, 0, -2.1855694e-08, 0.5, 0, -0.5, -2.1855694e-08, 0, 0, 5)
 sorting_offset = 1000.0
-modulate = Color(0.3561068, 0.6850385, 1.92523e-07, 1)
+modulate = Color(0.51666665, 1, 0, 1)
 alpha_cut = 1
 render_priority = 127
 texture = ExtResource("5_cmder")

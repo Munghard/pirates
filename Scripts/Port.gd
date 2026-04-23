@@ -5,15 +5,24 @@ class_name Port
 @export var port_ui: PackedScene
 var player_ship: PlayerShip
 var docked := false
+var departing := false
 var ui: Control
 
 func _process(delta):
-	if docked and player_ship:
+	if departing and player_ship:
+		player_ship.target_speed = player_ship.top_speed
+
+		if player_ship.global_position.distance_to(global_position) > 100.0:
+			departing = false
+			docked = false
+			player_ship = null
+
+	if docked and player_ship and not departing:
 		var current = player_ship.global_basis
 		var target = global_basis
 		player_ship.global_basis = current.slerp(target, delta)
 		player_ship.yaw_deg = global_rotation_degrees.y
-		player_ship.global_position = global_position
+		player_ship.global_position = lerp(player_ship.global_position, global_position, delta)
 		if player_ship.hit_points < player_ship.max_hit_points:
 			player_ship.hit_points += delta * 10.0
 			player_ship.hit_points = min(player_ship.hit_points, player_ship.max_hit_points)
@@ -26,16 +35,12 @@ func _on_body_entered(body: Node3D) -> void:
 
 func dock(body: PlayerShip):
 	player_ship = body
-	player_ship.target_speed = 0
 	docked = true
+	departing = false
+	
+	player_ship.target_speed = 0
+	player_ship.side_to_side_speed = 0
 	entered_port()
-
-
-func _on_body_exited(body: Node3D) -> void:
-	if body is PlayerShip:
-		docked = false
-		player_ship = null
-
 
 func depart():
 	if ui:
@@ -43,9 +48,13 @@ func depart():
 	docked = false
 
 	if player_ship:
-		player_ship.linear_velocity = player_ship.global_basis.z * player_ship.mass * 200.0
+		departing = true
 
-	player_ship = null
+
+func _on_body_exited(body: Node3D) -> void:
+	if body is PlayerShip:
+		docked = false
+		player_ship = null
 
 
 func entered_port():

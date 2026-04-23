@@ -188,14 +188,14 @@ func _physics_process(_delta: float) -> void:
 
 	var forward = global_basis.z
 	var right = global_basis.x
-	var wind_along_forward = gameManager.wind.direction.dot(forward)
+	#var wind_along_forward = gameManager.wind.direction.dot(forward)
 
 	# incapacitated check
 	var capable_speed = target_speed
 	if incapacitated:
 		capable_speed = 0.0
 
-	actual_speed = capable_speed * (1.0 + wind_along_forward)
+	actual_speed = capable_speed # + (wind_along_forward) # overriding wind effect (1.0 + wind_along_forward)
 	side_to_side_speed = clamp(side_to_side_speed, -top_speed, top_speed)
 	apply_central_force((right * side_to_side_speed) + (forward * actual_speed) * 5.0)
 	# position += forward * actual_speed * delta

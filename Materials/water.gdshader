@@ -5,6 +5,7 @@ uniform sampler2D normal_map :hint_normal;
 
 uniform sampler2D noise_tex;
 uniform sampler2D heightmap: filter_linear, repeat_disable;
+uniform vec3 beach_color : source_color = vec3(0.8, 0.5, 0.6);
 uniform vec3 albedo : source_color = vec3(0.1, 0.3, 0.5);
 uniform vec3 crest_color : source_color = vec3(0.4, 0.7, 1.0);
 uniform vec3 foam_color : source_color = vec3(1.0, 1.0, 1.0);
@@ -156,13 +157,16 @@ void fragment() {
 	float foam_total = clamp(foam + foam_big_mixed + beach_waves, 0.0, 1.0);
 	
 	vec3 final_color = mix(color, foam_color, foam_total);
+	float beach_color_mask = 1.0 - shore_mask;
+	final_color = mix(beach_color,final_color,beach_color_mask);
     ALBEDO = final_color;
     //ALBEDO = vec3(1.0,1.0,1.0) * beach_waves;
+	
 	
     METALLIC = 0.0;
     ROUGHNESS = mix(0.05,1.0, foam_total); // Low roughness = shiny water
     SPECULAR = mix(0.8,0.0,foam_total);
     
     // Fake some depth by making the peaks slightly more opaque
-    ALPHA = 1.0 - shore_mask; 
+    //ALPHA = 1.0 - shore_mask; 
 }

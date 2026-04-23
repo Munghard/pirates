@@ -17,6 +17,11 @@ var combat_state: CombatState = CombatState.PURSUE
 var target_point: Vector3
 
 var water: Water
+
+var requesting_waypoint := false
+var active_range := 500.0 # range from player
+var active := true # active status for process
+
 @export_group("Perception")
 var perception_radius := 50.0
 var perception_timer := 0.0
@@ -125,12 +130,26 @@ func set_random_dir_and_speed():
 	target_speed = randf_range(0, top_speed)
 	yaw_deg = randf_range(0.0, 359.0)
 
+func _physics_process(_delta: float) -> void:
+	# deactivate process
+	var dist_sq = global_position.distance_squared_to(gameManager.player_ship.global_position)
+	active = dist_sq < active_range * active_range
+	if not active:
+		return
+
+	super._physics_process(_delta)
 
 func _process(delta):
+	# deactivate process
+	if not active:
+		return
+	
 	super._process(delta)
-	if attacker != null:
-		draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
-	draw_line_to_target_point(line_route, target_point, Color.GREEN)
+	var debug_draw_path = false
+	if debug_draw_path:
+		if attacker != null:
+			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
+		draw_line_to_target_point(line_route, target_point, Color.GREEN)
 	
 	if ai_state == AIState.COMBAT:
 		if is_instance_valid(attacker):
@@ -205,12 +224,27 @@ func _handle_shooting(target: Vector3):
 func en_route_behaviour(delta: float):
 	route_timer += delta
 
-	if route_timer >= change_route or (global_position - target_point).length() < 5.0:
-		target_speed = 1.0
-		change_route = randf_range(100.0, 500.0)
+	if requesting_waypoint:
+		return
+
+	if route_timer >= change_route or (global_position - target_point).length() < 10.0:
+		requesting_waypoint = true
 		route_timer = 0
-		target_point = await get_new_waypoint(delta)
-		set_rotation_to_target_point(target_point)
+		change_route = randf_range(100.0, 500.0)
+
+		_request_waypoint(delta)
+
+var pending_waypoint: Vector3
+
+func _request_waypoint(_delta: float) -> void:
+	var wp = get_new_waypoint()
+	pending_waypoint = wp
+
+	target_point = pending_waypoint
+	set_rotation_to_target_point(target_point)
+	target_speed = top_speed
+
+	requesting_waypoint = false
 
 var target_point_height: float
 
@@ -247,13 +281,36 @@ func perception():
 			#do nothing
 			pass
 
-func get_new_waypoint(_delta: float) -> Vector3:
-	while target_point_height > gameManager.water.water_level_world_space or not is_path_clear(global_position, target_point):
-		await get_tree().create_timer(0.1).timeout
-		target_point = Vector3(randf_range(0, gameManager.terrain.world_size.x * gameManager.terrain.tile_size), 0, randf_range(0, gameManager.terrain.world_size.y * gameManager.terrain.tile_size))
-		target_point_height = gameManager.terrain.get_height_world(target_point.x, target_point.z)
-	gameManager.hud.ddd_label("New waypoint acquired", global_position)
-	return target_point
+func get_new_waypoint() -> Vector3:
+	var max_attempts := 20
+
+	for i in max_attempts:
+		var point = get_target_point_in_radius(100.0)
+		var height = gameManager.terrain.get_height_world(point.x, point.z)
+
+		if height <= gameManager.water.water_level_world_space and is_path_clear(global_position, point):
+			gameManager.hud.ddd_label("New waypoint acquired", global_position)
+			return point
+
+	# fallback (VERY important)
+	return global_position
+
+func get_target_point_in_radius(radius: float) -> Vector3:
+	# random point in circle
+	var angle = randf() * TAU
+	var dist = randf() * radius
+	var offset = Vector3(cos(angle), 0, sin(angle)) * dist
+
+	var point = global_position + offset
+
+	# clamp to world bounds
+	var max_x = gameManager.terrain.world_size.x * gameManager.terrain.tile_size
+	var max_z = gameManager.terrain.world_size.y * gameManager.terrain.tile_size
+
+	point.x = clamp(point.x, 0.0, max_x)
+	point.z = clamp(point.z, 0.0, max_z)
+
+	return point
 
 func is_path_clear(from: Vector3, to: Vector3) -> bool:
 	var space = get_world_3d().direct_space_state
@@ -267,7 +324,7 @@ func is_path_clear(from: Vector3, to: Vector3) -> bool:
 
 func set_rotation_to_target_point(_target_point: Vector3):
 	var direction_to_target_point = (_target_point - global_position).normalized()
-	yaw_deg = rad_to_deg(atan2(direction_to_target_point.z, direction_to_target_point.x))
+	yaw_deg = rad_to_deg(atan2(direction_to_target_point.x, direction_to_target_point.z))
 
 func _on_ship_sunk():
 	spawn_lifeboat()

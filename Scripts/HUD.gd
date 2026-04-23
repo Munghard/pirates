@@ -1,8 +1,8 @@
 extends Control
 class_name HUD
 
-@export var ship_panel: Control
-@export var ship_panel_player: Control
+@export var ship_panel_target: FoldableContainer
+@export var ship_panel_player: FoldableContainer
 
 @export var time_panel: Control
 
@@ -37,9 +37,11 @@ func init_hud() -> void:
 	gameManager.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
 	#init notification label as 0 alpha
 	notification_label.modulate.a = 0
-	update_ship_panel(null, ship_panel)
+	update_ship_panel(null, ship_panel_target)
 	gameManager.player_ship.connect("boarding_target_changed", Callable(self , "_on_boarding_target_changed"))
 	gameManager.time.connect("time_changed", Callable(self , "_on_time_changed"))
+	ship_panel_player.fold()
+	ship_panel_target.fold()
 
 func _on_time_changed(time: float):
 	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
@@ -95,10 +97,10 @@ func world_to_minimap(_position: Vector3) -> Vector2:
 func select_ship(ship: Ship):
 	selected_ship = ship
 	gameManager.camerarig.secondary_target = selected_ship
-	update_ship_panel(selected_ship, ship_panel)
+	update_ship_panel(selected_ship, ship_panel_target)
 	
 	#if ship:
-	#	create_canon_ui(ship, ship_panel)
+	#	create_canon_ui(ship, ship_panel_target)
 
 func create_canon_ui(ship: Ship, _ship_panel: Control):
 	if canon_fc:
@@ -148,6 +150,9 @@ func ddd_label(text: String, _position: Vector3):
 	# label3d.no_depth_test = true
 	label3d.global_position = _position
 	label3d.billboard = true
+	label3d.no_depth_test = true
+	label3d.alpha_cut = true
+
 	get_tree().create_tween().tween_property(label3d, "global_position", label3d.global_position + Vector3.UP * 10.0, 5.0)
 
 	await get_tree().create_timer(5.0).timeout
@@ -171,23 +176,16 @@ func _show_notifications() -> void:
 
 func _on_update_wind(wind: Wind):
 	var wind_label: Label = wind_panel.get_node("MarginContainer/VBoxContainer/Label") as Label
-	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.z, wind.direction.x)), str(wind.timer_enable), wind.next_change - wind.timer]
-	wind_control.rotation = atan2(wind.direction.z, wind.direction.x) + deg_to_rad(-90)
+	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.x, wind.direction.z)), str(wind.timer_enable), wind.next_change - wind.timer]
+	wind_control.rotation = atan2(wind.direction.x, wind.direction.z)
 
-func update_ship_panel(ship: Ship, _ship_panel: Control):
+func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
 	var ship_label_h := _ship_panel.get_node("MarginContainer/VBoxContainer/Label_h")
 	var ship_label_f: Label = _ship_panel.get_node("MarginContainer/VBoxContainer/Label_f")
 	var ship_label := _ship_panel.get_node("MarginContainer/VBoxContainer/Label")
 	var ship_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_health")
 	var ship_crew_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_crew")
-	var a = 1.0
-	if ship == null:
-		a = 0.0
-		_ship_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ship_panel.modulate.a = a
-	_ship_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	# _ship_panel.visible = ship != null
-
+	
 	if ship == null:
 		return
 	
@@ -205,7 +203,7 @@ func update_ship_panel(ship: Ship, _ship_panel: Control):
 		ai_text = "State: %s" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
 		ai_text += "\nSubState: %s" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
 		ai_text += "\nIn combat: %.s" % [str(ship.in_combat)]
-		if ship.attacker: ai_text += "\nTarget: %.s" % [str(ship.attacker.name)]
+		if ship.attacker: ai_text += "\nTarget: %.s" % [str(ship.attacker.ship_name)]
 	
 	var ship_text = ""
 	if ship:
@@ -234,7 +232,8 @@ func update_ship_panel(ship: Ship, _ship_panel: Control):
 
 func _process(_delta):
 	if selected_ship:
-		update_ship_panel(selected_ship, ship_panel)
+		update_ship_panel(selected_ship, ship_panel_target)
+
 	
 	update_ship_panel(gameManager.player_ship, ship_panel_player)
 	
@@ -258,10 +257,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		if result:
 			if result.collider is not Ship:
 				select_ship(null)
+				ship_panel_target.folded = true
 				return
 			var ship = result.collider
 			if selected_ship != ship and gameManager.player_ship != ship:
 				select_ship(ship)
+				ship_panel_target.folded = false
 
 		else:
 			select_ship(null)

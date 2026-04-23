@@ -58,6 +58,7 @@ func create_line():
 		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		material.albedo_color = Color(1, 1, 1, 0.2) # 50% transparent
 		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
 
 		mesh_instance.material_override = material
 
