@@ -14,12 +14,15 @@ var time: GameTime
 var sun: DirectionalLight3D
 var moon: DirectionalLight3D
 var clouds: MeshInstance3D
+var audioManager: AudioManager
+var debugMenu: DebugMenu
 
 @export var sun_gradient: Gradient
 
 func _ready() -> void:
 	player_ship = $PlayerShip
 	hud = $MarginContainer/HUD
+	debugMenu = $MarginContainer/DebugMenu
 	camera = $camrig/Camera3D
 	camerarig = $camrig
 	water = $World/Water
@@ -30,11 +33,13 @@ func _ready() -> void:
 	time = $World/Time
 	sun = $World/Sun
 	moon = $World/Moon
+	audioManager = $AudioManager
 
 
 	assert(wind != null, "wind is null in gamemanager start")
 	assert(player_ship != null, "player_ship is null in gamemanager start")
 	assert(hud != null, "hud is null in gamemanager start")
+	assert(debugMenu != null, "debugMenu is null in gamemanager start")
 	assert(wind_effect != null, "wind_effect is null in gamemanager start")
 	assert(water != null, "water is null in gamemanager start")
 	assert(camera != null, "camera is null in gamemanager start")
@@ -44,6 +49,7 @@ func _ready() -> void:
 	assert(sun != null, "sun is null in gamemanager start")
 	assert(moon != null, "moon is null in gamemanager start")
 	assert(clouds != null, "clouds is null in gamemanager start")
+	assert(audioManager != null, "audioManager is null in gamemanager start")
 
 	time.connect("time_changed", Callable(self , "_on_time_changed"))
 
@@ -51,8 +57,12 @@ func _ready() -> void:
 	wind.connect("wind_changed", Callable(self , "_on_wind_changed"))
 
 	hud.init_hud()
+	debugMenu.init_debugMenu()
 
 # put all this time and wind shit into world instead of gamemanager
+
+func toggle_debug_menu():
+	debugMenu.visible = !debugMenu.visible
 
 func _on_time_changed(_time: float):
 	var normalized_time = time.get_time_normalized()
@@ -105,6 +115,8 @@ func _input(event: InputEvent) -> void:
 			wind.set_direction(rotated)
 		if event.keycode == KEY_F1:
 			spawn_ships_around_player(1)
+		if event.keycode == KEY_F2:
+			toggle_debug_menu()
 
 func spawn_ships_around_player(count: int):
 	var enemy_ship = preload("res://Scenes/enemy_ship.tscn")

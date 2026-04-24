@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="5_a0oot"]
 [ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="5_ovko2"]
 [ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="6_c6fo0"]
+[ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/canon_layout.gd" id="7_0h3yk"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="7_c6fo0"]
 [ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="9_6mpvb"]
 [ext_resource type="Texture2D" uid="uid://ct57ceuvqy3k8" path="res://Textures/plain-arrow.png" id="10_p5y7q"]
@@ -18,7 +19,7 @@ size = Vector3(1.1582031, 1.4629517, 4.948715)
 [sub_resource type="BoxShape3D" id="BoxShape3D_b21is"]
 size = Vector3(4.1064453, 1, 1)
 
-[node name="enemy_ship" type="RigidBody3D" unique_id=1754202150 node_paths=PackedStringArray("target_arrow", "boarding_area", "floater", "canons_port", "canons_starboard") groups=["Ships"]]
+[node name="enemy_ship" type="RigidBody3D" unique_id=1754202150 node_paths=PackedStringArray("target_arrow", "boarding_area", "floater") groups=["Ships"]]
 gravity_scale = 0.0
 script = ExtResource("1_3bg38")
 lifeboat = ExtResource("2_6mpvb")
@@ -30,35 +31,22 @@ boarding_area = NodePath("Area3D")
 arrow = ExtResource("4_b21is")
 loot = ExtResource("4_a0oot")
 floater = NodePath("floater")
-canons_port = [NodePath("ship_pivot/Canon"), NodePath("ship_pivot/Canon2"), NodePath("ship_pivot/Canon3")]
-canons_starboard = [NodePath("ship_pivot/Canon4"), NodePath("ship_pivot/Canon5"), NodePath("ship_pivot/Canon6")]
 
 [node name="ship_pivot" type="Node3D" parent="." unique_id=831570815 node_paths=PackedStringArray("ship", "canons_port", "canons_starboard", "ship_model")]
 script = ExtResource("5_ovko2")
 ship = NodePath("..")
-canons_port = [NodePath("Canon"), NodePath("Canon2"), NodePath("Canon3")]
-canons_starboard = [NodePath("Canon4"), NodePath("Canon5"), NodePath("Canon6")]
+canons_port = [NodePath(""), NodePath(""), NodePath("")]
+canons_starboard = [NodePath(""), NodePath(""), NodePath("")]
 ship_model = NodePath("Sail ship")
 
 [node name="Sail ship" parent="ship_pivot" unique_id=2112990505 instance=ExtResource("3_c6fo0")]
 
-[node name="Canon" parent="ship_pivot" unique_id=101832743 instance=ExtResource("7_c6fo0")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.45781922, 0.5402633, 0.7390715)
-
-[node name="Canon2" parent="ship_pivot" unique_id=2028125460 instance=ExtResource("7_c6fo0")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.45781922, 0.5402633, -0.25266623)
-
-[node name="Canon3" parent="ship_pivot" unique_id=860840109 instance=ExtResource("7_c6fo0")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.45781922, 0.5402633, -1.2526662)
-
-[node name="Canon4" parent="ship_pivot" unique_id=1170445933 instance=ExtResource("7_c6fo0")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.458, 0.5402633, 0.7390715)
-
-[node name="Canon5" parent="ship_pivot" unique_id=1304354545 instance=ExtResource("7_c6fo0")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.458, 0.5402633, -0.25266623)
-
-[node name="Canon6" parent="ship_pivot" unique_id=545443819 instance=ExtResource("7_c6fo0")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.458, 0.5402633, -1.2526662)
+[node name="Canons" type="Node3D" parent="ship_pivot" unique_id=78163467 node_paths=PackedStringArray("ship")]
+script = ExtResource("7_0h3yk")
+ship = NodePath("../..")
+canon_scene = ExtResource("7_c6fo0")
+ship_length = 3.0
+ship_width = 1.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=339108743]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60946655, 0.18819427)

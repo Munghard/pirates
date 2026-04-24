@@ -30,11 +30,13 @@ var flee_timer := 0.0
 var flee_duration := 10.0
 var agro_dist := 100.0
 var pursue_dist := 200.0
+var height_buffer = 2.0
 
 
 @export_group("Debug")
 var line_agro: ImmediateMesh
 var line_route: ImmediateMesh
+var line_avoidance: ImmediateMesh
 
 signal state_changed(_ai_State: AIState)
 enum AIState {IDLE, ENROUTE, COMBAT}
@@ -61,6 +63,7 @@ func _ready() -> void:
 	#create debug line
 	line_agro = ImmediateMesh.new()
 	line_route = ImmediateMesh.new()
+	line_avoidance = ImmediateMesh.new()
 	# later have ship names per faction, for now just random
 	ship_name = FactionsData.get_random_name()
 
@@ -77,6 +80,8 @@ func _ready() -> void:
 	supplies = faction_stats.supplies
 	crew = faction_stats.max_crew
 	max_crew = faction_stats.max_crew
+
+	setup_guns()
 
 	set_faction_texture()
 	
@@ -109,7 +114,7 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		if ship and FactionsData.is_enemy(faction, ship.faction):
 			#compare ship stats and decide what to do
 			set_state(AIState.COMBAT)
-			if defense > ship.attack and attack > ship.defense:
+			if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense:
 				set_combat_state(CombatState.PURSUE)
 			else:
 				set_combat_state(CombatState.FLEE)
@@ -130,6 +135,32 @@ func set_random_dir_and_speed():
 	target_speed = randf_range(0, top_speed)
 	yaw_deg = randf_range(0.0, 359.0)
 
+func get_avoidance_direction() -> Vector3:
+	var forward = - transform.basis.z
+	var right = transform.basis.x
+
+	var check_distance := 20.0
+	var water_level = gameManager.water.water_level_world_space
+
+	# forward check
+	var f_point = global_position + forward * check_distance
+	var f_height = gameManager.terrain.get_height_world(f_point.x, f_point.z)
+
+	if f_height > water_level:
+		# obstacle ahead → decide left or right
+		var left_point = global_position + (forward - right).normalized() * check_distance
+		var right_point = global_position + (forward + right).normalized() * check_distance
+
+		var left_h = gameManager.terrain.get_height_world(left_point.x, left_point.z)
+		var right_h = gameManager.terrain.get_height_world(right_point.x, right_point.z)
+
+		if left_h < right_h:
+			return (forward - right).normalized()
+		else:
+			return (forward + right).normalized()
+
+	return forward
+
 func _physics_process(_delta: float) -> void:
 	# deactivate process
 	var dist_sq = global_position.distance_squared_to(gameManager.player_ship.global_position)
@@ -145,7 +176,7 @@ func _process(delta):
 		return
 	
 	super._process(delta)
-	var debug_draw_path = false
+	var debug_draw_path = true
 	if debug_draw_path:
 		if attacker != null:
 			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
@@ -169,9 +200,18 @@ func _process(delta):
 
 	if ai_state != AIState.IDLE:
 		# 1. Calculate the direction and the angle needed to look at the target
-		var dir = (target_point - global_position).normalized()
-		# In Godot, -Z is forward. atan2(x, z) gives the angle from the Z axis.
-		var look_at_angle = rad_to_deg(atan2(dir.x, dir.z))
+		var target_dir = (target_point - global_position).normalized()
+		var final_dir = target_dir
+
+		# only apply avoidance when moving
+		if ai_state == AIState.ENROUTE or combat_state == CombatState.PURSUE or combat_state == CombatState.FLEE:
+			var avoid_dir = get_avoidance_direction()
+			if debug_draw_path:
+				draw_line_to_target_point(line_avoidance, global_position + (avoid_dir * 5.0), Color.PURPLE)
+			if avoid_dir != Vector3.ZERO:
+				final_dir = (target_dir + avoid_dir * 2.0).normalized()
+
+		var look_at_angle = rad_to_deg(atan2(final_dir.x, final_dir.z))
 
 		match ai_state:
 			AIState.ENROUTE:
@@ -288,7 +328,7 @@ func get_new_waypoint() -> Vector3:
 		var point = get_target_point_in_radius(100.0)
 		var height = gameManager.terrain.get_height_world(point.x, point.z)
 
-		if height <= gameManager.water.water_level_world_space and is_path_clear(global_position, point):
+		if height <= gameManager.water.water_level_world_space - height_buffer and is_path_clear(global_position, point):
 			gameManager.hud.ddd_label("New waypoint acquired", global_position)
 			return point
 

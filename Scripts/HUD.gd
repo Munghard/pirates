@@ -6,7 +6,6 @@ class_name HUD
 
 @export var time_panel: Control
 
-@export var wind_panel: Control
 @export var wind_control: Control
 
 @export var minimap: Control
@@ -29,7 +28,6 @@ var selected_ship: Ship
 
 func _ready():
 	minimap_scale_slider.value = minimap_scale
-	wind_panel.visible = false
 	boarding_button.visible = false
 
 func init_hud() -> void:
@@ -48,7 +46,7 @@ func _on_time_changed(time: float):
 	label_time.text = gameManager.time.get_time_string()
 
 func _on_boarding_target_changed(ship: Ship):
-	boarding_button.visible = ship != null
+	boarding_button.visible = ship != null and ship.can_be_boarded()
 
 # ================================================================================================================
 # MINIMAP 
@@ -98,9 +96,6 @@ func select_ship(ship: Ship):
 	selected_ship = ship
 	gameManager.camerarig.secondary_target = selected_ship
 	update_ship_panel(selected_ship, ship_panel_target)
-	
-	#if ship:
-	#	create_canon_ui(ship, ship_panel_target)
 
 func create_canon_ui(ship: Ship, _ship_panel: Control):
 	if canon_fc:
@@ -116,21 +111,16 @@ func create_canon_ui(ship: Ship, _ship_panel: Control):
 	var lh = Label.new()
 	lh.text = "Cannons"
 	vb.add_child(lh)
-	var lp = Label.new()
-	lp.text = "Port"
-	vb.add_child(lp)
-	for canon in ship.canons_port:
-		var pb = ProgressBar.new()
-		pb.max_value = canon.fire_rate
-		pb.value = pb.max_value - canon.fire_timer
-		vb.add_child(pb)
-		if not canon.is_connected("_fire_timer_changed", Callable(self , "update_pb").bind(pb)):
-			canon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
+	
+	create_canon_pb("Port", vb, ship.canons_layout.canons_port)
+	create_canon_pb("Starboard", vb, ship.canons_layout.canons_starboard)
+	create_canon_pb("Bow", vb, ship.canons_layout.canons_bow)
 
+func create_canon_pb(side_name: String, vb: VBoxContainer, canons: Array[Canon]):
 	var ls = Label.new()
-	ls.text = "Starboard"
+	ls.text = side_name
 	vb.add_child(ls)
-	for canon in ship.canons_starboard:
+	for canon in canons:
 		var pb = ProgressBar.new()
 		pb.max_value = canon.fire_rate
 		pb.value = pb.max_value - canon.fire_timer
@@ -175,8 +165,6 @@ func _show_notifications() -> void:
 	showing_notifications = false
 
 func _on_update_wind(wind: Wind):
-	var wind_label: Label = wind_panel.get_node("MarginContainer/VBoxContainer/Label") as Label
-	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.x, wind.direction.z)), str(wind.timer_enable), wind.next_change - wind.timer]
 	wind_control.rotation = atan2(wind.direction.x, wind.direction.z)
 
 func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
@@ -185,7 +173,7 @@ func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
 	var ship_label := _ship_panel.get_node("MarginContainer/VBoxContainer/Label")
 	var ship_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_health")
 	var ship_crew_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_crew")
-	
+
 	if ship == null:
 		return
 	
@@ -269,16 +257,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 # ================================================================================================================
-# WIND
-# ================================================================================================================
-
-func _on_button_pressed() -> void:
-	gameManager.wind.set_enable_wind(!gameManager.wind.timer_enable)
-
-func _on_wind_gauge_mouse_entered() -> void:
-	wind_panel.visible = !wind_panel.visible
-
-# ================================================================================================================
 # PORT
 # ================================================================================================================
 
@@ -298,7 +276,7 @@ func _on_v_slider_value_changed(value: float) -> void:
 func _on_board_button_pressed() -> void:
 	if gameManager.player_ship.boarded_ship:
 		gameManager.player_ship.unboard_ship()
-	else:
+	elif gameManager.player_ship.boarding_target.can_be_boarded():
 		gameManager.player_ship.board_ship()
 	
 	if gameManager.player_ship.boarded_ship != null:

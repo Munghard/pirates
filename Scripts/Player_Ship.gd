@@ -10,6 +10,7 @@ func _ready() -> void:
 	var faction_stats = FactionsData.get_faction_stats(faction)
 	
 	max_hit_points = faction_stats.max_hit_points
+	hit_points = max_hit_points
 	attack = faction_stats.attack
 	defense = faction_stats.defense
 	top_speed = faction_stats.speed
@@ -25,9 +26,11 @@ func _ready() -> void:
 	connect("gold_changed", Callable(self , "_on_gold_changed"))
 	connect("recieved_damage", Callable(self , "_on_recieved_damage"))
 	
-	active_starboard(true)
-	active_port(true)
+	#active_starboard(true)
+	#active_port(true)
 	set_faction_texture()
+	
+	setup_guns()
 
 
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
@@ -54,6 +57,7 @@ func sink():
 
 func upgrade_guns():
 	guns += 1
+	setup_guns()
 
 func _process(_delta: float) -> void:
 	super._process(_delta)
@@ -75,6 +79,8 @@ func _input(event: InputEvent) -> void:
 			target_speed = clamp(target_speed + 1.0, 0, top_speed)
 		if event.keycode == KEY_S:
 			target_speed = clamp(target_speed - 1.0, 0, top_speed)
+		if event.keycode == KEY_END:
+			shoot_bow()
 		if event.keycode == KEY_LEFT:
 			shoot_starboard()
 		if event.keycode == KEY_RIGHT:
@@ -82,9 +88,11 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_UP:
 			starboard_pitch(5)
 			port_pitch(5)
+			bow_pitch(5)
 		if event.keycode == KEY_DOWN:
 			starboard_pitch(-5)
 			port_pitch(-5)
+			bow_pitch(-5)
 		if event.keycode == KEY_Q:
 			yaw_deg = yaw_deg + 22.5
 		if event.keycode == KEY_E:

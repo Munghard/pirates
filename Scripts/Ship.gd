@@ -45,8 +45,7 @@ var boarded_ship: Ship
 @export var loot: PackedScene
 @export var floater: Node3D
 
-@export var canons_port: Array[Canon]
-@export var canons_starboard: Array[Canon]
+@onready var canons_layout: Canons = $ship_pivot/Canons
 
 @onready var ship_pivot: Node3D = $ship_pivot
 
@@ -57,6 +56,8 @@ var in_combat: bool = false
 var last_damage_time: int = 0
 var out_of_combat_time: int = 20000 # 10 seconds without taking damage to be considered out of combat
 
+@export_group("Signals")
+
 signal gold_changed(amount: int, gained: bool)
 signal crew_changed(amount: int, gained: bool)
 signal supplies_changed(amount: int, gained: bool)
@@ -66,6 +67,7 @@ signal on_sink
 signal boarding_target_changed(ship: Ship)
 signal boarding_changed(ship: Ship)
 
+@export_group("World UI")
 @onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
 @onready var faction_texture: TextureRect = $world_bars/SubViewport/Control/faction_icon
@@ -75,8 +77,7 @@ func _ready():
 	body_entered.connect(_on_body_entered)
 	contact_monitor = true
 	max_contacts_reported = 1
-	canons_port = ship_pivot.canons_port
-	canons_starboard = ship_pivot.canons_starboard
+	
 	set_faction_texture()
 
 	connect("crew_changed", Callable(self , "_on_crew_changed"))
@@ -86,7 +87,8 @@ func _ready():
 	crew_healthbar.max_value = max_crew
 	ship_healthbar.value = hit_points
 	ship_healthbar.max_value = max_hit_points
-
+	
+	
 func _on_hit_points_changed(_amount: float):
 	ship_healthbar.value = hit_points
 	ship_healthbar.max_value = max_hit_points
@@ -98,6 +100,8 @@ func _on_crew_changed(_amount: int, _gained: bool):
 func set_faction_texture():
 	faction_texture.texture = FactionsData.get_faction_icon(faction)
 
+func setup_guns():
+	canons_layout.create_canons(int(float(guns) / 2.0), int(float(guns) / 2.0), int(float(guns) / 4.0))
 # GET AND REMOVE STATS
 
 func gain_gold(_gold: int):
@@ -271,51 +275,61 @@ func damage(_damage: float, _position: Vector3, _attacker: Node3D):
 			kill_crew(1)
 
 func port_pitch(value: float):
-	for canon in canons_port:
+	for canon in canons_layout.canons_port:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func starboard_pitch(value: float):
-	for canon in canons_starboard:
+	for canon in canons_layout.canons_starboard:
+		await get_tree().create_timer(randf() / 10.0).timeout
+		canon.pitch += value
+		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
+
+func bow_pitch(value: float):
+	for canon in canons_layout.canons_bow:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func set_canon_pitch(value: float):
-	for canon in canons_starboard:
+	for canon in canons_layout.canons_starboard:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
-	for canon in canons_port:
+	for canon in canons_layout.canons_port:
+		canon.pitch = value
+		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
+	for canon in canons_layout.canons_bow:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func shoot_port():
-	shoot(canons_port)
+	shoot(canons_layout.canons_port)
 
 func shoot_starboard():
-	shoot(canons_starboard)
+	shoot(canons_layout.canons_starboard)
+
+func shoot_bow():
+	shoot(canons_layout.canons_bow)
 
 func shoot(canons: Array[Canon]):
 	if supplies <= 0:
 		return
-	var guns_fired = 0
 	for canon in canons:
-		if guns_fired >= guns:
-			break
-		await get_tree().create_timer(randf() / 10.0).timeout
-		if canon.shoot(attack, self ):
+		await get_tree().create_timer(randf() / 5.0).timeout
+		if canon.shoot(attack, self , gameManager.audioManager):
 			supplies -= 1
-			guns_fired += 1
+			
 
 func active_starboard(value: bool):
-	for canon in canons_starboard:
+	for canon in canons_layout.canons_starboard:
 		canon.active = value
 
 func active_port(value: bool):
-	for canon in canons_port:
+	for canon in canons_layout.canons_port:
 		canon.active = value
 
+# Is getting boarded
 func set_boarded():
 	original_parent = get_parent()
 	if boarding_target:
@@ -325,6 +339,8 @@ func set_boarded():
 	axis_lock_angular_y = true
 
 var original_parent: Node
+
+# Is getting unboarded
 func set_unboarded():
 	if boarding_target:
 		boarding_target.reparent(original_parent)
@@ -332,14 +348,17 @@ func set_unboarded():
 	axis_lock_linear_z = false
 	axis_lock_angular_y = false
 
+# Is boarding
 func board_ship():
 	if not boarding_target:
+		return
+	if not boarding_target.can_be_boarded():
 		return
 	boarding_target.set_boarded()
 	boarded_ship = boarding_target
 	emit_signal("boarding_changed", boarding_target)
 
-
+# Is unboarding
 func unboard_ship():
 	if not boarded_ship:
 		return
@@ -348,11 +367,17 @@ func unboard_ship():
 	boarded_ship = null
 	emit_signal("boarding_changed", null)
 
+# set boarding target
 func set_boarding_target(ship: Ship):
 	boarding_target = ship
 	emit_signal("boarding_target_changed", ship)
 	print("boarding target set: ", ship);
 
+# boarding condition
+func can_be_boarded() -> bool:
+	return incapacitated
+
+# Collision damage
 func _on_body_entered(body: Node) -> void:
 	if body is not Ship:
 		return

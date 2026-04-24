@@ -70,6 +70,7 @@ func entered_port():
 	var ps = player_ship
 
 	# create upgrades
+	create_upgrade_ui(ui, "SUPPLIES", "Buy supplies", 100, func(): ps.gain_supplies(100))
 	create_upgrade_ui(ui, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
 	create_upgrade_ui(ui, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
 	create_upgrade_ui(ui, "CREW", "Hire crew", 100, func(): ps.gain_crew(1))
