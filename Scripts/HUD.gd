@@ -4,6 +4,8 @@ class_name HUD
 @export var ship_panel_target: FoldableContainer
 @export var ship_panel_player: FoldableContainer
 
+@export var equipment_panel: Control
+
 @export var time_panel: Control
 
 @export var wind_control: Control
@@ -11,7 +13,7 @@ class_name HUD
 @export var minimap: Control
 @export var minimap_scale_slider: VSlider
 @export var blip_scene: PackedScene
-var minimap_scale = 0.5
+var minimap_scale = 20.0
 
 @export var boarding_button: Button
 
@@ -27,8 +29,8 @@ var selected_ship: Ship
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 func _ready():
-	minimap_scale_slider.value = minimap_scale
 	boarding_button.visible = false
+	equipment_panel.visible = false
 
 func init_hud() -> void:
 	# update wind direction gauge
@@ -40,6 +42,7 @@ func init_hud() -> void:
 	gameManager.time.connect("time_changed", Callable(self , "_on_time_changed"))
 	ship_panel_player.fold()
 	ship_panel_target.fold()
+	minimap_scale_slider.value = minimap_scale
 
 func _on_time_changed(time: float):
 	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
@@ -106,13 +109,17 @@ func create_canon_ui(ship: Ship, _ship_panel: Control):
 	canon_mc = MarginContainer.new()
 	var vb = VBoxContainer.new()
 	canon_fc.add_child(canon_mc)
-	_ship_panel.get_node("MarginContainer/VBoxContainer").add_child(canon_fc)
+	_ship_panel.get_parent().add_child(canon_fc)
 	canon_mc.add_child(vb)
 	var lh = Label.new()
 	lh.text = "Cannons"
 	vb.add_child(lh)
 	
 	create_canon_pb("Port", vb, ship.canons_layout.canons_port)
+	var port_button = Button.new()
+	vb.add_child(port_button)
+	port_button.text = "Fire port"
+	port_button.pressed.connect(ship.shoot_port)
 	create_canon_pb("Starboard", vb, ship.canons_layout.canons_starboard)
 	create_canon_pb("Bow", vb, ship.canons_layout.canons_bow)
 
@@ -173,6 +180,11 @@ func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
 	var ship_label := _ship_panel.get_node("MarginContainer/VBoxContainer/Label")
 	var ship_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_health")
 	var ship_crew_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_crew")
+	var canons_button: Button = _ship_panel.get_node("MarginContainer/VBoxContainer/canons_button")
+
+	var callable = Callable(create_canon_ui).bind(ship, _ship_panel)
+	if not canons_button.pressed.is_connected(callable):
+		canons_button.pressed.connect(callable)
 
 	if ship == null:
 		return
@@ -189,7 +201,8 @@ func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
 	var ai_text = ""
 	if ship is EnemyShip:
 		ai_text = "State: %s" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
-		ai_text += "\nSubState: %s" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
+		if (ship.ai_state == EnemyShip.AIState.COMBAT):
+			ai_text += "\nSubState: %s" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
 		ai_text += "\nIn combat: %.s" % [str(ship.in_combat)]
 		if ship.attacker: ai_text += "\nTarget: %.s" % [str(ship.attacker.ship_name)]
 	
@@ -251,10 +264,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			if selected_ship != ship and gameManager.player_ship != ship:
 				select_ship(ship)
 				ship_panel_target.folded = false
+			if ship == gameManager.player_ship:
+				open_player_ship_panel()
 
 		else:
 			select_ship(null)
 
+
+func open_player_ship_panel():
+	equipment_panel.visible = !equipment_panel.visible
 
 # ================================================================================================================
 # PORT

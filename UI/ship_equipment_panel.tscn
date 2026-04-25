@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://mdoxy52gslc1"]
 
+[ext_resource type="Script" uid="uid://cnkb48mck31x6" path="res://UI/equipment_panel.gd" id="1_67in8"]
 [ext_resource type="Texture2D" uid="uid://br3vm6tkgh8e2" path="res://Textures/Gemini_Generated_Image_10rub010rub010ru.png" id="1_t3q02"]
 
 [sub_resource type="Gradient" id="Gradient_67in8"]
@@ -13,13 +14,23 @@ height = 32
 fill = 2
 fill_from = Vector2(0.5, 0.5)
 
-[node name="Control" type="Control" unique_id=1043611700]
+[node name="Equipment_panel" type="Control" unique_id=1043611700]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_67in8")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1258901123]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.62352943)
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1915619920]
 self_modulate = Color(0.50928617, 0.50928617, 0.50928617, 1)
@@ -128,3 +139,20 @@ offset_top = 87.0
 offset_right = 100.0
 offset_bottom = 127.0
 texture = SubResource("GradientTexture2D_m4ryr")
+
+[node name="Button" type="Button" parent="." unique_id=1097823264]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -25.0
+offset_top = -82.0
+offset_right = 25.0
+offset_bottom = -51.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Close"
+
+[connection signal="pressed" from="Button" to="." method="_on_close_button_pressed"]

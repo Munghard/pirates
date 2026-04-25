@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bmpnpyq6xlodj"]
 
-[ext_resource type="Script" uid="uid://brsub3ifnum4w" path="res://Scenes/debug_menu.gd" id="1_kfbtq"]
+[ext_resource type="Script" uid="uid://brsub3ifnum4w" path="res://Scripts/debug_menu.gd" id="1_kfbtq"]
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_ornpd"]
 
 [node name="DebugMenu" type="Control" unique_id=188675057 node_paths=PackedStringArray("vbox", "wind_label")]

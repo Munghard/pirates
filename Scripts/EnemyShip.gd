@@ -39,7 +39,7 @@ var line_route: ImmediateMesh
 var line_avoidance: ImmediateMesh
 
 signal state_changed(_ai_State: AIState)
-enum AIState {IDLE, ENROUTE, COMBAT}
+enum AIState {IDLE, ENROUTE, COMBAT, CAPTURED}
 
 signal combat_state_changed(_combat_State: CombatState)
 enum CombatState {AGRO, PURSUE, FLEE}
@@ -48,6 +48,7 @@ var AIStateNames = {
 	AIState.IDLE: "IDLE",
 	AIState.ENROUTE: "ENROUTE",
 	AIState.COMBAT: "COMBAT",
+	AIState.CAPTURED: "CAPTURED",
 }
 var CombatStateNames = {
 	CombatState.AGRO: "AGRO",
@@ -89,6 +90,7 @@ func _ready() -> void:
 
 	connect("recieved_damage", Callable(self , "_on_damage_recieved"))
 	connect("on_sink", Callable(self , "_on_ship_sunk"))
+	connect("boarded_changed", Callable(self , "_on_boarded_changed"))
 	
 	set_state(AIState.ENROUTE)
 
@@ -111,6 +113,8 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 	target_point = attacker.global_position
 	if _attacker is Ship:
 		var ship = _attacker as Ship
+		if ai_state == AIState.CAPTURED:
+			return
 		if ship and FactionsData.is_enemy(faction, ship.faction):
 			#compare ship stats and decide what to do
 			set_state(AIState.COMBAT)
@@ -204,7 +208,16 @@ func _process(delta):
 		var final_dir = target_dir
 
 		# only apply avoidance when moving
-		if ai_state == AIState.ENROUTE or combat_state == CombatState.PURSUE or combat_state == CombatState.FLEE:
+		var is_moving_state = false
+		match ai_state:
+			AIState.ENROUTE:
+				is_moving_state = true
+			AIState.CAPTURED:
+				is_moving_state = false
+			AIState.COMBAT:
+				if combat_state == CombatState.PURSUE or combat_state == CombatState.FLEE:
+					is_moving_state = true
+		if is_moving_state:
 			var avoid_dir = get_avoidance_direction()
 			if debug_draw_path:
 				draw_line_to_target_point(line_avoidance, global_position + (avoid_dir * 5.0), Color.PURPLE)
@@ -217,6 +230,18 @@ func _process(delta):
 			AIState.ENROUTE:
 				en_route_behaviour(delta)
 				yaw_deg = look_at_angle # Face the waypoint
+			
+			AIState.CAPTURED:
+				yaw_deg = look_at_angle # Face the waypoint
+				target_point = gameManager.player_ship.global_position
+				var forward = global_basis.z
+				var dot = forward.dot(target_dir)
+				var distance_squared = global_position.distance_squared_to(target_point)
+				var move_threshold = 20.0
+				if distance_squared > move_threshold * move_threshold:
+					target_speed = top_speed
+				else:
+					target_speed = boarding_ship.target_speed * max(dot, 0.0)
 
 			AIState.COMBAT:
 				target_arrow.visible = true
@@ -231,7 +256,6 @@ func _process(delta):
 						# so the side (port/starboard) faces the enemy
 						yaw_deg = look_at_angle + 90.0
 						_handle_shooting(target_point)
-
 
 func _update_combat_transitions(dist: float, delta: float):
 	if combat_state == CombatState.FLEE:
@@ -396,6 +420,11 @@ func draw_line_to_target_point(_line: ImmediateMesh, _target_point: Vector3, col
 	await get_tree().create_timer(0.1).timeout
 	line_instance.queue_free()
 
+func _on_boarded_changed(ship: Ship):
+	if ship:
+		set_state(AIState.CAPTURED)
+	else:
+		set_state(AIState.ENROUTE)
 
 func _on_boarding_area_body_entered(body: Node3D) -> void:
 	var ship

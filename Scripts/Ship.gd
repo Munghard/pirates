@@ -38,6 +38,7 @@ var crew_health := 1.0
 
 var boarding_target: Ship
 var boarded_ship: Ship
+var boarding_ship: Ship
 
 @export var boarding_area: Area3D
 @export var arrow: PackedScene
@@ -67,6 +68,8 @@ signal on_sink
 signal boarding_target_changed(ship: Ship)
 signal boarding_changed(ship: Ship)
 
+signal boarded_changed(ship: Ship)
+
 @export_group("World UI")
 @onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
@@ -87,8 +90,11 @@ func _ready():
 	crew_healthbar.max_value = max_crew
 	ship_healthbar.value = hit_points
 	ship_healthbar.max_value = max_hit_points
-	
-	
+
+func set_faction(_faction: FactionsData.Faction):
+	faction = _faction
+	set_faction_texture()
+
 func _on_hit_points_changed(_amount: float):
 	ship_healthbar.value = hit_points
 	ship_healthbar.max_value = max_hit_points
@@ -329,24 +335,17 @@ func active_port(value: bool):
 	for canon in canons_layout.canons_port:
 		canon.active = value
 
-# Is getting boarded
-func set_boarded():
-	original_parent = get_parent()
-	if boarding_target:
-		boarding_target.reparent(self )
-	axis_lock_linear_x = true
-	axis_lock_linear_z = true
-	axis_lock_angular_y = true
 
-var original_parent: Node
+# Is getting boarded
+func set_boarded(_boarding_ship: Ship):
+	boarding_ship = _boarding_ship
+	set_faction(_boarding_ship.faction)
+	boarded_changed.emit(boarding_ship)
 
 # Is getting unboarded
 func set_unboarded():
-	if boarding_target:
-		boarding_target.reparent(original_parent)
-	axis_lock_linear_x = false
-	axis_lock_linear_z = false
-	axis_lock_angular_y = false
+	boarding_ship = null
+	boarded_changed.emit(null)
 
 # Is boarding
 func board_ship():
@@ -354,7 +353,7 @@ func board_ship():
 		return
 	if not boarding_target.can_be_boarded():
 		return
-	boarding_target.set_boarded()
+	boarding_target.set_boarded(self )
 	boarded_ship = boarding_target
 	emit_signal("boarding_changed", boarding_target)
 
@@ -375,7 +374,7 @@ func set_boarding_target(ship: Ship):
 
 # boarding condition
 func can_be_boarded() -> bool:
-	return incapacitated
+	return true # incapacitated
 
 # Collision damage
 func _on_body_entered(body: Node) -> void:

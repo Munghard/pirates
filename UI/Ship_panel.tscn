@@ -47,3 +47,7 @@ text = "speed:
 agility:
 attack:
 defense:"
+
+[node name="canons_button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1719310053]
+layout_mode = 2
+text = "Canons"

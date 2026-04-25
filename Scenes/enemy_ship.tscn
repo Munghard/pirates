@@ -17,7 +17,7 @@
 size = Vector3(1.1582031, 1.4629517, 4.948715)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_b21is"]
-size = Vector3(4.1064453, 1, 1)
+size = Vector3(6, 1, 9)
 
 [node name="enemy_ship" type="RigidBody3D" unique_id=1754202150 node_paths=PackedStringArray("target_arrow", "boarding_area", "floater") groups=["Ships"]]
 gravity_scale = 0.0
@@ -35,8 +35,8 @@ floater = NodePath("floater")
 [node name="ship_pivot" type="Node3D" parent="." unique_id=831570815 node_paths=PackedStringArray("ship", "canons_port", "canons_starboard", "ship_model")]
 script = ExtResource("5_ovko2")
 ship = NodePath("..")
-canons_port = [NodePath(""), NodePath(""), NodePath("")]
-canons_starboard = [NodePath(""), NodePath(""), NodePath("")]
+canons_port = [null, null, null]
+canons_starboard = [null, null, null]
 ship_model = NodePath("Sail ship")
 
 [node name="Sail ship" parent="ship_pivot" unique_id=2112990505 instance=ExtResource("3_c6fo0")]
