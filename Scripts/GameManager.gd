@@ -92,7 +92,8 @@ func _process(delta: float) -> void:
 	else:
 		wind_2d = Vector2.RIGHT
 	var c_mat := clouds.get_active_material(0) as ShaderMaterial
-	c_mat.set_shader_parameter("offset", wind)
+	
+	c_mat.set_shader_parameter("offset", offset)
 	
 	var w_mat := wind_effect.get_active_material(0) as ShaderMaterial
 	w_mat.set_shader_parameter("offset", offset)

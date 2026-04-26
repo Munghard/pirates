@@ -14,7 +14,6 @@ albedo_color = Color(0.49933165, 0.26008815, 0.1986669, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_lhfjv"]
 
 [node name="barrels" type="RigidBody3D" unique_id=1134582906 groups=["Floaters"]]
-mass = 100.0
 gravity_scale = 0.0
 contact_monitor = true
 max_contacts_reported = 1

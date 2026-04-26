@@ -40,7 +40,7 @@ func _physics_process(_delta):
 		var torque = current_up.cross(up) * 10.0
 		torque -= angular_vel * 4.0
 
-		target_rb.apply_torque(torque * target_rb.mass)
+		target_rb.apply_torque(torque)
 		var height_diff = wave_data.height - target.global_position.y
 		var velocity_y = target_rb.linear_velocity.y
 
@@ -48,7 +48,7 @@ func _physics_process(_delta):
 		var damping = 5.0
 
 		var force = height_diff * spring_strength - velocity_y * damping
-		target_rb.apply_central_force(Vector3.UP * force * target_rb.mass)
+		target_rb.apply_central_force(Vector3.UP * force)
 	else:
 		target.global_position.y = wave_data.height
 		target.global_transform.basis = Basis(right, up, forward)

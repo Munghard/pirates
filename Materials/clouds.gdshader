@@ -2,8 +2,9 @@ shader_type spatial;
 
 uniform sampler2D noise;
 uniform vec3 color:source_color = vec3(1.0,1.0,1.0);
-uniform float scale:hint_range(0.0, 1.0, 0.01);
+uniform float scale:hint_range(0.0, 100.0, 0.01);
 uniform float wind_speed_multiplier:hint_range(0.0, 1.0, 0.01) = 1.0;
+uniform float cloud_opacity:hint_range(0.0, 1.0, 0.01) = 0.1;
 
 //from script
 uniform vec2 offset;
@@ -16,20 +17,22 @@ void vertex() {
 
 void fragment() {
 	vec2 wind_offset = offset * wind_speed_multiplier;
-	vec2 uv =  vec2(world_pos.x,world_pos.z);
-	
-	float d = texture(noise, uv * 0.1 + wind_offset).r; // distortion field
-	vec2 warped_uv = uv + (d - 0.5) * 2.0;
-	
-	float noise_tex = texture(noise,wind_offset + (warped_uv * scale)).r;
-	
-	float cloud = smoothstep(0.7,0.8,noise_tex);
-	cloud = clamp(cloud,0.0,1.0);
-	
-	float cloud_opacity = 0.1;
-	ALBEDO = color;
+
+	vec2 uv = world_pos.xz * 0.001;
+
+	float d = texture(noise, uv * 0.1 + wind_offset).r;
+	vec2 warped_uv = uv + (d - 0.5) * 3.0;
+
+	float noise_tex = texture(noise, warped_uv * scale + wind_offset).r;
+
+	float cloud = smoothstep(0.5, 0.8, noise_tex);
+	cloud = pow(cloud, 1.5);
+
+	float light = dot(normalize(vec3(1.0,1.0,0.5)), NORMAL);
+	light = clamp(light, 0.3, 1.0);
+
+	ALBEDO = color * light;
 	ALPHA = cloud * cloud_opacity;
-	// Called for every pixel the material is visible on.
 }
 
 //void light() {

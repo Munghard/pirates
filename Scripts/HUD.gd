@@ -172,7 +172,7 @@ func _show_notifications() -> void:
 	showing_notifications = false
 
 func _on_update_wind(wind: Wind):
-	wind_control.rotation = atan2(wind.direction.x, wind.direction.z)
+	wind_control.rotation = atan2(wind.direction.x, -wind.direction.z)
 
 func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
 	var ship_label_h := _ship_panel.get_node("MarginContainer/VBoxContainer/Label_h")

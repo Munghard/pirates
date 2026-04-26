@@ -4,7 +4,7 @@ uniform sampler2D noise;
 uniform vec3 color:source_color = vec3(1.0,1.0,1.0);
 uniform float scale:hint_range(0.0, 1.0, 0.01);
 uniform float wind_speed_multiplier:hint_range(0.0, 10.0, 0.01) = 1.0;
-uniform float cloud_opacity = 0.1;
+uniform float cloud_opacity:hint_range(0.0, 1.0, 0.01) = 0.1;
 //from script
 uniform vec2 offset;
 uniform vec2 wind_dir;
@@ -25,8 +25,9 @@ void fragment() {
 	float along = dot(pos, wind);
 	float across = dot(pos, perp);
 	
-
 	vec2 uv = vec2(along, across);
+	
+	uv *= vec2(0.1,2.0) * wind_dir;
 	
 	//vec2 uv =  vec2(world_pos.x,world_pos.z);
 	float d = texture(noise, uv * 0.05 + wind_offset).r;
