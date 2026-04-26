@@ -144,19 +144,19 @@ func get_avoidance_direction() -> Vector3:
 	var right = transform.basis.x
 
 	var check_distance := 20.0
-	var water_level = gameManager.water.water_level_world_space
+	var water_level = gameManager.world.water.water_level_world_space
 
 	# forward check
 	var f_point = global_position + forward * check_distance
-	var f_height = gameManager.terrain.get_height_world(f_point.x, f_point.z)
+	var f_height = gameManager.world.terrain.get_height_world(f_point.x, f_point.z)
 
 	if f_height > water_level:
 		# obstacle ahead → decide left or right
 		var left_point = global_position + (forward - right).normalized() * check_distance
 		var right_point = global_position + (forward + right).normalized() * check_distance
 
-		var left_h = gameManager.terrain.get_height_world(left_point.x, left_point.z)
-		var right_h = gameManager.terrain.get_height_world(right_point.x, right_point.z)
+		var left_h = gameManager.world.terrain.get_height_world(left_point.x, left_point.z)
+		var right_h = gameManager.world.terrain.get_height_world(right_point.x, right_point.z)
 
 		if left_h < right_h:
 			return (forward - right).normalized()
@@ -350,9 +350,9 @@ func get_new_waypoint() -> Vector3:
 
 	for i in max_attempts:
 		var point = get_target_point_in_radius(100.0)
-		var height = gameManager.terrain.get_height_world(point.x, point.z)
+		var height = gameManager.world.terrain.get_height_world(point.x, point.z)
 
-		if height <= gameManager.water.water_level_world_space - height_buffer and is_path_clear(global_position, point):
+		if height <= gameManager.world.water.water_level_world_space - height_buffer and is_path_clear(global_position, point):
 			gameManager.hud.ddd_label("New waypoint acquired", global_position)
 			return point
 
@@ -368,8 +368,8 @@ func get_target_point_in_radius(radius: float) -> Vector3:
 	var point = global_position + offset
 
 	# clamp to world bounds
-	var max_x = gameManager.terrain.world_size.x * gameManager.terrain.tile_size
-	var max_z = gameManager.terrain.world_size.y * gameManager.terrain.tile_size
+	var max_x = gameManager.world.terrain.world_size.x * gameManager.world.terrain.tile_size
+	var max_z = gameManager.world.terrain.world_size.y * gameManager.world.terrain.tile_size
 
 	point.x = clamp(point.x, 0.0, max_x)
 	point.z = clamp(point.z, 0.0, max_z)

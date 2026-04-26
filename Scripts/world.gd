@@ -1,26 +1,110 @@
 extends Node3D
 
+class_name World
+
 @export_group("Nodes")
-@export var water: Water
-@export var wind: Wind
-@export var terrain: Terrain
+@onready var gameManager: GameManager = get_node("/root/GameManager")
+@onready var water: Water = $Water
+@onready var wind: Wind = $Wind
+@onready var terrain: Terrain = $Terrain
+@onready var birds_effect: Node3D = $birds_effect
+@onready var wind_effect: MeshInstance3D = $wind_effect
+@onready var time: GameTime = $Time
+@onready var sun: DirectionalLight3D = $Sun
+@onready var moon: DirectionalLight3D = $Moon
+@onready var clouds: MeshInstance3D = $Clouds
+
 var container
 
 @export_group("Spawn data")
 @export var ports: int
 @export var min_distance_between_ports: float = 100.0
 
+@export_group("Sun")
+@export var sun_gradient: Gradient
+
 @export_group("Assets")
 @export var port_scene: PackedScene
 
+var wind_offset: Vector2 = Vector2.ZERO
+
 # Keep a local list for immediate distance checking
 var _spawned_positions: Array[Vector3] = []
+
+func _ready():
+	water = $Water
+	wind = $Wind
+	terrain = $Terrain
+	wind_effect = $wind_effect
+	clouds = $Clouds
+	time = $Time
+	sun = $Sun
+	moon = $Moon
+
+	assert(wind != null, "wind is null in world start")
+	assert(wind_effect != null, "wind_effect is null in world start")
+	assert(water != null, "water is null in world start")
+	assert(terrain != null, "terrain is null in world start")
+	assert(time != null, "time is null in world start")
+	assert(sun != null, "sun is null in world start")
+	assert(moon != null, "moon is null in world start")
+	assert(clouds != null, "clouds is null in world start")
+
+	time.connect("time_changed", Callable(self , "_on_time_changed"))
+
+	wind.randomize_wind()
+	wind.connect("wind_changed", Callable(self , "_on_wind_changed"))
+	
+	terrain.heightmap_created.connect(_on_heightmap_created)
+
+
+func _process(delta):
+	var birds_pos = gameManager.camerarig.global_position
+	var birds_height = 20.0
+	birds_pos.y = birds_height
+	birds_effect.global_position = birds_pos
+
+	var cloud_pos = gameManager.camerarig.global_position
+	var cloud_height = 20.0
+	cloud_pos.y = cloud_height
+
+	wind_effect.global_position = cloud_pos
+	clouds.global_position = cloud_pos
+	var wind_strength = wind.strength
+
+	wind_offset += Vector2(wind.direction.x, wind.direction.z) * wind_strength * delta * 0.01
+	var wind_2d := Vector2(wind.direction.x, wind.direction.z)
+	if wind_2d.length() > 0.0001:
+		wind_2d = wind_2d.normalized()
+	else:
+		wind_2d = Vector2.RIGHT
+	var c_mat := clouds.get_active_material(0) as ShaderMaterial
+	
+	c_mat.set_shader_parameter("wind_offset", wind_offset)
+	
+	var w_mat := wind_effect.get_active_material(0) as ShaderMaterial
+	w_mat.set_shader_parameter("wind_offset", wind_offset)
+	w_mat.set_shader_parameter("wind_dir", wind_2d)
 
 func _enter_tree():
 	container = Node3D.new()
 	container.name = "Ports"
 	add_child(container)
-	terrain.heightmap_created.connect(_on_heightmap_created)
+	
+
+func pass_time():
+	time.pass_time(1.0)
+	wind.randomize_wind()
+
+func _on_time_changed(_time: float):
+	var normalized_time = time.get_time_normalized()
+	var angle = 360.0 * normalized_time
+	moon.rotation_degrees.x = angle - 90.0
+	sun.rotation_degrees.x = angle + 90.0
+	var t = normalized_time # 0–1
+	sun.light_energy = max(0.0, sin(t * PI)) * 2.0
+	sun.light_color = sun_gradient.sample(normalized_time)
+	moon.light_energy = max(0.0, 1.0 - max(0.0, sin(t * PI)))
 
 func _on_heightmap_created(heightmap: Texture2D):
 	spawn_ports(heightmap)

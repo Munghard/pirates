@@ -8,14 +8,14 @@ extends Node3D
 
 func _ready():
 	if water == null:
-		if gameManager:
-			water = gameManager.water
+		if gameManager and gameManager.world:
+			water = gameManager.world.water
 
 func _physics_process(_delta):
 	if water == null:
 		await get_tree().process_frame
-		if gameManager:
-			water = gameManager.water
+		if gameManager and gameManager.world:
+			water = gameManager.world.water
 		return
 	var pos = target.global_position
 	var wave_data = water.get_wave_data(pos)

@@ -7,7 +7,7 @@ class_name DebugMenu
 
 
 func init_debugMenu():
-	gameManager.wind.wind_changed.connect(_on_update_wind)
+	gameManager.world.wind.wind_changed.connect(_on_update_wind)
 
 	create_debug_button("Give Gold", func():
 		gameManager.player_ship.gain_gold(10000)

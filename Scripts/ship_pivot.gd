@@ -15,7 +15,7 @@ func _ready():
 	sails.append(ship_model.get_node("MidleSail"))
 
 func _process(delta):
-	var wind_dir = ship.gameManager.wind.direction
+	var wind_dir = ship.gameManager.world.wind.direction
 
 	# Convert wind into ship local space
 	var local_wind = ship.global_transform.basis.inverse() * wind_dir

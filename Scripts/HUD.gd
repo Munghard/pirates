@@ -34,19 +34,19 @@ func _ready():
 
 func init_hud() -> void:
 	# update wind direction gauge
-	gameManager.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
+	gameManager.world.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
 	#init notification label as 0 alpha
 	notification_label.modulate.a = 0
 	update_ship_panel(null, ship_panel_target)
 	gameManager.player_ship.connect("boarding_target_changed", Callable(self , "_on_boarding_target_changed"))
-	gameManager.time.connect("time_changed", Callable(self , "_on_time_changed"))
+	gameManager.world.time.connect("time_changed", Callable(self , "_on_time_changed"))
 	ship_panel_player.fold()
 	ship_panel_target.fold()
 	minimap_scale_slider.value = minimap_scale
 
 func _on_time_changed(time: float):
 	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
-	label_time.text = gameManager.time.get_time_string()
+	label_time.text = gameManager.world.time.get_time_string()
 
 func _on_boarding_target_changed(ship: Ship):
 	boarding_button.visible = ship != null and ship.can_be_boarded()
@@ -121,7 +121,15 @@ func create_canon_ui(ship: Ship, _ship_panel: Control):
 	port_button.text = "Fire port"
 	port_button.pressed.connect(ship.shoot_port)
 	create_canon_pb("Starboard", vb, ship.canons_layout.canons_starboard)
+	var starboard_button = Button.new()
+	vb.add_child(starboard_button)
+	starboard_button.text = "Fire starboard"
+	starboard_button.pressed.connect(ship.shoot_starboard)
 	create_canon_pb("Bow", vb, ship.canons_layout.canons_bow)
+	var bow_button = Button.new()
+	vb.add_child(bow_button)
+	bow_button.text = "Fire bow"
+	bow_button.pressed.connect(ship.shoot_bow)
 
 func create_canon_pb(side_name: String, vb: VBoxContainer, canons: Array[Canon]):
 	var ls = Label.new()

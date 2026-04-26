@@ -32,10 +32,7 @@
 [ext_resource type="Shader" uid="uid://6an42f6pkuwg" path="res://Materials/clouds.gdshader" id="22_dt0r1"]
 [ext_resource type="Shader" uid="uid://bug7bbfblq2pu" path="res://Materials/toon_shader_pp.gdshader" id="25_i4fjy"]
 [ext_resource type="Script" uid="uid://bilgylkyj1kr3" path="res://Scripts/debug_draw.gd" id="26_pt3ps"]
-
-[sub_resource type="Gradient" id="Gradient_hmc15"]
-offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
-colors = PackedColorArray(0.25, 0.4375, 1, 1, 1, 0.36666667, 0, 1, 1, 1, 1, 1, 1, 0.36862746, 0, 1, 0.2509804, 0.4392157, 1, 1)
+[ext_resource type="Texture2D" uid="uid://vv17m6wwh6ht" path="res://Textures/bird.png" id="27_r0ikl"]
 
 [sub_resource type="Gradient" id="Gradient_pyn1s"]
 offsets = PackedFloat32Array(0, 0.9331307, 0.96103895, 1)
@@ -48,6 +45,10 @@ height = 128
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.84615386, 0.14957266)
+
+[sub_resource type="Gradient" id="Gradient_r0ikl"]
+offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
+colors = PackedColorArray(0.25, 0.4375, 1, 1, 1, 0.36666667, 0, 1, 1, 1, 1, 1, 1, 0.36862746, 0, 1, 0.2509804, 0.4392157, 1, 1)
 
 [sub_resource type="Image" id="Image_e3hhs"]
 data = {
@@ -66,25 +67,6 @@ material = ExtResource("7_ikia7")
 size = Vector2(100, 100)
 subdivide_width = 100
 subdivide_depth = 100
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pyn1s"]
-transparency = 1
-no_depth_test = true
-vertex_color_use_as_albedo = true
-
-[sub_resource type="QuadMesh" id="QuadMesh_no8kt"]
-material = SubResource("StandardMaterial3D_pyn1s")
-size = Vector2(1, 10)
-center_offset = Vector3(0, 0, 5)
-orientation = 1
-
-[sub_resource type="Curve" id="Curve_xbk3s"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="Gradient" id="Gradient_i4fjy"]
-offsets = PackedFloat32Array(0, 0.48026314, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_qebug"]
 frequency = 0.0031
@@ -131,6 +113,36 @@ material = SubResource("ShaderMaterial_qebug")
 size = Vector2(100, 100)
 orientation = 1
 
+[sub_resource type="Curve" id="Curve_opbav"]
+_data = [Vector2(0.0032154322, 0), 0.0, 3.5006247, 0, 0, Vector2(0.5176849, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -6.3336825, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_coyub"]
+curve = SubResource("Curve_opbav")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ochwf"]
+particle_flag_align_y = true
+emission_shape = 3
+emission_box_extents = Vector3(50, 50, 1)
+direction = Vector3(0, 1, 0)
+spread = 0.0
+initial_velocity_min = 1.0
+initial_velocity_max = 5.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.5
+scale_max = 0.5
+alpha_curve = SubResource("CurveTexture_coyub")
+turbulence_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p5wkl"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("27_r0ikl")
+
+[sub_resource type="QuadMesh" id="QuadMesh_r74th"]
+material = SubResource("StandardMaterial3D_p5wkl")
+flip_faces = true
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pt3ps"]
 render_priority = 0
 shader = ExtResource("25_i4fjy")
@@ -142,7 +154,6 @@ size = Vector2(53.42, 30.29)
 
 [node name="GameManager" type="Node3D" unique_id=418889483]
 script = ExtResource("1_5ukr8")
-sun_gradient = SubResource("Gradient_hmc15")
 
 [node name="AudioManager" type="Node3D" parent="." unique_id=1614830830]
 script = ExtResource("2_o2rbt")
@@ -300,12 +311,10 @@ text = "Pass time"
 
 [node name="Equipment_panel" parent="." unique_id=1043611700 instance=ExtResource("3_3ua1v")]
 
-[node name="World" type="Node3D" parent="." unique_id=1431584057 node_paths=PackedStringArray("water", "wind", "terrain")]
+[node name="World" type="Node3D" parent="." unique_id=1431584057]
 script = ExtResource("5_axeuq")
-water = NodePath("Water")
-wind = NodePath("Wind")
-terrain = NodePath("Terrain")
 ports = 3
+sun_gradient = SubResource("Gradient_r0ikl")
 port_scene = ExtResource("16_hgpy0")
 
 [node name="Port" parent="World" unique_id=1497539839 instance=ExtResource("16_hgpy0")]
@@ -386,26 +395,6 @@ light_color = Color(0, 0.1500001, 1, 1)
 light_energy = 0.5
 shadow_enabled = true
 
-[node name="wind_particle_cpu" type="CPUParticles3D" parent="World" unique_id=1851781407]
-transform = Transform3D(1, 0, 0, 0, 0.9999999, 2.9802322e-08, 0, -2.9802322e-08, 0.9999999, 50.196945, 1.2595586, 52.372467)
-visible = false
-amount = 100
-lifetime = 5.0
-mesh = SubResource("QuadMesh_no8kt")
-emission_shape = 3
-emission_box_extents = Vector3(50, 1, 50)
-direction = Vector3(0, 0, 1)
-spread = 0.0
-gravity = Vector3(0, 0, 0)
-initial_velocity_min = 5.0
-initial_velocity_max = 5.0
-split_scale = true
-scale_curve_x = null
-scale_curve_y = null
-scale_curve_z = SubResource("Curve_xbk3s")
-color = Color(1, 1, 1, 0.03529412)
-color_ramp = SubResource("Gradient_i4fjy")
-
 [node name="Time" type="Node3D" parent="World" unique_id=945669454]
 script = ExtResource("21_hmc15")
 
@@ -416,6 +405,13 @@ mesh = SubResource("QuadMesh_3ua1v")
 [node name="wind_effect" type="MeshInstance3D" parent="World" unique_id=360221891]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 109.853745, 23, 0)
 mesh = SubResource("QuadMesh_o2rbt")
+
+[node name="birds_effect" type="GPUParticles3D" parent="World" unique_id=1395443687]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+amount = 500
+lifetime = 10.0
+process_material = SubResource("ParticleProcessMaterial_ochwf")
+draw_pass_1 = SubResource("QuadMesh_r74th")
 
 [node name="PlayerShip" parent="." unique_id=7143519 node_paths=PackedStringArray("boarding_area") groups=["Ships"] instance=ExtResource("1_fo5ed")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 220.97075, 0, 278.30396)
