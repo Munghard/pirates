@@ -23,6 +23,7 @@ var active_range := 500.0 # range from player
 var active := true # active status for process
 
 @export_group("Perception")
+var avoidance_distance := 5.0
 var perception_radius := 50.0
 var perception_timer := 0.0
 var perception_interval := 5.0
@@ -143,7 +144,7 @@ func get_avoidance_direction() -> Vector3:
 	var forward = - transform.basis.z
 	var right = transform.basis.x
 
-	var check_distance := 20.0
+	var check_distance := avoidance_distance
 	var water_level = gameManager.world.water.water_level_world_space
 
 	# forward check
@@ -241,7 +242,7 @@ func _process(delta):
 				if distance_squared > move_threshold * move_threshold:
 					target_speed = top_speed
 				else:
-					target_speed = boarding_ship.target_speed * max(dot, 0.0)
+					target_speed = boarded_by.target_speed * max(dot, 0.0)
 
 			AIState.COMBAT:
 				target_arrow.visible = true
@@ -421,10 +422,11 @@ func draw_line_to_target_point(_line: ImmediateMesh, _target_point: Vector3, col
 	line_instance.queue_free()
 
 func _on_boarded_changed(ship: Ship):
-	if ship:
+	if ship != null:
 		set_state(AIState.CAPTURED)
 	else:
 		set_state(AIState.ENROUTE)
+	print("boarded changed: ", ship != null);
 
 func _on_boarding_area_body_entered(body: Node3D) -> void:
 	var ship

@@ -7,6 +7,13 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ahcqd"]
+bg_color = Color(0.76766664, 0, 0.98, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i7eh4"]
 bg_color = Color(0.115802296, 0.6406188, 0.9176399, 1)
 corner_radius_top_left = 4
@@ -21,5 +28,7 @@ MarginContainer/constants/margin_right = 10
 MarginContainer/constants/margin_top = 10
 crew_pb/base_type = &"ProgressBar"
 crew_pb/styles/fill = SubResource("StyleBoxFlat_78ylj")
+recovery_pb/base_type = &"ProgressBar"
+recovery_pb/styles/fill = SubResource("StyleBoxFlat_ahcqd")
 ship_pb/base_type = &"ProgressBar"
 ship_pb/styles/fill = SubResource("StyleBoxFlat_i7eh4")

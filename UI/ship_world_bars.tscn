@@ -85,6 +85,12 @@ theme = ExtResource("2_tyw4e")
 theme_type_variation = &"ship_pb"
 value = 15.78
 
+[node name="pb_recovery" type="ProgressBar" parent="SubViewport/Control/VBoxContainer" unique_id=1989782862]
+layout_mode = 2
+theme = ExtResource("2_tyw4e")
+theme_type_variation = &"recovery_pb"
+value = 15.78
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1565056926]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.750824, 0)
 mesh = SubResource("QuadMesh_tyw4e")

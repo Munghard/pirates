@@ -182,20 +182,61 @@ func _show_notifications() -> void:
 func _on_update_wind(wind: Wind):
 	wind_control.rotation = atan2(wind.direction.x, -wind.direction.z)
 
-func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
-	var ship_label_h := _ship_panel.get_node("MarginContainer/VBoxContainer/Label_h")
-	var ship_label_f: Label = _ship_panel.get_node("MarginContainer/VBoxContainer/Label_f")
-	var ship_label := _ship_panel.get_node("MarginContainer/VBoxContainer/Label")
-	var ship_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_health")
-	var ship_crew_pb: ProgressBar = _ship_panel.get_node("MarginContainer/VBoxContainer/pb_crew")
-	var canons_button: Button = _ship_panel.get_node("MarginContainer/VBoxContainer/canons_button")
 
-	var callable = Callable(create_canon_ui).bind(ship, _ship_panel)
-	if not canons_button.pressed.is_connected(callable):
-		canons_button.pressed.connect(callable)
+func _on_release_pressed(_ship: Ship):
+	print("release pressed")
+	if _ship and _ship.boarded_by:
+		_ship.boarded_by.unboard_ship(_ship)
+		print("unboard")
+
+var _release_callable: Callable
+var _canons_callable: Callable
+
+func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
+	var container = _ship_panel.get_node("MarginContainer/VBoxContainer")
+
+	var ship_label_h: Label = container.get_node("Label_h")
+	var ship_label_f: Label = container.get_node("Label_f")
+	var ship_label: Label = container.get_node("Label")
+
+	var ship_pb: ProgressBar = container.get_node("pb_health")
+	var ship_crew_pb: ProgressBar = container.get_node("pb_crew")
+	var ship_recovery_pb: ProgressBar = container.get_node("pb_recovery")
+
+	var canons_button: Button = container.get_node("canons_button")
+	var release_button: Button = container.get_node("release_button")
+	
+
+	_canons_callable = Callable(create_canon_ui).bind(ship, _ship_panel)
+
+	if not canons_button.pressed.is_connected(_canons_callable):
+		canons_button.pressed.connect(_canons_callable)
+
 
 	if ship == null:
+		ship_label_h.text = "No ship selected"
+		ship_label.text = "Select a ship to view its stats"
+		ship_label_f.visible = false
+		ship_crew_pb.visible = false
+		ship_pb.visible = false
+		ship_recovery_pb.visible = false
+		canons_button.visible = false
+		release_button.visible = false
 		return
+	else:
+		ship_label_f.visible = true
+		ship_crew_pb.visible = true
+		ship_pb.visible = true
+		ship_recovery_pb.visible = true
+		canons_button.visible = true
+		release_button.visible = true
+
+	if ship != ship.gameManager.player_ship:
+		_release_callable = Callable(_on_release_pressed).bind(ship)
+		if not release_button.pressed.is_connected(_release_callable):
+			release_button.pressed.connect(_release_callable)
+
+	release_button.visible = ship.boarded_by != null
 	
 	var ship_name = ""
 	
@@ -232,9 +273,15 @@ func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
 		
 		ship_crew_pb.max_value = ship.max_crew
 		ship_crew_pb.value = ship.crew
+
+		var progress: float = ship.recovery_progress
+
+		ship_recovery_pb.value = progress
+		ship_recovery_pb.max_value = 1.0
 		
 		ship_pb.max_value = ship.max_hit_points
 		ship_pb.value = ship.hit_points
+	
 
 	ship_label.text = ai_text + ship_text
 	
@@ -298,18 +345,8 @@ func _on_v_slider_value_changed(value: float) -> void:
 	minimap_scale = value / 100.0
 	update_minimap()
 
-
 func _on_board_button_pressed() -> void:
-	if gameManager.player_ship.boarded_ship:
-		gameManager.player_ship.unboard_ship()
-	elif gameManager.player_ship.boarding_target.can_be_boarded():
-		gameManager.player_ship.board_ship()
-	
-	if gameManager.player_ship.boarded_ship != null:
-		boarding_button.text = "Unboard ship"
-	else:
-		boarding_button.text = "Board ship"
-
+	gameManager.player_ship.board_ship(gameManager.player_ship.boarding_target)
 
 func _on_button_pass_time_pressed() -> void:
-	gameManager.pass_time()
+	gameManager.world.pass_time()

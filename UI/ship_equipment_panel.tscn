@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://mdoxy52gslc1"]
 
-[ext_resource type="Script" uid="uid://cnkb48mck31x6" path="res://UI/equipment_panel.gd" id="1_67in8"]
+[ext_resource type="Script" uid="uid://cnkb48mck31x6" path="res://Scripts/equipment_panel.gd" id="1_67in8"]
 [ext_resource type="Texture2D" uid="uid://br3vm6tkgh8e2" path="res://Textures/Gemini_Generated_Image_10rub010rub010ru.png" id="1_t3q02"]
 
 [sub_resource type="Gradient" id="Gradient_67in8"]

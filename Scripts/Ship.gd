@@ -38,7 +38,9 @@ var crew_health := 1.0
 
 var boarding_target: Ship
 var boarded_ship: Ship
-var boarding_ship: Ship
+var boarded_by: Ship
+
+var controlled_ships: Array[Ship] = []
 
 @export var boarding_area: Area3D
 @export var arrow: PackedScene
@@ -56,6 +58,7 @@ var attacker: Node3D
 var in_combat: bool = false
 var last_damage_time: int = 0
 var out_of_combat_time: int = 20000 # 10 seconds without taking damage to be considered out of combat
+var recovery_progress := 1.0
 
 @export_group("Signals")
 
@@ -64,6 +67,7 @@ signal crew_changed(amount: int, gained: bool)
 signal supplies_changed(amount: int, gained: bool)
 signal recieved_damage(amount: float, attacker: Node3D)
 signal hit_points_changed(amount: float)
+signal recovery_changed(time: float)
 signal on_sink
 signal boarding_target_changed(ship: Ship)
 signal boarding_changed(ship: Ship)
@@ -73,6 +77,7 @@ signal boarded_changed(ship: Ship)
 @export_group("World UI")
 @onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
+@onready var recovery_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_recovery
 @onready var faction_texture: TextureRect = $world_bars/SubViewport/Control/faction_icon
 
 
@@ -85,15 +90,21 @@ func _ready():
 
 	connect("crew_changed", Callable(self , "_on_crew_changed"))
 	connect("hit_points_changed", Callable(self , "_on_hit_points_changed"))
+	connect("recovery_changed", Callable(self , "_on_recovery_changed"))
 	# init values
 	crew_healthbar.value = crew
 	crew_healthbar.max_value = max_crew
 	ship_healthbar.value = hit_points
 	ship_healthbar.max_value = max_hit_points
+	recovery_healthbar.value = 1.0
+	recovery_healthbar.max_value = 1.0
 
 func set_faction(_faction: FactionsData.Faction):
 	faction = _faction
 	set_faction_texture()
+
+func _on_recovery_changed(_progress: float):
+	recovery_healthbar.value = _progress
 
 func _on_hit_points_changed(_amount: float):
 	ship_healthbar.value = hit_points
@@ -148,7 +159,10 @@ func _process(_delta):
 
 	ship_pivot.position = Vector3.ZERO
 	# check if in combat
-	if in_combat and Time.get_ticks_msec() - last_damage_time > out_of_combat_time:
+	var elapsed := Time.get_ticks_msec() - last_damage_time
+	recovery_progress = clamp(elapsed / float(out_of_combat_time), 0.0, 1.0)
+	emit_signal("recovery_changed", recovery_progress)
+	if in_combat and elapsed > out_of_combat_time:
 		in_combat = false
 
 func repair(_delta):
@@ -337,33 +351,35 @@ func active_port(value: bool):
 
 
 # Is getting boarded
-func set_boarded(_boarding_ship: Ship):
-	boarding_ship = _boarding_ship
-	set_faction(_boarding_ship.faction)
-	boarded_changed.emit(boarding_ship)
+func set_boarded(by: Ship):
+	boarded_by = by
+	set_faction(by.faction)
+	boarded_changed.emit(by)
 
 # Is getting unboarded
 func set_unboarded():
-	boarding_ship = null
+	boarded_by = null
 	boarded_changed.emit(null)
 
 # Is boarding
-func board_ship():
-	if not boarding_target:
+func board_ship(ship: Ship):
+	if not ship:
 		return
-	if not boarding_target.can_be_boarded():
+	if not ship.can_be_boarded():
 		return
-	boarding_target.set_boarded(self )
-	boarded_ship = boarding_target
-	emit_signal("boarding_changed", boarding_target)
+	ship.set_boarded(self )
+	boarded_ship = ship
+	controlled_ships.append(ship)
+	emit_signal("boarding_changed", ship)
 
 # Is unboarding
-func unboard_ship():
-	if not boarded_ship:
+func unboard_ship(ship: Ship):
+	print("unboarding: ", ship);
+	if not ship:
 		return
-	print("unboarding: ", boarded_ship);
-	boarded_ship.set_unboarded()
-	boarded_ship = null
+	ship.set_unboarded()
+	controlled_ships.erase(ship)
+	ship = null
 	emit_signal("boarding_changed", null)
 
 # set boarding target
@@ -374,7 +390,7 @@ func set_boarding_target(ship: Ship):
 
 # boarding condition
 func can_be_boarded() -> bool:
-	return true # incapacitated
+	return incapacitated and boarded_by == null
 
 # Collision damage
 func _on_body_entered(body: Node) -> void:
