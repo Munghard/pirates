@@ -14,10 +14,10 @@ class_name World
 @onready var moon: DirectionalLight3D = $Moon
 @onready var clouds: MeshInstance3D = $Clouds
 
-var container
+@export var scatterers: Node3D
 
 @export_group("Spawn data")
-@export var ports: int
+@export var ports_amount: int
 @export var min_distance_between_ports: float = 100.0
 
 @export_group("Sun")
@@ -27,6 +27,7 @@ var container
 @export var port_scene: PackedScene
 
 var wind_offset: Vector2 = Vector2.ZERO
+signal ports_spawned(ports: Array[Node3D])
 
 # Keep a local list for immediate distance checking
 var _spawned_positions: Array[Vector3] = []
@@ -55,7 +56,20 @@ func _ready():
 	wind.randomize_wind()
 	wind.connect("wind_changed", Callable(self , "_on_wind_changed"))
 	
-	terrain.heightmap_created.connect(_on_heightmap_created)
+	print("CONNECTING ports_spawned to place_player")
+	ports_spawned.connect(place_player)
+	print("CONNECTING heightmap_created to spawn_ports and scatter_scatterers")
+	terrain.heightmap_created.connect(spawn_ports)
+	terrain.heightmap_created.connect(scatter_scatterers)
+
+	terrain.create_terrain()
+
+
+func scatter_scatterers(_heightmap):
+	print("Scattering scatterers");
+	for scatterer in scatterers.get_children():
+		if scatterer.has_method("scatter"):
+			scatterer.scatter(terrain)
 
 
 func _process(delta):
@@ -86,12 +100,6 @@ func _process(delta):
 	w_mat.set_shader_parameter("wind_offset", wind_offset)
 	w_mat.set_shader_parameter("wind_dir", wind_2d)
 
-func _enter_tree():
-	container = Node3D.new()
-	container.name = "Ports"
-	add_child(container)
-	
-
 func pass_time():
 	time.pass_time(1.0)
 	wind.randomize_wind()
@@ -106,11 +114,21 @@ func _on_time_changed(_time: float):
 	sun.light_color = sun_gradient.sample(normalized_time)
 	moon.light_energy = max(0.0, 1.0 - max(0.0, sin(t * PI)))
 
-func _on_heightmap_created(heightmap: Texture2D):
-	spawn_ports(heightmap)
-	
+
+func place_player(ports: Array[Node3D]):
+	print("Placing player");
+	if ports.is_empty():
+		print("NO PORTS RECEIVED")
+		return
+	var port = ports[randi_range(0, ports.size() - 1)]
+	var rolled_port_pos = port.global_position
+	gameManager.player_ship.global_position = rolled_port_pos
 
 func spawn_ports(_heightmap: Texture2D):
+	var container = Node3D.new()
+	container.name = "Ports"
+	add_child(container)
+
 	var target_height := 0.0
 	var tolerance := 0.5
 	
@@ -120,7 +138,9 @@ func spawn_ports(_heightmap: Texture2D):
 	var suitable_points := get_suitable_points_within_tolerance(target_height, tolerance)
 
 	var spawned_count = 0
-	while spawned_count < ports and not suitable_points.is_empty():
+
+	var spawned_ports: Array[Node3D] = []
+	while spawned_count < ports_amount and not suitable_points.is_empty():
 		var random_index = randi() % suitable_points.size()
 		var candidate_pos = suitable_points[random_index]
 		suitable_points.remove_at(random_index)
@@ -132,10 +152,18 @@ func spawn_ports(_heightmap: Texture2D):
 		var port := port_scene.instantiate() as Node3D
 
 		_spawned_positions.append(candidate_pos)
-		add_to_world.call_deferred(port, candidate_pos)
+		add_to_world(container, port, candidate_pos)
+		#add_to_world.call_deferred(port, candidate_pos)
 		spawned_count += 1
+		spawned_ports.append(port)
+	
+	await get_tree().process_frame
 
-func add_to_world(node: Node3D, pos: Vector3):
+	print("EMITTING ports_spawned: ", spawned_ports.size())
+	emit_signal("ports_spawned", spawned_ports)
+	
+
+func add_to_world(container: Node3D, node: Node3D, pos: Vector3):
 	container.add_child(node)
 	node.global_position = pos
 

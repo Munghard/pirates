@@ -25,7 +25,6 @@ settings/addon_root_folder="res://addons/debug_draw_3d"
 
 [display]
 
-window/size/always_on_top=true
 window/vsync/vsync_mode=0
 
 [global_group]

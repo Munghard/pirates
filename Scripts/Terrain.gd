@@ -8,9 +8,14 @@ class_name Terrain
 
 @export_group("Terrain Settings")
 @export var world_size: Vector2i = Vector2i(32, 32)
+@export var height_power: float = 2.0
 @export var tile_size: float = 1.0
 @export var terrain_height: float = 10.0
 @export var noise_frequency: float = 0.05
+@export var regen := false:
+	set(value):
+		create_terrain_mesh()
+		regen = false
 
 @export_group("Vegetation")
 @export var tree_density: float = 0.2
@@ -20,18 +25,16 @@ class_name Terrain
 @export var heightmap: Texture2D
 var mesh_instance
 
-@export var regen := false:
-	set(value):
-		create_terrain_mesh()
-		regen = false
 
 var noise: FastNoiseLite
 signal heightmap_created(texture: Texture2D)
 
 func _ready():
-	create_terrain()
+	pass
+	#create_terrain()
 
 func create_terrain():
+	setup_noise()
 	create_terrain_mesh()
 	create_collision()
 	create_heightmap()
@@ -63,8 +66,6 @@ func create_heightmap():
 	emit_signal("heightmap_created", heightmap)
 
 func create_terrain_mesh():
-	setup_noise()
-	
 	for child in get_children():
 		child.queue_free()
 	
@@ -160,6 +161,10 @@ func get_height_world(x: float, z: float) -> float:
 
 func get_height(x: float, z: float) -> float:
 	var n = (noise.get_noise_2d(x, z) + 1.0) / 2.0
+	n = pow(n, height_power)
+	var sea_level = 0.3
+	if n < sea_level:
+		n = 0.0
 	return n * terrain_height
 
 func generate_trees_poisson(offset: Vector3):

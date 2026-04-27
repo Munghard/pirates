@@ -189,9 +189,23 @@ func sink():
 	queue_free()
 	emit_signal("on_sink")
 
+func world_edge_push():
+	var world_size := gameManager.world.terrain.world_size * gameManager.world.terrain.tile_size
+	var pos := global_position
+	# check if outside bounds
+	if pos.x < 0 or pos.x > world_size.x or pos.z < 0 or pos.z > world_size.y:
+		var center := Vector3.ZERO
+		var dir_to_center := (center - pos).normalized()
+		
+		# get target yaw (Y rotation)
+		yaw_deg = atan2(dir_to_center.x, dir_to_center.z)
+		
 var previous_speed
 var previous_h_speed
+
 func _physics_process(_delta: float) -> void:
+	world_edge_push()
+
 	if destroyed:
 		if floater:
 			floater.queue_free()

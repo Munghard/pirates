@@ -7,15 +7,14 @@ extends Node3D
 @export var rotation_range_max: Vector3 = Vector3(0, 0, 0)
 @export var water: Water
 
-@export var terrain: Terrain
-
 @export var water_level: float = 5.0
 @export var spawn_in_water: bool = true
 
 func _ready():
-	scatter()
+	pass
+	#scatter()
 
-func scatter():
+func scatter(terrain: Terrain):
 	if not prefab:
 		push_warning("No prefab assigned!")
 		return
@@ -66,9 +65,3 @@ func scatter():
 		if not placed:
 			pass
 			#print("Failed to place object ", i)
-func _process(_delta):
-	var half_x = terrain.world_size.x * 0.5 * terrain.tile_size
-	var half_z = terrain.world_size.y * 0.5 * terrain.tile_size
-	var offset2 = terrain.world_size / 2.0 * terrain.tile_size
-	var offset = Vector3(offset2.x, 0, offset2.y)
-	DebugDraw3D.draw_box_ab(Vector3(-half_x, 0, -half_z) + offset, Vector3(half_x, 0, half_z) + offset, Vector3(0, 1, 0))
