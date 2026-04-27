@@ -1,5 +1,25 @@
 class_name FactionsData
 
+enum Nation {ENGLAND, SPAIN, FRANCE, NETHERLANDS}
+const NATION_NAMES = {
+	Nation.ENGLAND: "ENGLAND",
+	Nation.SPAIN: "SPAIN",
+	Nation.FRANCE: "FRANCE",
+	Nation.NETHERLANDS: "NETHERLANDS",
+}
+
+const NATION_FLAGS = {
+	Nation.ENGLAND: preload("res://Textures/Flag_of_the_United_Kingdom.png"),
+	Nation.SPAIN: preload("res://Textures/Bandera_de_España.png"),
+	Nation.FRANCE: preload("res://Textures/flag_of_France.png"),
+	Nation.NETHERLANDS: preload("res://Textures/Flag_of_the_Netherlands.png")
+}
+static func get_flag(nation: Nation, faction: Faction) -> Texture2D:
+	var flag = NATION_FLAGS.get(nation)
+	if faction == Faction.PIRATE:
+		flag = preload("res://Textures/Pirate_Flag_of_Jack_Rackham.png")
+	return flag
+
 enum Faction {PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING}
 
 const FACTION_NAMES = {
@@ -10,6 +30,7 @@ const FACTION_NAMES = {
 	Faction.CARTOGRAPHER: "Cartographer",
 	Faction.BOUNTYHUNTER: "Bounty Hunter",
 }
+
 
 const NAMES = [
 	"Black Marrow",
@@ -164,3 +185,17 @@ static func get_faction_stats(faction: Faction) -> FactionStats:
 			var supplies = randi_range(0, 50)
 			var max_crew = randi_range(10, 20)
 			return FactionStats.new(attack, defense, max_speed, guns, max_hp, gold, supplies, max_crew)
+
+static func roll_weighted(options: Dictionary):
+	var total = 0.0
+	for w in options.values():
+		total += w
+
+	var r = randf() * total
+
+	for key in options:
+		r -= options[key]
+		if r <= 0:
+			return key
+
+	return options.keys()[0]

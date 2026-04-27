@@ -27,7 +27,7 @@ void fragment() {
 	
 	vec2 uv = vec2(along, across);
 	
-	uv *= vec2(0.1,2.0) * wind_dir;
+	uv *= vec2(0.1,0.5) * wind_dir;
 	
 	//vec2 uv =  vec2(world_pos.x,world_pos.z);
 	float d = texture(noise, uv * 0.05 + wind_offset).r;

@@ -27,7 +27,7 @@ func _process(delta):
 		if distance <= 5.0:
 			var ship = body as Ship
 			if ship:
-				ship.damage(delta * 1.0, ship.global_position, self )
+				ship.damage(delta * 1.0, 1.0, ship.global_position, self )
 			continue
 		
 		var pull = direction.normalized() * pull_strength

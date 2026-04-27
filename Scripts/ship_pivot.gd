@@ -2,17 +2,22 @@ extends Node3D
 
 @export var ship: Ship
 
-@export var canons_port: Array[Canon]
-@export var canons_starboard: Array[Canon]
-
 @export var ship_model: Node3D
 
 var sails: Array[Node3D] = []
+@export var flag_mesh: MeshInstance3D
+
+func set_flag():
+	#setup flag
+	var mat = flag_mesh.get_active_material(0) as StandardMaterial3D
+	var flag_texture = FactionsData.get_flag(ship.nation, ship.faction)
+	mat.albedo_texture = flag_texture
 
 func _ready():
 	sails.append(ship_model.get_node("BackSail"))
 	sails.append(ship_model.get_node("Front Sail"))
 	sails.append(ship_model.get_node("MidleSail"))
+
 
 func _process(delta):
 	var wind_dir = ship.gameManager.world.wind.direction

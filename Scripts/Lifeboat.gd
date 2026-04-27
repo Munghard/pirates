@@ -6,9 +6,11 @@ var supplies := 20
 var gold_per_crew := 20
 var chance := 0.2
 var lbu
+var entered: bool = false
 
 func _on_body_entered(body: Node) -> void:
-	if body is PlayerShip:
+	if body is PlayerShip and not entered:
+		entered = true
 		var player_ship: PlayerShip = body
 		# do the ui panel with the choice of kill the crew or take them aboard
 		lbu = lifeboat_ui.instantiate()
@@ -29,6 +31,6 @@ func _on_recruit_pressed(player_ship: PlayerShip):
 	if randf() < chance:
 		player_ship.gain_crew(crew)
 	else:
-		player_ship.lose_crew(int(float(crew) / 2.0))
+		player_ship.kill_crew(int(float(crew) / 2.0))
 	#queue_free the lifeboat
 	queue_free()

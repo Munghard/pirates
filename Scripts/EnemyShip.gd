@@ -69,7 +69,9 @@ func _ready() -> void:
 	# later have ship names per faction, for now just random
 	ship_name = FactionsData.get_random_name()
 
+	level = randi_range(1, 5)
 	faction = roll_faction()
+	nation = roll_nation()
 
 	var faction_stats = FactionsData.get_faction_stats(faction)
 
@@ -84,8 +86,9 @@ func _ready() -> void:
 	max_crew = faction_stats.max_crew
 
 	setup_guns()
-
 	set_faction_texture()
+	set_stars(level)
+	ship_pivot.set_flag()
 	
 	hit_points = max_hit_points
 
@@ -95,19 +98,25 @@ func _ready() -> void:
 	
 	set_state(AIState.ENROUTE)
 
-func roll_faction():
-	var _faction = FactionsData.Faction.NAVY
-	if randf() > 0.5:
-		_faction = FactionsData.Faction.MERCHANT
-		if randf() > 0.5:
-			_faction = FactionsData.Faction.PIRATE
-			if randf() > 0.5:
-				_faction = FactionsData.Faction.SLAVER
-				if randf() > 0.5:
-					_faction = FactionsData.Faction.CARTOGRAPHER
-					if randf() > 0.5:
-						_faction = FactionsData.Faction.BOUNTYHUNTER
-	return _faction
+func roll_nation() -> FactionsData.Nation:
+	var rolled_nation = FactionsData.roll_weighted({
+		FactionsData.Nation.ENGLAND: 20,
+		FactionsData.Nation.SPAIN: 20,
+		FactionsData.Nation.FRANCE: 20,
+		FactionsData.Nation.NETHERLANDS: 20
+		})
+	return rolled_nation
+
+func roll_faction() -> FactionsData.Faction:
+	var rolled_faction = FactionsData.roll_weighted({
+		FactionsData.Faction.NAVY: 25,
+		FactionsData.Faction.MERCHANT: 25,
+		FactionsData.Faction.PIRATE: 20,
+		FactionsData.Faction.SLAVER: 10,
+		FactionsData.Faction.CARTOGRAPHER: 10,
+		FactionsData.Faction.BOUNTYHUNTER: 10,
+	})
+	return rolled_faction
 
 func _on_damage_recieved(_damage: float, _attacker: Node3D):
 	attacker = _attacker
@@ -181,7 +190,7 @@ func _process(delta):
 		return
 	
 	super._process(delta)
-	var debug_draw_path = true
+	var debug_draw_path = false
 	if debug_draw_path:
 		if attacker != null:
 			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)

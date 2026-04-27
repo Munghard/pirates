@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://b7howlis8o0ps"]
+
+[ext_resource type="Texture2D" uid="uid://e0svsgui7l04" path="res://Textures/round-star.png" id="1_ph7j1"]
+
+[node name="star" type="TextureRect" unique_id=186653662]
+self_modulate = Color(1, 0.9016667, 0.41000003, 1)
+texture = ExtResource("1_ph7j1")

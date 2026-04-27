@@ -8,6 +8,8 @@ class_name Ship
 
 var ship_name := "Ship"
 var faction: FactionsData.Faction = FactionsData.Faction.NAVY
+var nation: FactionsData.Nation = FactionsData.Nation.ENGLAND
+var level := 1
 var max_crew := 20
 var crew := max_crew
 var max_hit_points := 100.0
@@ -79,14 +81,16 @@ signal boarded_changed(ship: Ship)
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
 @onready var recovery_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_recovery
 @onready var faction_texture: TextureRect = $world_bars/SubViewport/Control/faction_icon
+@onready var star_container: Control = $world_bars/SubViewport/Control/star_container
 
 
 func _ready():
-	body_entered.connect(_on_body_entered)
+	#body_entered.connect(_on_body_entered)
 	contact_monitor = true
 	max_contacts_reported = 1
 	
 	set_faction_texture()
+	set_stars(level)
 
 	connect("crew_changed", Callable(self , "_on_crew_changed"))
 	connect("hit_points_changed", Callable(self , "_on_hit_points_changed"))
@@ -98,6 +102,14 @@ func _ready():
 	ship_healthbar.max_value = max_hit_points
 	recovery_healthbar.value = 1.0
 	recovery_healthbar.max_value = 1.0
+	
+func set_stars(amount: int):
+	for child in star_container.get_children():
+		child.queue_free()
+	var star_ui = preload("res://UI/star.tscn")
+	for i in range(amount):
+		var star = star_ui.instantiate()
+		star_container.add_child(star)
 
 func set_faction(_faction: FactionsData.Faction):
 	faction = _faction
@@ -141,19 +153,21 @@ func gain_crew(amount: int):
 	gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
 	crew += amount
 	crew = min(crew, max_crew)
-	emit_signal("crew_changed", crew, true)
+	emit_signal("crew_changed", amount, true)
 
 func kill_crew(amount: int):
 	gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
 	crew -= amount
 	crew = max(crew, 0)
-	emit_signal("crew_changed", crew, false)
+	emit_signal("crew_changed", amount, false)
 	if crew <= 0:
 		destroyed = true
 
 # GET AND REMOVE STATS
 
 func _process(_delta):
+	if destroyed:
+		return
 	if not destroyed:
 		repair(_delta)
 
@@ -269,27 +283,35 @@ func spawn_loot():
 		l.set_gold(gold / split)
 
 
-func damage(_damage: float, _position: Vector3, _attacker: Node3D):
+func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: Node3D):
 	# gameManager.hud.selected_ship = self
-	accumulated_damage += _damage
+	var multiplied_damage = _damage * _multiplier
+	
+	var color = Color.WHITE
+	if _multiplier < 0.5:
+		color = Color.GRAY
+	elif _multiplier > 1.0:
+		color = Color.YELLOW
+	accumulated_damage += multiplied_damage
+
 	if accumulated_damage >= damage_threshold:
 		var s = "%.1f" % accumulated_damage
-		gameManager.hud.ddd_label(s, _position)
+		gameManager.hud.ddd_label(s, _position, color)
 		accumulated_damage = 0
 
 	attacker = _attacker
-	hit_points = clamp(hit_points - (_damage / defense), 0, max_hit_points)
-	emit_signal("recieved_damage", (_damage / defense), _attacker)
+	hit_points = clamp(hit_points - (multiplied_damage / defense), 0, max_hit_points)
+	emit_signal("recieved_damage", (multiplied_damage / defense), _attacker)
 	emit_signal("hit_points_changed", hit_points)
 	in_combat = true
 	last_damage_time = Time.get_ticks_msec()
 
 	if hit_points <= 0 and not incapacitated:
 		incapacitated = true
-		gameManager.hud.ddd_label("INCAPACITATED!", position)
+		gameManager.hud.ddd_label("INCAPACITATED!", position, Color.CYAN)
 	
 	if incapacitated:
-		damage_sustained += _damage
+		damage_sustained += multiplied_damage
 		while damage_sustained >= crew_health:
 			damage_sustained -= crew_health
 			kill_crew(1)
@@ -394,8 +416,9 @@ func can_be_boarded() -> bool:
 
 # Collision damage
 func _on_body_entered(body: Node) -> void:
+	var _multiplier = 1.0
 	if body is not Ship:
 		return
 	var ship := body as Ship
 	if ship:
-		ship.damage(attack * hit_points / 10.0, global_position, self )
+		ship.damage(attack * hit_points / 10.0, _multiplier, global_position, self )

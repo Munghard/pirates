@@ -1,8 +1,8 @@
 extends Control
 class_name HUD
 
-@export var ship_panel_target: FoldableContainer
-@export var ship_panel_player: FoldableContainer
+@export var ship_panel_target: ShipPanel
+@export var ship_panel_player: ShipPanel
 
 @export var equipment_panel: Control
 
@@ -11,6 +11,7 @@ class_name HUD
 @export var wind_control: Control
 
 @export var minimap: Control
+@export var minimap_terrain_texture: TextureRect
 @export var minimap_scale_slider: VSlider
 @export var blip_scene: PackedScene
 var minimap_scale = 20.0
@@ -20,9 +21,6 @@ var minimap_scale = 20.0
 @export var notification_label: Label
 var notification_queue: Array[String] = []
 var showing_notifications = false
-
-var canon_mc: MarginContainer
-var canon_fc: FoldableContainer
 
 var selected_ship: Ship
 
@@ -37,12 +35,17 @@ func init_hud() -> void:
 	gameManager.world.wind.connect("wind_changed", Callable(self , "_on_update_wind"))
 	#init notification label as 0 alpha
 	notification_label.modulate.a = 0
-	update_ship_panel(null, ship_panel_target)
+	ship_panel_target.update_ship_panel(null)
 	gameManager.player_ship.connect("boarding_target_changed", Callable(self , "_on_boarding_target_changed"))
 	gameManager.world.time.connect("time_changed", Callable(self , "_on_time_changed"))
+	ship_panel_player.set_ship(gameManager.player_ship)
+	ship_panel_target.set_ship(null)
 	ship_panel_player.fold()
 	ship_panel_target.fold()
 	minimap_scale_slider.value = minimap_scale
+
+
+	#create_minimap_terrain_texture()
 
 func _on_time_changed(time: float):
 	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
@@ -54,11 +57,60 @@ func _on_boarding_target_changed(ship: Ship):
 # ================================================================================================================
 # MINIMAP 
 # ================================================================================================================
+func create_minimap_terrain_texture():
+	var src: Texture2D = gameManager.world.terrain.heightmap
+	var img: Image = src.get_image()
+
+	var _size = img.get_size()
+	var out := Image.create(_size.x, _size.y, false, Image.FORMAT_RGBA8)
+
+	for x in range(_size.x):
+		for y in range(_size.y):
+			var h = img.get_pixel(x, y).r
+			h = smoothstep(0.3, 0.7, h)
+				# threshold (tweak this)
+			if h > 0.3:
+				out.set_pixel(x, y, Color(0.5, 1, 0.5, 0.3))
+			else:
+				out.set_pixel(x, y, Color(1, 1, 1, 0))
+
+	minimap_terrain_texture.texture = ImageTexture.create_from_image(out)
+
+func set_terrain_texture_transforms():
+	if not minimap_terrain_texture.texture:
+		return
+	var terrain = gameManager.world.terrain
+	var world_size = Vector2(
+		terrain.world_size.x * terrain.tile_size,
+		terrain.world_size.y * terrain.tile_size
+	)
+
+	var player_pos = gameManager.player_ship.global_position
+
+	var player_uv = Vector2(
+		player_pos.x / world_size.x,
+		player_pos.z / world_size.y
+	)
+	var tex_size := minimap_terrain_texture.texture.get_size()
+	var ui_size := minimap.size # should be 128x128
+	var base_scale := ui_size / tex_size
+	var _scale = base_scale * minimap_scale
+	
+
+	minimap_terrain_texture.pivot_offset = Vector2.ZERO # minimap_terrain_texture.size * 0.5
+	minimap_terrain_texture.scale = _scale
+	
+	var scaled_tex_size = tex_size * scale
+
+	minimap_terrain_texture.position = minimap.size * 0.5 - (player_uv * scaled_tex_size)
+
 func update_minimap():
 	for child in minimap.get_children():
 		child.queue_free()
 	
 	add_blip_to_minimap(gameManager.player_ship.global_position, Color(1, 1, 1), 1.5)
+	
+	set_terrain_texture_transforms()
 
 	for ship: Ship in get_tree().get_nodes_in_group("Ships"):
 		if ship == gameManager.player_ship:
@@ -73,22 +125,24 @@ func update_minimap():
 	for port: Node3D in get_tree().get_nodes_in_group("Ports"):
 		var color = Color(0, 1, 0, 0.5)
 		add_blip_to_minimap(port.global_position, color, 1.5)
-		
 
-func add_blip_to_minimap(_position: Vector3, color: Color, _scale: float):
-	var _blip: TextureRect = blip_scene.instantiate()
-	_blip.modulate = color
-	_blip.scale = Vector2.ONE * _scale
-	minimap.add_child(_blip)
-	var pos = world_to_minimap(_position)
-	pos = Vector2(pos.x * -1 + minimap.size.x, pos.y * -1 + minimap.size.y) # flip y-axis
-	pos = pos - _blip.size / 2
-	_blip.position = pos
+func add_blip_to_minimap(pos: Vector3, color: Color, _scale: float):
+	var blip: TextureRect = blip_scene.instantiate()
+	blip.modulate = color
+	minimap.add_child(blip)
 
-func world_to_minimap(_position: Vector3) -> Vector2:
-	var player_pos = gameManager.player_ship.global_position
-	var relative_pos = _position - player_pos
-	return Vector2(relative_pos.x, relative_pos.z) * minimap_scale + minimap.size / 2
+	var center_pos = gameManager.camerarig.global_position
+
+	var relative = Vector2(
+		pos.x - center_pos.x,
+		pos.z - center_pos.z
+	)
+
+	# scale world → minimap space
+	var p = relative * minimap_scale
+
+	blip.scale = Vector2.ONE * _scale
+	blip.position = minimap.size * 0.5 + -p - blip.size * 0.5
 
 # ================================================================================================================
 # MINIMAP 
@@ -98,56 +152,11 @@ func world_to_minimap(_position: Vector3) -> Vector2:
 func select_ship(ship: Ship):
 	selected_ship = ship
 	gameManager.camerarig.secondary_target = selected_ship
-	update_ship_panel(selected_ship, ship_panel_target)
+	ship_panel_target.set_ship(selected_ship)
+	ship_panel_target.update_ship_panel(selected_ship)
 
-func create_canon_ui(ship: Ship, _ship_panel: Control):
-	if canon_fc:
-		canon_fc.queue_free()
-	if ship == null:
-		return
-	canon_fc = FoldableContainer.new()
-	canon_mc = MarginContainer.new()
-	var vb = VBoxContainer.new()
-	canon_fc.add_child(canon_mc)
-	_ship_panel.get_parent().add_child(canon_fc)
-	canon_mc.add_child(vb)
-	var lh = Label.new()
-	lh.text = "Cannons"
-	vb.add_child(lh)
-	
-	create_canon_pb("Port", vb, ship.canons_layout.canons_port)
-	var port_button = Button.new()
-	vb.add_child(port_button)
-	port_button.text = "Fire port"
-	port_button.pressed.connect(ship.shoot_port)
-	create_canon_pb("Starboard", vb, ship.canons_layout.canons_starboard)
-	var starboard_button = Button.new()
-	vb.add_child(starboard_button)
-	starboard_button.text = "Fire starboard"
-	starboard_button.pressed.connect(ship.shoot_starboard)
-	create_canon_pb("Bow", vb, ship.canons_layout.canons_bow)
-	var bow_button = Button.new()
-	vb.add_child(bow_button)
-	bow_button.text = "Fire bow"
-	bow_button.pressed.connect(ship.shoot_bow)
 
-func create_canon_pb(side_name: String, vb: VBoxContainer, canons: Array[Canon]):
-	var ls = Label.new()
-	ls.text = side_name
-	vb.add_child(ls)
-	for canon in canons:
-		var pb = ProgressBar.new()
-		pb.max_value = canon.fire_rate
-		pb.value = pb.max_value - canon.fire_timer
-		vb.add_child(pb)
-		if not canon.is_connected("_fire_timer_changed", Callable(self , "update_pb").bind(pb)):
-			canon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
-	
-func update_pb(value: float, pb):
-	if pb:
-		pb.value = pb.max_value - value
-
-func ddd_label(text: String, _position: Vector3):
+func ddd_label(text: String, _position: Vector3, _color: Color = Color.WHITE):
 	var label3d = Label3D.new()
 	get_tree().current_scene.add_child(label3d)
 	label3d.text = text
@@ -157,6 +166,7 @@ func ddd_label(text: String, _position: Vector3):
 	label3d.billboard = true
 	label3d.no_depth_test = true
 	label3d.alpha_cut = true
+	label3d.modulate = _color
 
 	get_tree().create_tween().tween_property(label3d, "global_position", label3d.global_position + Vector3.UP * 10.0, 5.0)
 
@@ -183,115 +193,12 @@ func _on_update_wind(wind: Wind):
 	wind_control.rotation = atan2(wind.direction.x, -wind.direction.z)
 
 
-func _on_release_pressed(_ship: Ship):
-	print("release pressed")
-	if _ship and _ship.boarded_by:
-		_ship.boarded_by.unboard_ship(_ship)
-		print("unboard")
-
-var _release_callable: Callable
-var _canons_callable: Callable
-
-func update_ship_panel(ship: Ship, _ship_panel: FoldableContainer):
-	var container = _ship_panel.get_node("MarginContainer/VBoxContainer")
-
-	var ship_label_h: Label = container.get_node("Label_h")
-	var ship_label_f: Label = container.get_node("Label_f")
-	var ship_label: Label = container.get_node("Label")
-
-	var ship_pb: ProgressBar = container.get_node("pb_health")
-	var ship_crew_pb: ProgressBar = container.get_node("pb_crew")
-	var ship_recovery_pb: ProgressBar = container.get_node("pb_recovery")
-
-	var canons_button: Button = container.get_node("canons_button")
-	var release_button: Button = container.get_node("release_button")
-	
-
-	_canons_callable = Callable(create_canon_ui).bind(ship, _ship_panel)
-
-	if not canons_button.pressed.is_connected(_canons_callable):
-		canons_button.pressed.connect(_canons_callable)
-
-
-	if ship == null:
-		ship_label_h.text = "No ship selected"
-		ship_label.text = "Select a ship to view its stats"
-		ship_label_f.visible = false
-		ship_crew_pb.visible = false
-		ship_pb.visible = false
-		ship_recovery_pb.visible = false
-		canons_button.visible = false
-		release_button.visible = false
-		return
-	else:
-		ship_label_f.visible = true
-		ship_crew_pb.visible = true
-		ship_pb.visible = true
-		ship_recovery_pb.visible = true
-		canons_button.visible = true
-		release_button.visible = true
-
-	if ship != ship.gameManager.player_ship:
-		_release_callable = Callable(_on_release_pressed).bind(ship)
-		if not release_button.pressed.is_connected(_release_callable):
-			release_button.pressed.connect(_release_callable)
-
-	release_button.visible = ship.boarded_by != null
-	
-	var ship_name = ""
-	
-	ship_name = ship.ship_name
-	ship_label_h.text = "%s" % ship_name
-	ship_label_f.text = "%s" % FactionsData.FACTION_NAMES[ship.faction]
-	
-	var color = FactionsData.get_faction_color(ship.faction)
-	ship_label_f.self_modulate = color
-
-	var ai_text = ""
-	if ship is EnemyShip:
-		ai_text = "State: %s" % (ship as EnemyShip).AIStateNames[(ship as EnemyShip).ai_state]
-		if (ship.ai_state == EnemyShip.AIState.COMBAT):
-			ai_text += "\nSubState: %s" % (ship as EnemyShip).CombatStateNames[(ship as EnemyShip).combat_state]
-		ai_text += "\nIn combat: %.s" % [str(ship.in_combat)]
-		if ship.attacker: ai_text += "\nTarget: %.s" % [str(ship.attacker.ship_name)]
-	
-	var ship_text = ""
-	if ship:
-		ship_text += "\nCrew: %s/%s" % [ship.crew, ship.max_crew]
-		ship_text += "\nHp: %.2f/%.2f" % [ship.hit_points, ship.max_hit_points]
-		# debug info
-		# ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
-		# ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
-		# ship_text += "\nHeading: %.2f" % [rad_to_deg(ship.rotation.y)]
-		ship_text += "\nAgility: %.2f" % [ship.agility]
-		ship_text += "\nAttack: %.2f" % [ship.attack]
-		ship_text += "\nDefense: %.2f" % [ship.defense]
-		ship_text += "\nGold: %.2f" % [ship.gold]
-		ship_text += "\nSupplies: %.2f" % [ship.supplies]
-		ship_text += "\nGuns: %.2f" % [ship.guns]
-	
-		
-		ship_crew_pb.max_value = ship.max_crew
-		ship_crew_pb.value = ship.crew
-
-		var progress: float = ship.recovery_progress
-
-		ship_recovery_pb.value = progress
-		ship_recovery_pb.max_value = 1.0
-		
-		ship_pb.max_value = ship.max_hit_points
-		ship_pb.value = ship.hit_points
-	
-
-	ship_label.text = ai_text + ship_text
-	
-
 func _process(_delta):
 	if selected_ship:
-		update_ship_panel(selected_ship, ship_panel_target)
+		ship_panel_target.update_ship_panel(selected_ship)
 
 	
-	update_ship_panel(gameManager.player_ship, ship_panel_player)
+	ship_panel_player.update_ship_panel(gameManager.player_ship)
 	
 	if Time.get_ticks_msec() % 1000 < 50: # update minimap every second
 		update_minimap()

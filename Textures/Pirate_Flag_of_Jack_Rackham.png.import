@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fn7oaunx0c6i"
-path="res://.godot/imported/sailboat.png-775b69e3829f989dc2d03bf6f08b87af.ctex"
+uid="uid://cykinbk0bibc1"
+path="res://.godot/imported/Pirate_Flag_of_Jack_Rackham.png-03215da2139c45c5d1ba1530b8a128be.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/sailboat.png"
-dest_files=["res://.godot/imported/sailboat.png-775b69e3829f989dc2d03bf6f08b87af.ctex"]
+source_file="res://Textures/Pirate_Flag_of_Jack_Rackham.png"
+dest_files=["res://.godot/imported/Pirate_Flag_of_Jack_Rackham.png-03215da2139c45c5d1ba1530b8a128be.ctex"]
 
 [params]
 
@@ -36,5 +36,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=128
+process/size_limit=0
 detect_3d/compress_to=1

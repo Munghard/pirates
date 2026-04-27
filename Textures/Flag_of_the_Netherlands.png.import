@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fn7oaunx0c6i"
-path="res://.godot/imported/sailboat.png-775b69e3829f989dc2d03bf6f08b87af.ctex"
+uid="uid://bhcxgfymea1l6"
+path="res://.godot/imported/Flag_of_the_Netherlands.png-574f0799c957459a801696ef07cc47b2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/sailboat.png"
-dest_files=["res://.godot/imported/sailboat.png-775b69e3829f989dc2d03bf6f08b87af.ctex"]
+source_file="res://Textures/Flag_of_the_Netherlands.png"
+dest_files=["res://.godot/imported/Flag_of_the_Netherlands.png-574f0799c957459a801696ef07cc47b2.ctex"]
 
 [params]
 
@@ -36,5 +36,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=128
+process/size_limit=0
 detect_3d/compress_to=1

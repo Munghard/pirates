@@ -15,7 +15,7 @@ var pitch := 0.0
 
 var line: Node3D
 
-var fire_rate = 5.0
+var fire_rate = 1.0
 var fire_timer = 0.0
 var active := false
 
