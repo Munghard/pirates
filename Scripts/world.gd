@@ -121,7 +121,7 @@ func place_player(ports: Array[Node3D]):
 		print("NO PORTS RECEIVED")
 		return
 	var port = ports[randi_range(0, ports.size() - 1)]
-	var rolled_port_pos = port.global_position
+	var rolled_port_pos = port.get_node("port").global_position
 	gameManager.player_ship.global_position = rolled_port_pos
 
 func spawn_ports(_heightmap: Texture2D):

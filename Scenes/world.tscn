@@ -443,14 +443,14 @@ draw_pass_1 = SubResource("QuadMesh_r74th")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 268.32037, 0, 20.879745)
 mass = 1.0
 script = ExtResource("3_5v1tr")
-arrow = ExtResource("17_xbk3s")
+arrow_scene = ExtResource("17_xbk3s")
 loot = ExtResource("5_5v1tr")
 
 [node name="ship_pivot" parent="PlayerShip" index="0" unique_id=1303226422 node_paths=PackedStringArray("ship")]
 transform = Transform3D(0.98866093, 0.15016502, 0, -0.14828178, 0.97626203, 0.1578764, 0.023707513, -0.15608624, 0.9874589, 0, 1.482443, 0)
 ship = NodePath("..")
 
-[node name="Canons" parent="PlayerShip/ship_pivot" index="1" unique_id=1435490113 node_paths=PackedStringArray("ship")]
+[node name="Cannons" parent="PlayerShip/ship_pivot" index="1" unique_id=1435490113 node_paths=PackedStringArray("ship")]
 ship = NodePath("../..")
 
 [node name="floater" parent="PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]

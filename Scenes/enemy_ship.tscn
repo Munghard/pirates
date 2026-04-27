@@ -8,11 +8,12 @@
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="5_a0oot"]
 [ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="5_ovko2"]
 [ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="6_c6fo0"]
-[ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/canon_layout.gd" id="7_0h3yk"]
-[ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="7_c6fo0"]
+[ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/cannon_layout.gd" id="7_0h3yk"]
+[ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="7_c6fo0"]
 [ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="9_6mpvb"]
 [ext_resource type="Texture2D" uid="uid://ct57ceuvqy3k8" path="res://Textures/plain-arrow.png" id="10_p5y7q"]
 [ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="13_a2apx"]
+[ext_resource type="PackedScene" uid="uid://yr5t6oixqo3o" path="res://Effects/wake.tscn" id="14_tboui"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_a2apx"]
 top_radius = 0.01
@@ -61,7 +62,7 @@ navy_ship = ExtResource("3_c6fo0")
 merchant_ship = ExtResource("3_c6fo0")
 target_arrow = NodePath("target_arrow")
 boarding_area = NodePath("Area3D")
-arrow = ExtResource("4_b21is")
+arrow_scene = ExtResource("4_b21is")
 loot = ExtResource("4_a0oot")
 floater = NodePath("floater")
 
@@ -73,10 +74,10 @@ flag_mesh = NodePath("flag_pole/flag")
 
 [node name="Sail ship" parent="ship_pivot" unique_id=2112990505 instance=ExtResource("3_c6fo0")]
 
-[node name="Canons" type="Node3D" parent="ship_pivot" unique_id=78163467 node_paths=PackedStringArray("ship")]
+[node name="Cannons" type="Node3D" parent="ship_pivot" unique_id=78163467 node_paths=PackedStringArray("ship")]
 script = ExtResource("7_0h3yk")
 ship = NodePath("../..")
-canon_scene = ExtResource("7_c6fo0")
+cannon_scene = ExtResource("7_c6fo0")
 ship_length = 3.0
 ship_width = 1.0
 
@@ -113,9 +114,8 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0
 [node name="rotation_arrow" type="Node3D" parent="." unique_id=33603859]
 
 [node name="arrow" type="Sprite3D" parent="rotation_arrow" unique_id=1644756768]
-transform = Transform3D(0.5, 0, 0, 0, -2.1855694e-08, 0.5, 0, -0.5, -2.1855694e-08, 0, 0, 5)
+transform = Transform3D(0.25, 0, 0, 0, -1.0927847e-08, 0.25, 0, -0.25, -1.0927847e-08, 0, 0, 5)
 modulate = Color(0.3561068, 0.6850385, 1.92523e-07, 1)
-alpha_cut = 1
 render_priority = 127
 texture = ExtResource("10_p5y7q")
 
@@ -198,6 +198,9 @@ damage_multiplier = 0.2
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone5" unique_id=642400234]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.71899414, 0.24560547)
 shape = SubResource("BoxShape3D_qgoxs")
+
+[node name="Wake" parent="." unique_id=1429127145 instance=ExtResource("14_tboui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
 
 [connection signal="body_entered" from="Area3D" to="." method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="Area3D" to="." method="_on_boarding_area_body_exited"]

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cd5eblhx7bnyo"]
 
-[ext_resource type="Script" uid="uid://cuixgdseyich0" path="res://Scripts/canon.gd" id="1_qskhg"]
+[ext_resource type="Script" uid="uid://cuixgdseyich0" path="res://Scripts/cannon.gd" id="1_qskhg"]
 [ext_resource type="PackedScene" uid="uid://qvfr2s5ji76k" path="res://Scenes/cannon_ball.tscn" id="2_dqm4n"]
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="3_0jbhj"]
 
@@ -182,3 +182,4 @@ grow_vertical = 2
 theme = ExtResource("3_0jbhj")
 theme_type_variation = &"crew_pb"
 value = 15.78
+show_percentage = false

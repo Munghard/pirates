@@ -5,6 +5,7 @@ class_name Ship
 @onready var right_arrow: Node3D = $right_arrow
 @onready var left_arrow: Node3D = $left_arrow
 @onready var rotation_arrow: Node3D = $rotation_arrow
+@onready var rot_arrow: Sprite3D = $rotation_arrow/arrow
 
 var ship_name := "Ship"
 var faction: FactionsData.Faction = FactionsData.Faction.NAVY
@@ -45,12 +46,12 @@ var boarded_by: Ship
 var controlled_ships: Array[Ship] = []
 
 @export var boarding_area: Area3D
-@export var arrow: PackedScene
+@export var arrow_scene: PackedScene
 @export var rigidbody: RigidBody3D = self
 @export var loot: PackedScene
 @export var floater: Node3D
 
-@onready var canons_layout: Canons = $ship_pivot/Canons
+@onready var canons_layout: Cannons = $ship_pivot/Cannons
 
 @onready var ship_pivot: Node3D = $ship_pivot
 
@@ -257,6 +258,8 @@ func _physics_process(_delta: float) -> void:
 	var current_rotation = global_transform.basis.get_euler().y
 	var target_rotation_rad = deg_to_rad(yaw_deg)
 	var rotation_diff = angle_difference(current_rotation, target_rotation_rad)
+	var t = clamp(abs(rotation_diff) / PI, 0.0, 1.0)
+	rot_arrow.modulate.a = t
 
 	# Apply a turning force based on how far we need to turn
 	# rotation = Vector3(0, new_yaw, 0)
@@ -281,10 +284,11 @@ func update_arrow(container: Node3D, count: int):
 	queue_free_children(container)
 
 	for i in range(count):
-		var a = arrow.instantiate()
+		var a = arrow_scene.instantiate() as Sprite3D
 		container.add_child(a)
 		a.position = Vector3(0, 0, i * 2.0)
-
+		
+		a.modulate.a = 1.0 / (i + 1)
 
 func spawn_loot():
 	var split = 5.0
@@ -331,44 +335,44 @@ func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: N
 			kill_crew(1)
 
 func port_pitch(value: float):
-	for canon in canons_layout.canons_port:
+	for canon in canons_layout.cannons_port:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func starboard_pitch(value: float):
-	for canon in canons_layout.canons_starboard:
+	for canon in canons_layout.cannons_starboard:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func bow_pitch(value: float):
-	for canon in canons_layout.canons_bow:
+	for canon in canons_layout.cannons_bow:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func set_canon_pitch(value: float):
-	for canon in canons_layout.canons_starboard:
+	for canon in canons_layout.cannons_starboard:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
-	for canon in canons_layout.canons_port:
+	for canon in canons_layout.cannons_port:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
-	for canon in canons_layout.canons_bow:
+	for canon in canons_layout.cannons_bow:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func shoot_port():
-	shoot(canons_layout.canons_port)
+	shoot(canons_layout.cannons_port)
 
 func shoot_starboard():
-	shoot(canons_layout.canons_starboard)
+	shoot(canons_layout.cannons_starboard)
 
 func shoot_bow():
-	shoot(canons_layout.canons_bow)
+	shoot(canons_layout.cannons_bow)
 
-func shoot(canons: Array[Canon]):
+func shoot(canons: Array[Cannon]):
 	if supplies <= 0:
 		return
 	for canon in canons:
@@ -378,11 +382,11 @@ func shoot(canons: Array[Canon]):
 			
 
 func active_starboard(value: bool):
-	for canon in canons_layout.canons_starboard:
+	for canon in canons_layout.cannons_starboard:
 		canon.active = value
 
 func active_port(value: bool):
-	for canon in canons_layout.canons_port:
+	for canon in canons_layout.cannons_port:
 		canon.active = value
 
 

@@ -1,5 +1,5 @@
 extends Node3D
-class_name Canon
+class_name Cannon
 
 @export var cannon_ball: PackedScene
 @export var canon: Node3D
@@ -23,6 +23,10 @@ signal _fire_timer_changed(value: float)
 
 @export_group("Audio")
 var audio_canon_fire = preload("res://Audio/cannon_fire.mp3")
+
+func _ready():
+	pb.value = fire_timer
+	pb.max_value = fire_rate
 
 func shoot(attack: float, shooter: Node3D, audioManager: AudioManager) -> bool:
 	if not fire_timer <= 0.0:

@@ -147,29 +147,29 @@ func create_canon_ui(_ship: Ship):
 	var vb = VBoxContainer.new()
 	cannons_panel.add_child(vb)
 
-	if _ship.canons_layout.canons_port.size() > 0:
-		create_canon_pb("Port", vb, _ship.canons_layout.canons_port)
+	if _ship.canons_layout.cannons_port.size() > 0:
+		create_canon_pb("Port", vb, _ship.canons_layout.cannons_port)
 		if player_controlled:
 			var port_button = Button.new()
 			vb.add_child(port_button)
 			port_button.text = "Fire port"
 			port_button.pressed.connect(_ship.shoot_port)
-	if _ship.canons_layout.canons_starboard.size() > 0:
-		create_canon_pb("Starboard", vb, _ship.canons_layout.canons_starboard)
+	if _ship.canons_layout.cannons_starboard.size() > 0:
+		create_canon_pb("Starboard", vb, _ship.canons_layout.cannons_starboard)
 		if player_controlled:
 			var starboard_button = Button.new()
 			vb.add_child(starboard_button)
 			starboard_button.text = "Fire starboard"
 			starboard_button.pressed.connect(_ship.shoot_starboard)
-	if _ship.canons_layout.canons_bow.size() > 0:
-		create_canon_pb("Bow", vb, _ship.canons_layout.canons_bow)
+	if _ship.canons_layout.cannons_bow.size() > 0:
+		create_canon_pb("Bow", vb, _ship.canons_layout.cannons_bow)
 		if player_controlled:
 			var bow_button = Button.new()
 			vb.add_child(bow_button)
 			bow_button.text = "Fire bow"
 			bow_button.pressed.connect(_ship.shoot_bow)
 
-func create_canon_pb(side_name: String, vb: VBoxContainer, canons: Array[Canon]):
+func create_canon_pb(side_name: String, vb: VBoxContainer, canons: Array[Cannon]):
 	var ls = Label.new()
 	ls.text = side_name
 	vb.add_child(ls)

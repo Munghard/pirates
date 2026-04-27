@@ -3,11 +3,12 @@
 [ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="1_8aq7e"]
 [ext_resource type="PackedScene" uid="uid://cr7y5ey7ppmmp" path="res://Models/Sail ship.fbx" id="1_l3rv8"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_4cq66"]
-[ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/canon.tscn" id="2_6ejuo"]
-[ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/canon_layout.gd" id="4_fwcnm"]
+[ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="2_6ejuo"]
+[ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/cannon_layout.gd" id="4_fwcnm"]
 [ext_resource type="Texture2D" uid="uid://ct57ceuvqy3k8" path="res://Textures/plain-arrow.png" id="5_cmder"]
 [ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="6_cmder"]
 [ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="8_kxdp2"]
+[ext_resource type="PackedScene" uid="uid://yr5t6oixqo3o" path="res://Effects/wake.tscn" id="9_v2j2m"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_kxdp2"]
 top_radius = 0.01
@@ -59,9 +60,9 @@ flag_mesh = NodePath("flag_pole/flag")
 
 [node name="Sail ship" parent="ship_pivot" unique_id=116400657 instance=ExtResource("1_l3rv8")]
 
-[node name="Canons" type="Node3D" parent="ship_pivot" unique_id=1435490113]
+[node name="Cannons" type="Node3D" parent="ship_pivot" unique_id=1435490113]
 script = ExtResource("4_fwcnm")
-canon_scene = ExtResource("2_6ejuo")
+cannon_scene = ExtResource("2_6ejuo")
 ship_length = 3.0
 ship_width = 1.0
 
@@ -94,10 +95,9 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
 [node name="arrow" type="Sprite3D" parent="rotation_arrow" unique_id=1487089547]
-transform = Transform3D(0.5, 0, 0, 0, -2.1855694e-08, 0.5, 0, -0.5, -2.1855694e-08, 0, 0, 5)
+transform = Transform3D(0.25, 0, 0, 0, -1.0927847e-08, 0.25, 0, -0.25, -1.0927847e-08, 0, 0, 5)
 sorting_offset = 1000.0
 modulate = Color(0.51666665, 1, 0, 1)
-alpha_cut = 1
 render_priority = 127
 texture = ExtResource("5_cmder")
 
@@ -172,6 +172,9 @@ damage_multiplier = 0.2
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone5" unique_id=1964558885]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.71899414, 0.24560547)
 shape = SubResource("BoxShape3D_odhhf")
+
+[node name="Wake" parent="." unique_id=391220487 instance=ExtResource("9_v2j2m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
 
 [connection signal="body_entered" from="DamageZone" to="DamageZone" method="_on_body_entered"]
 [connection signal="body_entered" from="DamageZone3" to="DamageZone3" method="_on_body_entered"]

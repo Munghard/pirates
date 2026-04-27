@@ -4,6 +4,5 @@
 
 [node name="arrow" type="Sprite3D" unique_id=2112457400]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
-alpha_cut = 1
 render_priority = 127
 texture = ExtResource("1_sjvn6")

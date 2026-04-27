@@ -59,6 +59,11 @@ func upgrade_guns():
 	guns += 1
 	setup_guns()
 
+func emergency_brake():
+	side_to_side_speed = 0.0
+	target_speed = 0.0
+	yaw_deg = rotation_degrees.y
+
 func _process(_delta: float) -> void:
 	super._process(_delta)
 	# Continuous steering logic
@@ -71,10 +76,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_A:
 			side_to_side_speed += 1.0
-			print(side_to_side_speed)
 		if event.keycode == KEY_D:
 			side_to_side_speed -= 1.0
-			print(side_to_side_speed)
 		if event.keycode == KEY_W:
 			target_speed = clamp(target_speed + 1.0, 0, top_speed)
 		if event.keycode == KEY_S:
@@ -97,6 +100,8 @@ func _input(event: InputEvent) -> void:
 			yaw_deg = yaw_deg + 22.5
 		if event.keycode == KEY_E:
 			yaw_deg = yaw_deg - 22.5
+		if event.keycode == KEY_X:
+			emergency_brake()
 
 
 func _on_boarding_area_body_entered(body: Node3D) -> void:

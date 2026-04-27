@@ -14,8 +14,8 @@ curve = SubResource("Curve_c5t2i")
 emission_shape = 6
 emission_ring_axis = Vector3(0, 1, 0)
 emission_ring_height = 0.0
-emission_ring_radius = 5.0
-emission_ring_inner_radius = 5.0
+emission_ring_radius = 1.0
+emission_ring_inner_radius = 1.0
 emission_ring_cone_angle = 90.0
 direction = Vector3(0, 0, 0)
 spread = 0.0
@@ -23,30 +23,38 @@ flatness = 1.0
 radial_velocity_min = -10.000022
 radial_velocity_max = -2.2351742e-05
 gravity = Vector3(0, 0, 0)
+tangential_accel_min = -80.0
+tangential_accel_max = -80.0
 scale_curve = SubResource("CurveTexture_e0ngr")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1v7sr"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w53vn"]
+transparency = 1
+cull_mode = 2
 vertex_color_use_as_albedo = true
+use_particle_trails = true
 
-[sub_resource type="SphereMesh" id="SphereMesh_1v7sr"]
-material = SubResource("StandardMaterial3D_1v7sr")
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_7f0rn"]
+material = SubResource("StandardMaterial3D_w53vn")
+shape = 0
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_c5t2i"]
-radius = 5.0
+radius = 20.0
 
-[node name="maelstrom" type="Area3D" unique_id=735147423]
+[node name="maelstrom" type="Area3D" unique_id=735147423 node_paths=PackedStringArray("collision_shape")]
 script = ExtResource("1_8s505")
-spin_strength = 50.0
+spin_strength = 1.0
+collision_shape = NodePath("CollisionShape3D")
 
 [node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1671570764]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 amount = 50
-lifetime = 0.53
+lifetime = 1.5
 fixed_fps = 60
 local_coords = true
-trail_lifetime = 1.5799999999999998
+trail_enabled = true
+trail_lifetime = 1.0
 process_material = SubResource("ParticleProcessMaterial_kn0ld")
-draw_pass_1 = SubResource("SphereMesh_1v7sr")
+draw_pass_1 = SubResource("RibbonTrailMesh_7f0rn")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=928381288]
 shape = SubResource("SphereShape3D_c5t2i")

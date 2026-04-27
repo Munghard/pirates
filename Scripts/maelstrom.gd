@@ -3,6 +3,7 @@ extends Area3D
 var bodies: Array[Node3D] = []
 @export var pull_strength: float = 100.0 # max units per second the pull can move
 @export var spin_strength: float = 100.0
+@export var collision_shape: CollisionShape3D
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is RigidBody3D:
@@ -16,6 +17,7 @@ func _on_body_exited(body: Node3D) -> void:
 		if rb and bodies.has(rb):
 			bodies.erase(rb)
 
+
 func _process(delta):
 	rotate_y(spin_strength * delta)
 	for body in bodies:
@@ -24,7 +26,8 @@ func _process(delta):
 		var direction = (global_position - body.global_position)
 		direction.y = -1.0
 		var distance = direction.length()
-		if distance <= 5.0:
+		var shape = collision_shape.shape as SphereShape3D
+		if distance <= shape.radius:
 			var ship = body as Ship
 			if ship:
 				ship.damage(delta * 1.0, 1.0, ship.global_position, self )
