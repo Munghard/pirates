@@ -10,6 +10,7 @@ class_name Ship
 var ship_name := "Ship"
 var faction: FactionsData.Faction = FactionsData.Faction.NAVY
 var nation: FactionsData.Nation = FactionsData.Nation.ENGLAND
+var inventory: Inventory
 var level := 1
 var max_crew := 20
 var crew := max_crew
@@ -21,6 +22,7 @@ var attack := 1.0
 var defense := 1.0
 var gold := 0
 var supplies := 100
+var max_supplies := 100
 var guns := 1
 
 var actual_speed := 0.0
@@ -51,7 +53,7 @@ var controlled_ships: Array[Ship] = []
 @export var loot: PackedScene
 @export var floater: Node3D
 
-@onready var canons_layout: Cannons = $ship_pivot/Cannons
+@onready var cannons_layout: Cannons = $ship_pivot/Cannons
 
 @onready var ship_pivot: Node3D = $ship_pivot
 
@@ -131,7 +133,7 @@ func set_faction_texture():
 	faction_texture.texture = FactionsData.get_faction_icon(faction)
 
 func setup_guns():
-	canons_layout.create_canons(int(float(guns) / 2.0), int(float(guns) / 2.0), int(float(guns) / 4.0))
+	cannons_layout.create_canons(int(float(guns) / 2.0), int(float(guns) / 2.0), int(float(guns) / 4.0))
 # GET AND REMOVE STATS
 
 func gain_gold(_gold: int):
@@ -143,20 +145,28 @@ func remove_gold(_gold: int):
 	emit_signal("gold_changed", _gold, false)
 
 func gain_supplies(_supplies: int):
+	if supplies >= max_supplies:
+		return
 	supplies += _supplies
-	emit_signal("supplies_changed", supplies, true)
+	emit_signal("supplies_changed", _supplies, true)
 
 func lose_supplies(_supplies: int):
+	if supplies <= 0:
+		return
 	supplies -= _supplies
-	emit_signal("supplies_changed", supplies, false)
+	emit_signal("supplies_changed", _supplies, false)
 
 func gain_crew(amount: int):
+	if crew >= max_crew:
+		return
 	gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
 	crew += amount
 	crew = min(crew, max_crew)
 	emit_signal("crew_changed", amount, true)
 
 func kill_crew(amount: int):
+	if crew <= 0:
+		return
 	gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
 	crew -= amount
 	crew = max(crew, 0)
@@ -199,7 +209,7 @@ func world_edge_push():
 		var dir_to_center := (center - pos).normalized()
 		
 		# get target yaw (Y rotation)
-		yaw_deg = atan2(dir_to_center.x, dir_to_center.z)
+		yaw_deg = rad_to_deg(atan2(dir_to_center.x, dir_to_center.z))
 		
 var previous_speed
 var previous_h_speed
@@ -291,14 +301,24 @@ func update_arrow(container: Node3D, count: int):
 		a.modulate.a = 1.0 / (i + 1)
 
 func spawn_loot():
-	var split = 5.0
-	for i in split:
+	for i in range(inventory.items.size() - 1):
 		var l: Loot = loot.instantiate()
+
 		get_tree().current_scene.add_child(l)
-		var offset = Vector3(randf_range(-1.0, 1.0) * 5.0, 0, randf_range(-1.0, 1.0) * 5.0)
+		var radius = 5.0
+		var angle = randf() * TAU
+		var distance = sqrt(randf()) * radius
+
+		var offset = Vector3(
+			cos(angle) * distance,
+			0,
+			sin(angle) * distance
+		)
 		l.global_position = global_position + offset
 		l.global_position.y = 0
-		l.set_gold(gold / split)
+		var item = inventory.items[i]
+		l.setup_loot(item)
+		inventory.remove_item(item)
 
 
 func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: Node3D):
@@ -335,42 +355,42 @@ func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: N
 			kill_crew(1)
 
 func port_pitch(value: float):
-	for canon in canons_layout.cannons_port:
+	for canon in cannons_layout.cannons_port:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func starboard_pitch(value: float):
-	for canon in canons_layout.cannons_starboard:
+	for canon in cannons_layout.cannons_starboard:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func bow_pitch(value: float):
-	for canon in canons_layout.cannons_bow:
+	for canon in cannons_layout.cannons_bow:
 		await get_tree().create_timer(randf() / 10.0).timeout
 		canon.pitch += value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func set_canon_pitch(value: float):
-	for canon in canons_layout.cannons_starboard:
+	for canon in cannons_layout.cannons_starboard:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
-	for canon in canons_layout.cannons_port:
+	for canon in cannons_layout.cannons_port:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
-	for canon in canons_layout.cannons_bow:
+	for canon in cannons_layout.cannons_bow:
 		canon.pitch = value
 		canon.pitch = clampf(canon.pitch, -25.0, 25.0)
 
 func shoot_port():
-	shoot(canons_layout.cannons_port)
+	shoot(cannons_layout.cannons_port)
 
 func shoot_starboard():
-	shoot(canons_layout.cannons_starboard)
+	shoot(cannons_layout.cannons_starboard)
 
 func shoot_bow():
-	shoot(canons_layout.cannons_bow)
+	shoot(cannons_layout.cannons_bow)
 
 func shoot(canons: Array[Cannon]):
 	if supplies <= 0:
@@ -382,11 +402,15 @@ func shoot(canons: Array[Cannon]):
 			
 
 func active_starboard(value: bool):
-	for canon in canons_layout.cannons_starboard:
+	for canon in cannons_layout.cannons_starboard:
 		canon.active = value
 
 func active_port(value: bool):
-	for canon in canons_layout.cannons_port:
+	for canon in cannons_layout.cannons_port:
+		canon.active = value
+
+func active_bow(value: bool):
+	for canon in cannons_layout.cannons_bow:
 		canon.active = value
 
 

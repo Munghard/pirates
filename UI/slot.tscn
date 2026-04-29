@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://chrt2xt3y3x4p"]
+
+[ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="1_p5h00"]
+
+[sub_resource type="Gradient" id="Gradient_67in8"]
+offsets = PackedFloat32Array(0.021276595, 0.76899695, 0.9544073, 0.9726444)
+colors = PackedColorArray(1, 1, 1, 0.42745098, 1, 1, 1, 0.42745098, 1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_m4ryr"]
+gradient = SubResource("Gradient_67in8")
+width = 86
+height = 86
+fill = 2
+fill_from = Vector2(0.5, 0.5)
+
+[node name="slot" type="TextureButton" unique_id=464758293]
+custom_minimum_size = Vector2(86, 86)
+offset_right = 86.0
+offset_bottom = 86.0
+texture_normal = SubResource("GradientTexture2D_m4ryr")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=895840959]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer" unique_id=1263256349]
+layout_mode = 2
+texture = ExtResource("1_p5h00")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MarginContainer2" type="MarginContainer" parent="." unique_id=420935363]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label_name" type="Label" parent="MarginContainer2" unique_id=2088322900]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5019608)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/line_spacing = 1
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/outline_size = 1
+theme_override_constants/shadow_outline_size = 0
+theme_override_font_sizes/font_size = 16
+text = "Item name"
+autowrap_mode = 1

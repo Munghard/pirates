@@ -110,7 +110,7 @@ resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_nsfx8")
 size = Vector2(5, 5)
 
-[node name="Canon" type="Node3D" unique_id=101832743 node_paths=PackedStringArray("canon", "particle", "particle1", "pb")]
+[node name="Cannon" type="Node3D" unique_id=101832743 node_paths=PackedStringArray("canon", "particle", "particle1", "pb")]
 script = ExtResource("1_qskhg")
 cannon_ball = ExtResource("2_dqm4n")
 canon = NodePath("direction")

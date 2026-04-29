@@ -44,11 +44,11 @@ func scatter(terrain: Terrain):
 				continue
 
 			#print("found suitable height %s"%h);
-			var instance := prefab.instantiate()
+			var instance: Node3D = prefab.instantiate()
 			add_child(instance)
 
 			pos.y = h
-			instance.position = pos
+			instance.global_position = pos
 
 			instance.rotation_degrees = Vector3(
 				randf_range(rotation_range_min.x, rotation_range_max.x),

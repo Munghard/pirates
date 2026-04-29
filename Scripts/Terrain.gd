@@ -7,14 +7,17 @@ class_name Terrain
 @export var terrain_material: Material
 
 @export_group("Terrain Settings")
-@export var world_size: Vector2i = Vector2i(32, 32)
+@export var noise: FastNoiseLite
+@export var world_size: Vector2i = Vector2i(100, 100)
 @export var height_power: float = 2.0
-@export var tile_size: float = 1.0
-@export var terrain_height: float = 10.0
-@export var noise_frequency: float = 0.05
+@export var tile_size: float = 5.0
+@export var terrain_height: float = 50.0
+@export var terrain_world_size: Vector2
+@export var heightmap_size: Vector2i
+var terrain_cell_size: Vector2
 @export var regen := false:
 	set(value):
-		create_terrain_mesh()
+		create_terrain()
 		regen = false
 
 @export_group("Vegetation")
@@ -22,11 +25,10 @@ class_name Terrain
 @export var height_min: float = 1.0
 @export var height_max: float = 8.0
 
-@export var heightmap: Texture2D
+var heightmap_texture: Texture2D
 var mesh_instance
 
 
-var noise: FastNoiseLite
 signal heightmap_created(texture: Texture2D)
 
 func _ready():
@@ -51,27 +53,28 @@ func create_collision():
 	static_body.position = mesh_instance.position
 
 func setup_noise():
-	noise = FastNoiseLite.new()
-	noise.seed = 42
-	noise.frequency = noise_frequency
+	if not noise:
+		noise = FastNoiseLite.new()
+		noise.seed = 42
 
 func create_heightmap():
-	var heightmap_image = Image.create(world_size.x + 1, world_size.y + 1, false, Image.FORMAT_RF)
+	heightmap_size = world_size * tile_size
+	var heightmap_image = Image.create(heightmap_size.x, heightmap_size.y, false, Image.FORMAT_RF)
 
-	for z in range(world_size.y + 1):
-		for x in range(world_size.x + 1):
-			var h = get_height(x, z) / terrain_height
+	for z in range(heightmap_size.x):
+		for x in range(heightmap_size.y):
+			var h = (get_height_world(x, z) + terrain_height * 0.5) / terrain_height
 			heightmap_image.set_pixel(x, z, Color(h, h, h))
-	heightmap = ImageTexture.create_from_image(heightmap_image)
-	emit_signal("heightmap_created", heightmap)
+	heightmap_texture = ImageTexture.create_from_image(heightmap_image)
+	emit_signal("heightmap_created", heightmap_texture)
+	print("heightmap_texture created");
 
 func create_terrain_mesh():
 	for child in get_children():
 		child.queue_free()
 	
-	# Calculate the offset to center the terrain
-	var offset = Vector3(0, -terrain_height / 2.0, 0)
-	
+	terrain_world_size = Vector2(world_size.x * tile_size, world_size.y * tile_size)
+	terrain_cell_size = Vector2(tile_size, tile_size)
 	# 1. Setup Mesh
 	mesh_instance = MeshInstance3D.new()
 	mesh_instance.name = "TerrainMesh"
@@ -82,10 +85,10 @@ func create_terrain_mesh():
 
 	for z in range(world_size.y):
 		for x in range(world_size.x):
-			var h00 = get_height(x, z)
-			var h10 = get_height(x + 1, z)
-			var h01 = get_height(x, z + 1)
-			var h11 = get_height(x + 1, z + 1)
+			var h00 = get_height_world(x * tile_size, z * tile_size)
+			var h10 = get_height_world((x + 1) * tile_size, z * tile_size)
+			var h01 = get_height_world(x * tile_size, (z + 1) * tile_size)
+			var h11 = get_height_world((x + 1) * tile_size, (z + 1) * tile_size)
 
 			var v00 = Vector3(x * tile_size, h00, z * tile_size)
 			var v10 = Vector3((x + 1) * tile_size, h10, z * tile_size)
@@ -103,11 +106,10 @@ func create_terrain_mesh():
 	mesh_instance.mesh = st.commit()
 	
 	# Apply offset to Mesh
-	mesh_instance.position = offset
 	mesh_instance.mesh.surface_set_material(0, terrain_material)
 	
 	# 2. Setup Trees (passing the same offset)
-	generate_trees_poisson(offset)
+	generate_trees_poisson()
 
 func get_downhill_direction(x: float, z: float) -> Vector3:
 	var step := 1.0
@@ -128,24 +130,22 @@ func get_downhill_direction(x: float, z: float) -> Vector3:
 func get_normal_world(x: float, z: float) -> Vector3:
 	var step := 1.0
 
-	var hL = noise.get_noise_2d((x - step) * noise_frequency, z * noise_frequency) * terrain_height
-	var hR = noise.get_noise_2d((x + step) * noise_frequency, z * noise_frequency) * terrain_height
-	var hD = noise.get_noise_2d(x * noise_frequency, (z - step) * noise_frequency) * terrain_height
-	var hU = noise.get_noise_2d(x * noise_frequency, (z + step) * noise_frequency) * terrain_height
+	var hL = get_height_world(x - step, z)
+	var hR = get_height_world(x + step, z)
+	var hD = get_height_world(x, z - step)
+	var hU = get_height_world(x, z + step)
 
 	var dx = hL - hR
 	var dz = hD - hU
 
-	var normal = Vector3(dx, 2.0, dz).normalized()
-	return normal
-
+	return Vector3(dx, 2.0, dz).normalized()
 func get_slope_world(x: float, z: float) -> float:
-	var step := 1.0 # world-space distance for sampling
+	var step := 1.0
 
-	var hL = noise.get_noise_2d((x - step) * noise_frequency, z * noise_frequency) * terrain_height
-	var hR = noise.get_noise_2d((x + step) * noise_frequency, z * noise_frequency) * terrain_height
-	var hD = noise.get_noise_2d(x * noise_frequency, (z - step) * noise_frequency) * terrain_height
-	var hU = noise.get_noise_2d(x * noise_frequency, (z + step) * noise_frequency) * terrain_height
+	var hL = get_height_world(x - step, z)
+	var hR = get_height_world(x + step, z)
+	var hD = get_height_world(x, z - step)
+	var hU = get_height_world(x, z + step)
 
 	var dx = hR - hL
 	var dz = hU - hD
@@ -153,40 +153,34 @@ func get_slope_world(x: float, z: float) -> float:
 	return sqrt(dx * dx + dz * dz)
 
 func get_height_world(x: float, z: float) -> float:
-	var n = noise.get_noise_2d(
-		x * noise_frequency,
-		z * noise_frequency
-	)
-	return n * terrain_height
+	if not noise:
+		return 0.0
+	var n = noise.get_noise_2d(x, z)
 
-func get_height(x: float, z: float) -> float:
-	var n = (noise.get_noise_2d(x, z) + 1.0) / 2.0
+	n = (n + 1.0) / 2.0
 	n = pow(n, height_power)
-	var sea_level = 0.3
-	if n < sea_level:
-		n = 0.0
-	return n * terrain_height
 
-func generate_trees_poisson(offset: Vector3):
+	return n * terrain_height - terrain_height / 2.0
+
+func generate_trees_poisson():
 	if not palm: return
 	
 	var tree_container = Node3D.new()
 	tree_container.name = "Trees"
 	add_child(tree_container)
 	
-	# Apply the EXACT same offset to the container
-	tree_container.position = offset
 
 	var max_attempts = int(world_size.x * world_size.y * tree_density)
 	
 	for i in range(max_attempts):
 		var rx = randf() * world_size.x
 		var rz = randf() * world_size.y
-		var h = get_height(rx, rz)
+		var x = rx * tile_size
+		var z = rz * tile_size
+		var h = get_height_world(x, z)
 
 		if h >= height_min and h <= height_max:
 			var tree = palm.instantiate()
 			tree_container.add_child(tree)
-			# Position is now relative to the container, so it matches the mesh perfectly
-			tree.position = Vector3(rx * tile_size, h, rz * tile_size)
+			tree.global_position = Vector3(x, h, z)
 			tree.rotate_y(randf() * TAU)

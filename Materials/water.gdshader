@@ -3,7 +3,7 @@ render_mode depth_draw_always;
 
 uniform sampler2D normal_map :hint_normal;
 
-uniform sampler2D noise_tex;
+uniform sampler2D noise_tex; // foam
 uniform sampler2D heightmap: filter_linear, repeat_disable;
 uniform vec3 beach_color : source_color = vec3(0.8, 0.5, 0.6);
 uniform vec3 albedo : source_color = vec3(0.1, 0.3, 0.5);
@@ -12,18 +12,19 @@ uniform vec3 foam_color : source_color = vec3(1.0, 1.0, 1.0);
 
 uniform float normal_map_scale : hint_range(0.001, 100.0) = 1.0;
 uniform float normal_map_strength : hint_range(0.001, 1.0) = 0.5;
-uniform float scale : hint_range(0.001, 1.0) = 0.1;
 uniform float crest_threshold_min:hint_range(0.0, 1.0) = 0.6;
 uniform float crest_threshold_max:hint_range(0.0, 1.0) = 0.9;
 uniform float foam_threshold_min:hint_range(0.0, 1.0) = 0.3;
 uniform float foam_threshold_max:hint_range(0.0, 1.0) = 0.7;
 
-uniform vec2 terrain_size = vec2(100.0,100.0);
-uniform float terrain_tile_size = 5.0;
-uniform float water_level_terrain_space = 0.0;
 uniform float max_depth = -10.0;
-uniform float terrain_height_scale = 50.0;
+uniform float terrain_height;
 // from script
+uniform float water_level_world = 0.0;
+uniform vec2 heightmap_size;
+uniform vec2 terrain_world_size;
+uniform vec2 terrain_cell_size;
+uniform vec3 terrain_origin;
 uniform float time;
 uniform float freq;
 uniform float amp;
@@ -57,9 +58,11 @@ void vertex() {
 	
 	float wave = w1 + w2 + w3;
 	
-	vec2 hm_uv = vec2(world_pos.x,world_pos.z) / (terrain_size * terrain_tile_size);
-	terrain_h = texture(heightmap, hm_uv).r * terrain_height_scale;
-	depth = max(0.0, water_level_terrain_space - terrain_h);
+	vec2 local_pos = world_pos.xz - terrain_origin.xz;
+	vec2 hm_uv = local_pos / terrain_world_size;
+	float h01 = texture(heightmap, hm_uv).r;
+	terrain_h = (h01 - 0.5) * terrain_height;
+	depth = max(0.0, water_level_world - terrain_h);
 	
 	float depth01 = clamp(depth / abs(max_depth), 0.0, 1.0);
 	v_depth = depth01;
@@ -88,7 +91,8 @@ void vertex() {
 
 	vec2 slope = d1 + d2 + d3;
 
-	vec3 normal = normalize(vec3(-slope.x * depth01, 1.0, -slope.y * depth01));
+	float slope_factor = mix(0.3, 1.0, depth01);
+	vec3 normal = normalize(vec3(-slope.x * slope_factor, 1.0, -slope.y * slope_factor));
 
 	// --- normal map (fix wind space) ---
 	vec2 uv = world_pos.xz / normal_map_scale;
@@ -128,15 +132,21 @@ void fragment() {
 	float foam_big_mixed = mix( 0,foam_big,amp / 5.0);
 	
 	///////////////////////////// shoreline
-	vec2 terrain_size_total = terrain_size * terrain_tile_size;
 	
+	
+	vec2 local_pos = world_pos.xz - terrain_origin.xz;
 	// Use the varying world_pos to get the static world UV
-	vec2 fragment_hm_uv = world_pos.xz / terrain_size_total;
+	vec2 hm_uv = local_pos / terrain_world_size;
+
+	// scale into texel grid
+	vec2 fragment_hm_uv = (local_pos + terrain_cell_size * 0.5 ) / terrain_world_size;
+	fragment_hm_uv *= (heightmap_size - vec2(1.0)) / heightmap_size;
 	
 	// Sample the height directly in the fragment shader for pixel-perfect locking
 	// This prevents the "swimming" effect when the camera moves
-	float terrain_h_at_frag = texture(heightmap, fragment_hm_uv).r * terrain_height_scale;
-	float frag_depth = max(0.0, water_level_terrain_space - terrain_h_at_frag);
+	float h01 = texture(heightmap, fragment_hm_uv).r;
+	float terrain_h_at_frag = (h01 - 0.5) * terrain_height;
+	float frag_depth = max(0.0, water_level_world - terrain_h_at_frag);
 	float frag_v_depth = clamp(frag_depth / abs(max_depth), 0.0, 1.0);
 
 	float wave_freq = 40.0; 

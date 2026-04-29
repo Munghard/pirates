@@ -58,6 +58,9 @@ func _process(delta):
 	canon_mesh.rotation_degrees.x = - pitch + 90
 	if active:
 		create_line()
+	elif line:
+		line.queue_free()
+		
 
 func create_line():
 	var mesh_instance

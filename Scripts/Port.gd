@@ -8,11 +8,15 @@ var docked := false
 var departing := false
 var ui: Control
 
+func _input(event):
+	if docked and event is InputEventKey and event.pressed:
+		depart()
+
 func _process(delta):
 	if departing and player_ship:
 		player_ship.target_speed = player_ship.top_speed
 
-		if player_ship.global_position.distance_to(global_position) > 100.0:
+		if player_ship.global_position.distance_to(global_position) > 200.0:
 			departing = false
 			docked = false
 			player_ship = null

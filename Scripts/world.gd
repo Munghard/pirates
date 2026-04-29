@@ -129,20 +129,20 @@ func spawn_ports(_heightmap: Texture2D):
 	container.name = "Ports"
 	add_child(container)
 
-	var target_height := 0.0
+	var sea_level := 1.0
 	var tolerance := 0.5
 	
 	_spawned_positions.clear()
 
 	# Increase sample density to find more accurate beach points
-	var suitable_points := get_suitable_points_within_tolerance(target_height, tolerance)
+	var suitable_points := get_suitable_points_within_tolerance(sea_level, tolerance)
 
 	var spawned_count = 0
 
 	var spawned_ports: Array[Node3D] = []
 	while spawned_count < ports_amount and not suitable_points.is_empty():
 		var random_index = randi() % suitable_points.size()
-		var candidate_pos = suitable_points[random_index]
+		var candidate_pos := suitable_points[random_index]
 		suitable_points.remove_at(random_index)
 
 		# Optional: Check if this point is too close to an existing port
@@ -171,20 +171,31 @@ func add_to_world(container: Node3D, node: Node3D, pos: Vector3):
 	node.look_at(pos + down_dir, Vector3.UP)
 
 
-func get_suitable_points_within_tolerance(target_height: float, tolerance: float) -> Array:
+func get_suitable_points_within_tolerance(sea_level: float, tolerance: float) -> Array[Vector3]:
 	var total_world_size = terrain.world_size * terrain.tile_size
-	# Increase resolution (e.g., sample every 5-10 meters instead of a 10x10 grid)
 	var step_size = 5.0
-	var suitable_points = []
+	var points: Array[Vector3] = []
+
+	var origin = terrain.global_position
 
 	for x in range(0, int(total_world_size.x), int(step_size)):
 		for z in range(0, int(total_world_size.y), int(step_size)):
-			var h = terrain.get_height_world(x, z)
+			var wx = origin.x + x
+			var wz = origin.z + z
+
+			var h = terrain.get_height_world(wx, wz)
+
+			if abs(h - sea_level) > tolerance:
+				continue
 			
-			if abs(h - target_height) <= tolerance:
-				suitable_points.append(Vector3(x, h, z))
-				
-	return suitable_points
+			var normal = terrain.get_normal_world(wx, wz)
+			
+			if normal.dot(Vector3.UP) < 0.85:
+				continue
+
+			points.append(Vector3(wx, h, wz))
+
+	return points
 
 func is_pos_too_crowded(pos: Vector3) -> bool:
 	# Check against our local list of positions we just picked

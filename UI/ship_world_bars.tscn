@@ -85,4 +85,5 @@ value = 15.78
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1565056926]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.750824, 0)
+cast_shadow = 0
 mesh = SubResource("QuadMesh_tyw4e")

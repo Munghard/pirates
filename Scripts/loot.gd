@@ -2,18 +2,15 @@ extends Node3D
 
 class_name Loot
 
-var gold := 0
+var item: InventoryItem
 var recieved := false
 var water: Water
 
-func set_gold(_gold: int):
-	gold = randi_range(0, _gold)
+func setup_loot(_item: InventoryItem):
+	item = _item
 
 func _ready():
 	$floater.water = water
-	if gold == 0:
-		gold = randi_range(0, 50)
-
 
 func _on_body_entered(body: Node) -> void:
 	if body is not Ship:
@@ -21,5 +18,18 @@ func _on_body_entered(body: Node) -> void:
 	var ship := body as Ship
 	if ship and not recieved:
 		recieved = true
-		ship.gain_gold(gold)
-		queue_free()
+		if item == null:
+			setup_loot(roll_item())
+		if ship.inventory.add_item(item):
+			queue_free()
+
+func roll_item() -> InventoryItem:
+	var _rolled_item_def = Item_Database.item_database[
+			randi_range(0, Item_Database.item_database.size() - 1)
+	]
+
+	var _item = InventoryItem.new(
+		_rolled_item_def.item_name,
+		randi_range(1, _rolled_item_def.max_stack)
+	)
+	return _item

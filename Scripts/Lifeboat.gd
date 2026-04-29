@@ -21,8 +21,10 @@ func _on_body_entered(body: Node) -> void:
 
 
 func _on_kill_pressed(player_ship: PlayerShip):
-	#player_ship.gold += crew * gold_per_crew
-	player_ship.gain_supplies(supplies)
+	if randf() > 0.5:
+		player_ship.gain_gold(crew * gold_per_crew)
+	else:
+		player_ship.gain_supplies(supplies)
 	#queue_free the lifeboat
 	queue_free()
 

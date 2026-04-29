@@ -14,10 +14,8 @@ class_name Water
 
 @export_group("Environment")
 @export var wind_direction: Vector3 = Vector3.RIGHT
-@export var water_level_terrain_space: float = 25.0
 @export var water_level_world_space: float = 0.0
-@export var max_depth: float = 30.0
-@export var terrain_height_scale: float = 50.0
+@export var max_depth: float = -25.0
 
 # --- Internal Variables ---
 var time: float = 0.0
@@ -29,10 +27,12 @@ func _enter_tree():
 func _ready():
 	# This is usually a viewport texture or a generated ImageTexture
 	var mat = get_active_material(0)
-	mat.set_shader_parameter("terrain_size", terrain.world_size) # Match your world_size
+	mat.set_shader_parameter("terrain_origin", terrain.global_position)
+	mat.set_shader_parameter("terrain_world_size", terrain.terrain_world_size) # Match your world_size
 	mat.set_shader_parameter("max_depth", max_depth)
-	mat.set_shader_parameter("water_level_terrain_space", water_level_terrain_space)
+	mat.set_shader_parameter("water_level_world_space", water_level_world_space)
 	mat.set_shader_parameter("terrain_tile_size", terrain.tile_size)
+	mat.set_shader_parameter("terrain_cell_size", terrain.terrain_cell_size)
 
 func _on_heightmap_created(texture: Texture2D):
 	# You need to pass your terrain's actual heightmap texture here
@@ -62,15 +62,18 @@ func _process(_delta: float) -> void:
 	# 3. Update Shader Uniforms
 	var mat = get_active_material(0)
 	if mat is ShaderMaterial:
+		mat.set_shader_parameter("heightmap_size", terrain.world_size)
 		mat.set_shader_parameter("time", time)
 		mat.set_shader_parameter("freq", freq)
 		mat.set_shader_parameter("amp", amp)
 		mat.set_shader_parameter("wave_height_scale", wave_height_scale)
 		mat.set_shader_parameter("wind_dir", Vector2(wind_direction.x, wind_direction.z))
-		mat.set_shader_parameter("water_level_terrain_space", water_level_terrain_space)
+		mat.set_shader_parameter("water_level_world_space", water_level_world_space)
 		mat.set_shader_parameter("max_depth", max_depth)
-		mat.set_shader_parameter("terrain_size", terrain.world_size)
+		mat.set_shader_parameter("terrain_height", terrain.terrain_height)
+		mat.set_shader_parameter("terrain_world_size", terrain.terrain_world_size)
 		mat.set_shader_parameter("terrain_tile_size", terrain.tile_size)
+		mat.set_shader_parameter("terrain_cell_size", terrain.terrain_cell_size)
 
 func get_wave_data(world_pos: Vector3) -> Dictionary:
 	# --- 1. Replicate Shader Terrain Sampling ---
@@ -79,7 +82,7 @@ func get_wave_data(world_pos: Vector3) -> Dictionary:
 	var terrain_h = terrain.get_height_world(world_pos.x, world_pos.z)
 
 	# Mirror: depth = max(0.0, water_level_terrain_space - terrain_h)
-	var current_depth = max(0.0, water_level_terrain_space - terrain_h)
+	var current_depth = max(0.0, water_level_world_space - terrain_h)
 
 	# Mirror: depth01 = clamp(depth / abs(max_depth), 0.0, 1.0)
 	# This is what "dampens" the waves at the shore.

@@ -25,6 +25,16 @@ func init_debugMenu():
 		ship.crew = ship.max_crew
 		ship.crew_changed.emit(ship.crew)
 	)
+	create_debug_button("Add item to inventory", func():
+		gameManager.player_ship.inventory.add_item(
+			InventoryItem.new(
+				Item_Database.item_database[
+					randi_range(0, Item_Database.item_database.size() - 1)
+				].item_name,
+				 10
+				)
+			)
+	)
 	# turn off initally
 	visible = false
 

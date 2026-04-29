@@ -113,9 +113,9 @@ static func get_faction_color(faction: Faction) -> Color:
 		Faction.NAVY:
 			color = Color(0, 0.5, 1)
 		Faction.SLAVER:
-			color = Color(0.5, 0.5, 0.5)
+			color = Color(0.8, 0.5, 0.8)
 		_:
-			color = Color(1, 1, 1)
+			color = Color(0.5, 0.5, 0.5)
 	return color
 
 static func get_faction_icon(faction: Faction) -> Texture:
@@ -185,6 +185,15 @@ static func get_faction_stats(faction: Faction) -> FactionStats:
 			var supplies = randi_range(0, 50)
 			var max_crew = randi_range(10, 20)
 			return FactionStats.new(attack, defense, max_speed, guns, max_hp, gold, supplies, max_crew)
+
+static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
+	var items: Array[InventoryItem]
+	match faction:
+		Faction.PIRATE:
+			items = [
+				InventoryItem.new("Rations", 50),
+				]
+	return items
 
 static func roll_weighted(options: Dictionary):
 	var total = 0.0

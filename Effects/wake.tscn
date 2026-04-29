@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://yr5t6oixqo3o"]
 
 [ext_resource type="Script" uid="uid://cobf3gm45834s" path="res://Effects/wake.gd" id="1_18cus"]
-[ext_resource type="Shader" uid="uid://dfyv7sk7nc8ku" path="res://Effects/wake.gdshader" id="2_h2s8a"]
+[ext_resource type="Shader" uid="uid://dfyv7sk7nc8ku" path="res://Materials/wake.gdshader" id="2_h2s8a"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_h2s8a"]
 noise_type = 2

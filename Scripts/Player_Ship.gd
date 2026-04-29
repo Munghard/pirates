@@ -32,6 +32,23 @@ func _ready() -> void:
 	
 	setup_guns()
 
+	setup_inventory()
+
+
+func setup_inventory():
+	inventory = Inventory.new(self , 16, "Player cargo")
+	
+	# ensure HUD exists before connecting
+	await get_tree().process_frame
+
+	inventory.inventory_changed.connect(gameManager.hud.inventory_panel.update_inventory_ui)
+	inventory.inventory_notification.connect(_inventory_changed)
+
+	inventory.add_item(InventoryItem.new("Rations", 30))
+	inventory.add_item(InventoryItem.new("Rum", 10))
+
+func _inventory_changed(_message: String):
+	gameManager.hud.new_notification(_message)
 
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
 	gameManager.camerarig.secondary_target = _attacker

@@ -2,59 +2,47 @@
 
 [ext_resource type="Script" uid="uid://busan32mauwi4" path="res://Scripts/maelstrom.gd" id="1_8s505"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_1v7sr"]
-
-[sub_resource type="Curve" id="Curve_c5t2i"]
-_data = [Vector2(0, 0), 0.0, 8.89824, 0, 0, Vector2(0.24115755, 1), 0.0, 0.0, 0, 0, Vector2(0.97931033, 0), -4.23143, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="CurveTexture" id="CurveTexture_e0ngr"]
-curve = SubResource("Curve_c5t2i")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_kn0ld"]
-emission_shape = 6
-emission_ring_axis = Vector3(0, 1, 0)
-emission_ring_height = 0.0
-emission_ring_radius = 1.0
-emission_ring_inner_radius = 1.0
-emission_ring_cone_angle = 90.0
-direction = Vector3(0, 0, 0)
-spread = 0.0
-flatness = 1.0
-radial_velocity_min = -10.000022
-radial_velocity_max = -2.2351742e-05
-gravity = Vector3(0, 0, 0)
-tangential_accel_min = -80.0
-tangential_accel_max = -80.0
-scale_curve = SubResource("CurveTexture_e0ngr")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w53vn"]
-transparency = 1
-cull_mode = 2
-vertex_color_use_as_albedo = true
-use_particle_trails = true
-
-[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_7f0rn"]
-material = SubResource("StandardMaterial3D_w53vn")
-shape = 0
+[ext_resource type="Shader" uid="uid://dksp23a48ovos" path="res://Materials/maelstrom.gdshader" id="3_w53vn"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_c5t2i"]
 radius = 20.0
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_w53vn"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_7f0rn"]
+noise = SubResource("FastNoiseLite_w53vn")
+seamless = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_7f0rn"]
+noise_type = 2
+frequency = 0.0206
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_lf8sy"]
+noise = SubResource("FastNoiseLite_7f0rn")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7f0rn"]
+render_priority = 0
+shader = ExtResource("3_w53vn")
+shader_parameter/color1 = Color(1.0973811e-05, 0.122579105, 0.40392116, 1)
+shader_parameter/color2 = Color(0.65, 0.90083337, 1, 1)
+shader_parameter/color3 = Color(0, 0, 0, 1)
+shader_parameter/noise = SubResource("NoiseTexture2D_7f0rn")
+shader_parameter/noise_foam = SubResource("NoiseTexture2D_lf8sy")
+shader_parameter/depth = -40.105
+shader_parameter/shape_power = 1.52
+
+[sub_resource type="QuadMesh" id="QuadMesh_lf8sy"]
+material = SubResource("ShaderMaterial_7f0rn")
+size = Vector2(40, 40)
+subdivide_width = 5
+subdivide_depth = 5
+orientation = 1
+
 [node name="maelstrom" type="Area3D" unique_id=735147423 node_paths=PackedStringArray("collision_shape")]
 script = ExtResource("1_8s505")
-spin_strength = 1.0
+spin_strength = 0.0
 collision_shape = NodePath("CollisionShape3D")
-
-[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1671570764]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
-amount = 50
-lifetime = 1.5
-fixed_fps = 60
-local_coords = true
-trail_enabled = true
-trail_lifetime = 1.0
-process_material = SubResource("ParticleProcessMaterial_kn0ld")
-draw_pass_1 = SubResource("RibbonTrailMesh_7f0rn")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=928381288]
 shape = SubResource("SphereShape3D_c5t2i")
@@ -62,6 +50,9 @@ shape = SubResource("SphereShape3D_c5t2i")
 [node name="Node3D" type="Node3D" parent="." unique_id=1349484250 node_paths=PackedStringArray("target")]
 script = ExtResource("2_1v7sr")
 target = NodePath("..")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=265744814]
+mesh = SubResource("QuadMesh_lf8sy")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

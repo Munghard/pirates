@@ -91,12 +91,23 @@ func _ready() -> void:
 	ship_pivot.set_flag()
 	
 	hit_points = max_hit_points
-
+	
 	connect("recieved_damage", Callable(self , "_on_damage_recieved"))
 	connect("on_sink", Callable(self , "_on_ship_sunk"))
 	connect("boarded_changed", Callable(self , "_on_boarded_changed"))
 	
 	set_state(AIState.ENROUTE)
+	setup_inventory()
+
+
+func setup_inventory():
+	inventory = Inventory.new(self , 16, ship_name + " cargo")
+	await get_tree().process_frame
+		
+	var items = FactionsData.get_faction_inventory(faction)
+	for item in items:
+		inventory.add_item(item)
+
 
 func roll_nation() -> FactionsData.Nation:
 	var rolled_nation = FactionsData.roll_weighted({
@@ -409,6 +420,7 @@ func spawn_lifeboat():
 	l.global_position = global_position
 	l.global_position.y = 0
 	l.supplies = supplies
+	l.crew = max_crew / 10.0
 
 
 func draw_line_to_target_point(_line: ImmediateMesh, _target_point: Vector3, color: Color):

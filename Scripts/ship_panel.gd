@@ -101,20 +101,18 @@ func update_ship_panel(_ship: Ship):
 		if (_ship.ai_state == EnemyShip.AIState.COMBAT):
 			ai_text += "\nSubState: %s" % (_ship as EnemyShip).CombatStateNames[(_ship as EnemyShip).combat_state]
 		ai_text += "\nIn combat: %.s" % [str(_ship.in_combat)]
-		if _ship.attacker: ai_text += "\nTarget: %.s" % [str(_ship.attacker.ship_name)]
+		if _ship.attacker and _ship.attacker is Ship: ai_text += "\nTarget: %.s" % [str(_ship.attacker.ship_name)]
 	
 	var stats_text = ""
 	var status_text = ""
 	if _ship:
-		status_text += "\nCrew: %s/%s" % [_ship.crew, _ship.max_crew]
-		status_text += "\nHp: %.2f/%.2f" % [_ship.hit_points, _ship.max_hit_points]
-		
 		# debug info
 		# ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
 		# ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
 		# ship_text += "\nHeading: %.2f" % [rad_to_deg(ship.rotation.y)]
-		
-		stats_text += "Agility: %.2f" % [_ship.agility]
+		stats_text += "\nCrew: %s/%s" % [_ship.crew, _ship.max_crew]
+		stats_text += "\nHp: %.2f/%.2f" % [_ship.hit_points, _ship.max_hit_points]
+		stats_text += "\nAgility: %.2f" % [_ship.agility]
 		stats_text += "\nAttack: %.2f" % [_ship.attack]
 		stats_text += "\nDefense: %.2f" % [_ship.defense]
 		stats_text += "\nGold: %.2f" % [_ship.gold]
@@ -147,39 +145,56 @@ func create_canon_ui(_ship: Ship):
 	var vb = VBoxContainer.new()
 	cannons_panel.add_child(vb)
 
-	if _ship.canons_layout.cannons_port.size() > 0:
-		create_canon_pb("Port", vb, _ship.canons_layout.cannons_port)
+	var hb := HBoxContainer.new()
+	vb.add_child(hb)
+
+	var l = Label.new()
+	l.text = "Show trajectory"
+	hb.add_child(l)
+	var cb := CheckBox.new()
+	hb.add_child(cb)
+	var cannons_active = true
+	cb.button_pressed = !cannons_active
+
+	cb.toggled.connect(func(_pressed: bool):
+		_ship.active_port(_pressed)
+		_ship.active_starboard(_pressed)
+		_ship.active_bow(_pressed)
+	)
+
+	if _ship.cannons_layout.cannons_port.size() > 0:
+		create_canon_pb("Port", vb, _ship.cannons_layout.cannons_port)
 		if player_controlled:
 			var port_button = Button.new()
 			vb.add_child(port_button)
 			port_button.text = "Fire port"
 			port_button.pressed.connect(_ship.shoot_port)
-	if _ship.canons_layout.cannons_starboard.size() > 0:
-		create_canon_pb("Starboard", vb, _ship.canons_layout.cannons_starboard)
+	if _ship.cannons_layout.cannons_starboard.size() > 0:
+		create_canon_pb("Starboard", vb, _ship.cannons_layout.cannons_starboard)
 		if player_controlled:
 			var starboard_button = Button.new()
 			vb.add_child(starboard_button)
 			starboard_button.text = "Fire starboard"
 			starboard_button.pressed.connect(_ship.shoot_starboard)
-	if _ship.canons_layout.cannons_bow.size() > 0:
-		create_canon_pb("Bow", vb, _ship.canons_layout.cannons_bow)
+	if _ship.cannons_layout.cannons_bow.size() > 0:
+		create_canon_pb("Bow", vb, _ship.cannons_layout.cannons_bow)
 		if player_controlled:
 			var bow_button = Button.new()
 			vb.add_child(bow_button)
 			bow_button.text = "Fire bow"
 			bow_button.pressed.connect(_ship.shoot_bow)
 
-func create_canon_pb(side_name: String, vb: VBoxContainer, canons: Array[Cannon]):
-	var ls = Label.new()
+func create_canon_pb(side_name: String, vb: VBoxContainer, cannons: Array[Cannon]):
+	var ls := Label.new()
 	ls.text = side_name
 	vb.add_child(ls)
-	for canon in canons:
+	for cannon in cannons:
 		var pb = ProgressBar.new()
-		pb.max_value = canon.fire_rate
-		pb.value = pb.max_value - canon.fire_timer
+		pb.max_value = cannon.fire_rate
+		pb.value = pb.max_value - cannon.fire_timer
 		vb.add_child(pb)
-		if not canon.is_connected("_fire_timer_changed", Callable(self , "update_pb").bind(pb)):
-			canon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
+		if not cannon.is_connected("_fire_timer_changed", Callable(self , "update_pb").bind(pb)):
+			cannon.connect("_fire_timer_changed", Callable(self , "update_pb").bind(pb))
 	
 func update_pb(value: float, pb):
 	if pb:
