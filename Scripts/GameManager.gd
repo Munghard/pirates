@@ -47,7 +47,9 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_F2:
 			toggle_debug_menu()
 		if event.keycode == KEY_TAB:
-			hud.toggle_player_ship_panel()
+			hud.toggle_player_inventory_panel()
+		if event.keycode == KEY_G:
+			player_ship.toggle_cannons_trajectory()
 
 func spawn_ships_around_player(count: int):
 	var enemy_ship = preload("res://Scenes/enemy_ship.tscn")

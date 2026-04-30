@@ -1,3 +1,5 @@
+work on selling items at ports
+
 port factions, trades different items, ie. slaver port buys shackles, pirate ports buy rum etc.
 
 make cannons that spawn on certain ports, cannons also have nation and shoots at rival nations
@@ -5,3 +7,5 @@ make cannons that spawn on certain ports, cannons also have nation and shoots at
 interesting idea, you have a stat max_cargo space lets say 500, and cargo space is shared between supplies and gold, so you have to manage looting in a way where you can dump supplies to take on more gold.
 
 another idea, food stat that slowly depletes when you are voyaging, food <= 0, crew starts dying one by one.
+
+neat idea :plug heightmap into bird particle so you get birds where theres land and not everywhere

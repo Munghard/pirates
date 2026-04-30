@@ -174,8 +174,8 @@ void fragment() {
 	
 	
     METALLIC = 0.0;
-    ROUGHNESS = mix(0.05,1.0, foam_total); // Low roughness = shiny water
-    SPECULAR = mix(0.8,0.0,foam_total);
+    ROUGHNESS = mix(1.0,0.05, foam_total); // Low roughness = shiny water
+    //SPECULAR = mix(0.0,0.8,foam_total);
     
     // Fake some depth by making the peaks slightly more opaque
     //ALPHA = 1.0 - shore_mask; 

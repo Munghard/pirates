@@ -8,25 +8,23 @@ var docked := false
 var departing := false
 var ui: Control
 
+signal docking_changed(ship: Ship)
+signal in_docking_radius(value: bool)
+
+@onready var gameManager: GameManager = get_node("/root/GameManager")
+
 func _input(event):
 	if docked and event is InputEventKey and event.pressed:
 		depart()
 
 func _process(delta):
 	if departing and player_ship:
-		player_ship.target_speed = player_ship.top_speed
-
 		if player_ship.global_position.distance_to(global_position) > 200.0:
 			departing = false
 			docked = false
 			player_ship = null
 
 	if docked and player_ship and not departing:
-		var current = player_ship.global_basis
-		var target = global_basis
-		player_ship.global_basis = current.slerp(target, delta)
-		player_ship.yaw_deg = global_rotation_degrees.y
-		player_ship.global_position = lerp(player_ship.global_position, global_position, delta)
 		if player_ship.hit_points < player_ship.max_hit_points:
 			player_ship.hit_points += delta * 10.0
 			player_ship.hit_points = min(player_ship.hit_points, player_ship.max_hit_points)
@@ -34,32 +32,75 @@ func _process(delta):
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is PlayerShip:
-		dock(body)
+		player_ship = body as PlayerShip
+		in_docking_radius.emit(true)
+		body.set_dockable_port(self )
 
+	if body is Loot:
+		var loot = body as Loot
+		sell(loot.item, loot.dropped_by)
+		loot.queue_free()
 
-func dock(body: PlayerShip):
-	player_ship = body
+func _on_body_exited(body: Node3D) -> void:
+	if body is PlayerShip:
+		body.set_dockable_port(null)
+
+		docked = false
+		in_docking_radius.emit(false)
+		player_ship = null
+		
+
+func get_valid_water_position(center: Vector3) -> Vector3:
+	var radius = 15.0
+
+	for i in range(30): # safety limit
+		var angle = randf() * TAU
+		var distance = sqrt(randf()) * radius
+
+		var offset = Vector3(cos(angle), 0, sin(angle)) * distance
+		var pos = center + offset
+
+		var height = gameManager.world.terrain.get_height_world(pos.x, pos.z)
+
+		# water assumed at y = 0 (adjust if needed)
+		if height <= 0.0:
+			pos.y = 0.0
+			return pos
+
+	# fallback (failsafe)
+	return center
+	
+
+func dock():
+	if not player_ship:
+		print("cant dock, playership null")
+		return
 	docked = true
 	departing = false
 	
 	player_ship.target_speed = 0
 	player_ship.side_to_side_speed = 0
+	docking_changed.emit(player_ship)
+	player_ship.set_docked(self )
 	entered_port()
 
 func depart():
 	if ui:
 		ui.queue_free()
+	player_ship.gameManager.hud.set_player_inventory_panel_visible(false)
 	docked = false
+	docking_changed.emit(null)
 
 	if player_ship:
+		player_ship.set_docked(null)
 		departing = true
+		player_ship.target_speed = player_ship.top_speed
 
 
-func _on_body_exited(body: Node3D) -> void:
-	if body is PlayerShip:
-		docked = false
-		player_ship = null
-
+func sell(item: InventoryItem, seller: Ship):
+	var item_def = Item_Database.get_item_definition(item.id)
+	var value = item_def.value
+	seller.gain_gold(value)
 
 func entered_port():
 	# delete existing ui if any
@@ -69,6 +110,7 @@ func entered_port():
 	ui = port_ui.instantiate()
 	# add to hud
 	player_ship.gameManager.hud.add_child(ui)
+	player_ship.gameManager.hud.set_player_inventory_panel_visible(true)
 	# connect depart button
 	ui.get_node("MarginContainer/VBoxContainer/DepartButton").pressed.connect(func(): depart())
 	var ps = player_ship

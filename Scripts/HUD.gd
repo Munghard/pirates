@@ -11,6 +11,7 @@ class_name HUD
 @export var wind_control: Control
 
 
+@export var button_dock: Button
 @export var boarding_button: Button
 
 @export var notification_label: Label
@@ -39,6 +40,8 @@ func init_hud() -> void:
 	ship_panel_target.fold()
 
 	#create_minimap_terrain_texture()
+	connect_ports()
+
 
 func _on_time_changed(time: float):
 	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
@@ -123,24 +126,59 @@ func _unhandled_input(event: InputEvent) -> void:
 				select_ship(ship)
 				ship_panel_target.folded = false
 			if ship == gameManager.player_ship:
-				toggle_player_ship_panel()
+				toggle_player_inventory_panel()
 
 		else:
 			select_ship(null)
 
 
-func toggle_player_ship_panel():
-	inventory_panel.visible = !inventory_panel.visible
+func set_player_inventory_panel_visible(value: bool):
+	inventory_panel.visible = value
+
+func toggle_player_inventory_panel():
+	set_player_inventory_panel_visible(!inventory_panel.visible)
 
 # ================================================================================================================
 # PORT
 # ================================================================================================================
+func connect_ports():
+	gameManager.player_ship.dockable_port_changed.connect(show_dock_button)
+	gameManager.player_ship.docked_changed.connect(set_dock_button_text)
+
+
+func set_dock_button_text(port: Port):
+	if port:
+		button_dock.text = "Depart"
+	else:
+		button_dock.text = "Dock"
+
+func show_dock_button(port: Port):
+	button_dock.visible = port != null
+	
+
+func _on_button_dock_pressed() -> void:
+	var ports = get_tree().get_nodes_in_group("Ports")
+	for port: Port in ports:
+		if port.player_ship:
+			if port.docked:
+				port.depart()
+			else:
+				port.dock()
+
 
 func _on_button_2_pressed() -> void:
 	gameManager.port.depart()
 
+# ================================================================================================================
+#  BOARDING
+# ================================================================================================================
+
 func _on_board_button_pressed() -> void:
 	gameManager.player_ship.board_ship(gameManager.player_ship.boarding_target)
+
+# ================================================================================================================
+#  TIME
+# ================================================================================================================
 
 func _on_button_pass_time_pressed() -> void:
 	gameManager.world.pass_time()

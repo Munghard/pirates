@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://nvugsx2blkig"]
 
-[ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="1_6i6ht"]
+[ext_resource type="Texture2D" uid="uid://dfe8eslne8cng" path="res://Textures/round_arrow.png" id="1_6i6ht"]
 
 [node name="blip" type="TextureRect" unique_id=1210765341]
 offset_right = 8.0

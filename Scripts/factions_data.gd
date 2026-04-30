@@ -191,8 +191,44 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 	match faction:
 		Faction.PIRATE:
 			items = [
-				InventoryItem.new("Rations", 50),
-				]
+				InventoryItem.new(0, randi_range(5, 50)),
+				InventoryItem.new(1, randi_range(5, 50)),
+				InventoryItem.new(2, randi_range(5, 20)),
+				InventoryItem.new(2, randi_range(20, 50)),
+			]
+		Faction.MERCHANT:
+			items = [
+				InventoryItem.new(0, randi_range(5, 50)),
+				InventoryItem.new(1, randi_range(5, 25)),
+				InventoryItem.new(4, randi_range(1, 10)),
+				InventoryItem.new(6, randi_range(1, 10)),
+				InventoryItem.new(8, randi_range(1, 10)),
+			]
+		Faction.NAVY:
+			items = [
+				InventoryItem.new(0, randi_range(1, 50)),
+				InventoryItem.new(2, randi_range(1, 10)),
+				InventoryItem.new(3, randi_range(50, 200)),
+				InventoryItem.new(4, randi_range(1, 25)),
+				InventoryItem.new(7, randi_range(5, 25)),
+				InventoryItem.new(8, randi_range(25, 50)),
+			]
+		Faction.SLAVER:
+			items = [
+				InventoryItem.new(0, randi_range(1, 10)),
+				InventoryItem.new(2, randi_range(1, 5)),
+				InventoryItem.new(3, randi_range(1, 20)),
+				InventoryItem.new(4, randi_range(1, 25)),
+				InventoryItem.new(7, randi_range(100, 200)),
+				InventoryItem.new(8, randi_range(1, 25)),
+			]
+		_:
+			items = [
+				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 10)),
+				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 10)),
+				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 10)),
+			]
+
 	return items
 
 static func roll_weighted(options: Dictionary):

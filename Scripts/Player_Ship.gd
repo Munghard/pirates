@@ -44,8 +44,8 @@ func setup_inventory():
 	inventory.inventory_changed.connect(gameManager.hud.inventory_panel.update_inventory_ui)
 	inventory.inventory_notification.connect(_inventory_changed)
 
-	inventory.add_item(InventoryItem.new("Rations", 30))
-	inventory.add_item(InventoryItem.new("Rum", 10))
+	inventory.add_item(InventoryItem.new(0, 30))
+	inventory.add_item(InventoryItem.new(1, 10))
 
 func _inventory_changed(_message: String):
 	gameManager.hud.new_notification(_message)

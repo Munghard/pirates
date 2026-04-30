@@ -121,8 +121,14 @@ func place_player(ports: Array[Node3D]):
 		print("NO PORTS RECEIVED")
 		return
 	var port = ports[randi_range(0, ports.size() - 1)]
-	var rolled_port_pos = port.get_node("port").global_position
-	gameManager.player_ship.global_position = rolled_port_pos
+	var water_pos = port.get_valid_water_position(port.global_position)
+	var dir = (water_pos - port.global_position).normalized()
+	var angle_rad = atan2(dir.x, dir.z)
+	var angle_deg = rad_to_deg(angle_rad)
+	gameManager.player_ship.global_position = water_pos
+	gameManager.player_ship.rotation.y = angle_rad
+	gameManager.player_ship.yaw_deg = angle_deg
+
 
 func spawn_ports(_heightmap: Texture2D):
 	var container = Node3D.new()
@@ -152,8 +158,15 @@ func spawn_ports(_heightmap: Texture2D):
 		var port := port_scene.instantiate() as Node3D
 
 		_spawned_positions.append(candidate_pos)
-		add_to_world(container, port, candidate_pos)
-		#add_to_world.call_deferred(port, candidate_pos)
+		# add to world
+		var pos = candidate_pos
+		container.add_child(port)
+		var down_dir = terrain.get_downhill_direction(pos.x, pos.z)
+		
+		port.global_position = pos
+		
+		port.look_at(pos + down_dir, Vector3.UP)
+	
 		spawned_count += 1
 		spawned_ports.append(port)
 	
@@ -162,14 +175,6 @@ func spawn_ports(_heightmap: Texture2D):
 	print("EMITTING ports_spawned: ", spawned_ports.size())
 	emit_signal("ports_spawned", spawned_ports)
 	
-
-func add_to_world(container: Node3D, node: Node3D, pos: Vector3):
-	container.add_child(node)
-	node.global_position = pos
-
-	var down_dir = terrain.get_downhill_direction(pos.x, pos.z)
-	node.look_at(pos + down_dir, Vector3.UP)
-
 
 func get_suitable_points_within_tolerance(sea_level: float, tolerance: float) -> Array[Vector3]:
 	var total_world_size = terrain.world_size * terrain.tile_size

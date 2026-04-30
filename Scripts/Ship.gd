@@ -65,7 +65,12 @@ var last_damage_time: int = 0
 var out_of_combat_time: int = 20000 # 10 seconds without taking damage to be considered out of combat
 var recovery_progress := 1.0
 
+var dockable_port: Port
+var docked: Port
+
 @export_group("Signals")
+signal docked_changed(port: Port)
+signal dockable_port_changed(port: Port)
 
 signal gold_changed(amount: int, gained: bool)
 signal crew_changed(amount: int, gained: bool)
@@ -80,6 +85,7 @@ signal boarding_changed(ship: Ship)
 signal boarded_changed(ship: Ship)
 
 @export_group("World UI")
+@onready var world_bars: Node3D = $world_bars
 @onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
 @onready var recovery_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_recovery
@@ -105,7 +111,15 @@ func _ready():
 	ship_healthbar.max_value = max_hit_points
 	recovery_healthbar.value = 1.0
 	recovery_healthbar.max_value = 1.0
-	
+
+func set_docked(port: Port): # port null means not docked
+	docked = port
+	docked_changed.emit(port)
+
+func set_dockable_port(port: Port):
+	dockable_port = port
+	dockable_port_changed.emit(port)
+
 func set_stars(amount: int):
 	for child in star_container.get_children():
 		child.queue_free()
@@ -196,6 +210,7 @@ func repair(_delta):
 		emit_signal("hit_points_changed", hit_points)
 
 func sink():
+	world_bars.visible = false
 	spawn_loot()
 	queue_free()
 	emit_signal("on_sink")
@@ -317,7 +332,7 @@ func spawn_loot():
 		l.global_position = global_position + offset
 		l.global_position.y = 0
 		var item = inventory.items[i]
-		l.setup_loot(item)
+		l.setup_loot(item, self )
 		inventory.remove_item(item)
 
 
@@ -399,7 +414,12 @@ func shoot(canons: Array[Cannon]):
 		await get_tree().create_timer(randf() / 5.0).timeout
 		if canon.shoot(attack, self , gameManager.audioManager):
 			supplies -= 1
-			
+
+func toggle_cannons_trajectory():
+	var active = cannons_layout.cannons_starboard[0].active
+	active_port(!active)
+	active_starboard(!active)
+	active_bow(!active)
 
 func active_starboard(value: bool):
 	for canon in cannons_layout.cannons_starboard:

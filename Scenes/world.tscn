@@ -165,7 +165,7 @@ theme_override_constants/margin_bottom = 20
 [node name="DebugMenu" parent="MarginContainer" unique_id=188675057 instance=ExtResource("8_1vso6")]
 layout_mode = 2
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "wind_control", "boarding_button", "notification_label")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "wind_control", "button_dock", "boarding_button", "notification_label")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
@@ -175,7 +175,8 @@ ship_panel_player = NodePath("Player_ship_panel")
 inventory_panel = NodePath("../../Inventory_panel")
 time_panel = NodePath("Time_panel")
 wind_control = NodePath("wind_gauge")
-boarding_button = NodePath("Button")
+button_dock = NodePath("HBoxContainer/Button_dock")
+boarding_button = NodePath("HBoxContainer/Button")
 notification_label = NodePath("notification_Label")
 
 [node name="Minimap" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1823764123 node_paths=PackedStringArray("minimap", "minimap_terrain_texture", "minimap_scale_slider")]
@@ -253,28 +254,35 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -86.5
-offset_top = 96.0
+offset_top = 226.0
 offset_right = 86.5
-offset_bottom = 135.0
+offset_bottom = 265.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_type_variation = &"HeaderLarge"
 text = "Notifications"
 
-[node name="Button" type="Button" parent="MarginContainer/HUD" unique_id=1515037144]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1984033058]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -46.0
-offset_top = -111.0
-offset_right = 46.0
-offset_bottom = -80.0
+offset_left = -94.0
+offset_top = -40.0
+offset_right = 94.0
 grow_horizontal = 2
 grow_vertical = 0
+alignment = 1
+
+[node name="Button" type="Button" parent="MarginContainer/HUD/HBoxContainer" unique_id=1515037144]
+layout_mode = 2
 text = "Board ship"
+
+[node name="Button_dock" type="Button" parent="MarginContainer/HUD/HBoxContainer" unique_id=186751169]
+layout_mode = 2
+text = "Dock"
 
 [node name="Time_panel" type="PanelContainer" parent="MarginContainer/HUD" unique_id=1006730175]
 layout_mode = 1
@@ -354,7 +362,7 @@ height_min = 2.0
 height_max = 10.0
 
 [node name="Water" type="MeshInstance3D" parent="World" unique_id=2117390099 node_paths=PackedStringArray("target", "terrain")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 218.70222, 0, 169.18234)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 231.67308, 0, 131.56133)
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
@@ -362,6 +370,7 @@ target = NodePath("../../camrig")
 terrain = NodePath("../Terrain")
 freq = 2.0
 amp = 3.0
+max_depth = -20.0
 
 [node name="Wind" type="Node3D" parent="World" unique_id=496872810]
 script = ExtResource("5_kn0ld")
@@ -466,7 +475,7 @@ ship = NodePath("../..")
 water = NodePath("../../World/Water")
 
 [node name="camrig" type="Node3D" parent="." unique_id=596184847 node_paths=PackedStringArray("target")]
-transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 218.70222, 1.5258789e-05, 169.18234)
+transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 231.67308, 1.5258789e-05, 131.56133)
 script = ExtResource("2_5ukr8")
 target = NodePath("../PlayerShip")
 
@@ -492,7 +501,8 @@ metadata/_custom_type_script = "uid://bcmyufc0xuoqc"
 
 [connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD/Minimap" method="_on_v_slider_value_changed"]
 [connection signal="mouse_entered" from="MarginContainer/HUD/wind_gauge" to="MarginContainer/HUD" method="_on_wind_gauge_mouse_entered"]
-[connection signal="pressed" from="MarginContainer/HUD/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button_dock" to="MarginContainer/HUD" method="_on_button_dock_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer/Button2" to="MarginContainer/HUD" method="_on_button_pass_time_pressed"]
 [connection signal="body_entered" from="PlayerShip/Boarding_Area" to="PlayerShip" method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="PlayerShip/Boarding_Area" to="PlayerShip" method="_on_boarding_area_body_exited"]

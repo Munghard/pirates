@@ -3,11 +3,13 @@ extends Node3D
 class_name Loot
 
 var item: InventoryItem
+var dropped_by: Ship
 var recieved := false
 var water: Water
 
-func setup_loot(_item: InventoryItem):
+func setup_loot(_item: InventoryItem, _dropped_by: Ship):
 	item = _item
+	dropped_by = _dropped_by
 
 func _ready():
 	$floater.water = water
@@ -19,7 +21,7 @@ func _on_body_entered(body: Node) -> void:
 	if ship and not recieved:
 		recieved = true
 		if item == null:
-			setup_loot(roll_item())
+			setup_loot(roll_item(), null)
 		if ship.inventory.add_item(item):
 			queue_free()
 
@@ -29,7 +31,7 @@ func roll_item() -> InventoryItem:
 	]
 
 	var _item = InventoryItem.new(
-		_rolled_item_def.item_name,
+		_rolled_item_def.id,
 		randi_range(1, _rolled_item_def.max_stack)
 	)
 	return _item

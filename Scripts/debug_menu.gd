@@ -30,7 +30,7 @@ func init_debugMenu():
 			InventoryItem.new(
 				Item_Database.item_database[
 					randi_range(0, Item_Database.item_database.size() - 1)
-				].item_name,
+				].id,
 				 10
 				)
 			)

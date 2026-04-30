@@ -104,7 +104,7 @@ func setup_inventory():
 	inventory = Inventory.new(self , 16, ship_name + " cargo")
 	await get_tree().process_frame
 		
-	var items = FactionsData.get_faction_inventory(faction)
+	var items := FactionsData.get_faction_inventory(faction)
 	for item in items:
 		inventory.add_item(item)
 

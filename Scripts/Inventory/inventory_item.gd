@@ -1,10 +1,10 @@
 extends Node
 class_name InventoryItem
 
-var item_name: String
+var id: int
 var stack: int
 
 
-func _init(_item_name: String, _count: int):
-	item_name = _item_name
+func _init(_id: int, _count: int):
+	id = _id
 	stack = _count
