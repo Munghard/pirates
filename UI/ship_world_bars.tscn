@@ -47,11 +47,13 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="faction_icon" type="TextureRect" parent="SubViewport/Control" unique_id=708740894]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 texture = ExtResource("1_u6fdj")
-stretch_mode = 3
+expand_mode = 1
+stretch_mode = 5
 
 [node name="star_container" type="HBoxContainer" parent="SubViewport/Control" unique_id=1891442866]
 layout_mode = 2

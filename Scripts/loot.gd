@@ -6,10 +6,17 @@ var item: InventoryItem
 var dropped_by: Ship
 var recieved := false
 var water: Water
+@export var loot_icon: TextureRect
 
 func setup_loot(_item: InventoryItem, _dropped_by: Ship):
-	item = _item
+	item = _item if _item != null else roll_item()
 	dropped_by = _dropped_by
+
+	var item_def = Item_Database.get_item_definition(item.id)
+	if item_def == null:
+		return
+
+	loot_icon.texture = item_def.icon
 
 func _ready():
 	$floater.water = water

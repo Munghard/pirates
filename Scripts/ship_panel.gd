@@ -199,3 +199,8 @@ func create_canon_pb(side_name: String, vb: VBoxContainer, cannons: Array[Cannon
 func update_pb(value: float, pb):
 	if pb:
 		pb.value = pb.max_value - value
+
+
+func _on_button_sink_pressed() -> void:
+	if ship:
+		ship.damage(99999, 1.0, ship.global_position, ship)

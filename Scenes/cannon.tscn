@@ -118,6 +118,11 @@ particle = NodePath("direction/GPUParticles3D")
 particle1 = NodePath("direction/GPUParticles3D2")
 pb = NodePath("SubViewport/Control/pb_canon")
 
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1892053795]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.37600556)
+light_color = Color(1, 0.25, 0, 1)
+light_energy = 0.0
+
 [node name="direction" type="Node3D" parent="." unique_id=140954952]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
 

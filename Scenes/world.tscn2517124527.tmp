@@ -142,7 +142,7 @@ shader_parameter/blur_strength = 16.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_coyub"]
 shader = ExtResource("25_i4fjy")
-shader_parameter/cell_strength = 0.7
+shader_parameter/cell_strength = 0.44
 shader_parameter/edge_threshold = 0.06
 shader_parameter/edge_strength = -0.2
 
@@ -220,7 +220,7 @@ rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
 water_level = 25.0
 
-[node name="loot" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=714804176 node_paths=PackedStringArray("water")]
+[node name="barrels" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=714804176 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("5_5v1tr")
 amount = 5

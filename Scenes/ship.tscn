@@ -6,7 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="2_6ejuo"]
 [ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/cannon_layout.gd" id="4_fwcnm"]
 [ext_resource type="Texture2D" uid="uid://ct57ceuvqy3k8" path="res://Textures/plain-arrow.png" id="5_cmder"]
+[ext_resource type="Shader" uid="uid://cv7b3ai4owx81" path="res://Materials/flag.gdshader" id="5_ssryt"]
 [ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="6_cmder"]
+[ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="6_sk2ms"]
 [ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="8_kxdp2"]
 [ext_resource type="PackedScene" uid="uid://yr5t6oixqo3o" path="res://Effects/wake.tscn" id="9_v2j2m"]
 
@@ -19,16 +21,20 @@ rings = 1
 cap_top = false
 cap_bottom = false
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kxdp2"]
-cull_mode = 2
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_odhhf"]
+render_priority = 0
+shader = ExtResource("5_ssryt")
+shader_parameter/flag_texture = ExtResource("6_sk2ms")
 
 [sub_resource type="QuadMesh" id="QuadMesh_v2j2m"]
-material = SubResource("StandardMaterial3D_kxdp2")
+material = SubResource("ShaderMaterial_odhhf")
 size = Vector2(0.75, 0.5)
+subdivide_width = 10
 center_offset = Vector3(0.375, 0, 0)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
-size = Vector3(1.1582031, 1.4629517, 4.74115)
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ssryt"]
+radius = 0.57666016
+height = 4.474365
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8aq7e"]
 size = Vector3(6, 1, 9)
@@ -75,33 +81,38 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25474215, 0)
 mesh = SubResource("QuadMesh_v2j2m")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1226719022]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60946655, -0.23587036)
-shape = SubResource("BoxShape3D_4cq66")
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.46805906, -0.010406494)
+shape = SubResource("CapsuleShape3D_ssryt")
 
 [node name="floater" type="Node3D" parent="." unique_id=741225022 node_paths=PackedStringArray("target")]
 script = ExtResource("2_4cq66")
 target = NodePath("..")
 
-[node name="forward_arrow" type="Node3D" parent="." unique_id=93642959]
+[node name="world_bars" parent="." unique_id=1446492284 instance=ExtResource("6_cmder")]
+
+[node name="Navigation_markers" type="Node3D" parent="." unique_id=1812112908]
+
+[node name="forward_arrow" type="Node3D" parent="Navigation_markers" unique_id=93642959]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0741825, 3.717)
 
-[node name="right_arrow" type="Node3D" parent="." unique_id=266821496]
+[node name="backward_arrow" type="Node3D" parent="Navigation_markers" unique_id=2099371297]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 2.074, -3.717)
+
+[node name="right_arrow" type="Node3D" parent="Navigation_markers" unique_id=266821496]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 2, 0)
 
-[node name="left_arrow" type="Node3D" parent="." unique_id=471492174]
+[node name="left_arrow" type="Node3D" parent="Navigation_markers" unique_id=471492174]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 2, 0)
 
-[node name="rotation_arrow" type="Node3D" parent="." unique_id=1289260863]
+[node name="rotation_arrow" type="Node3D" parent="Navigation_markers" unique_id=1289260863]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
-[node name="arrow" type="Sprite3D" parent="rotation_arrow" unique_id=1487089547]
+[node name="arrow" type="Sprite3D" parent="Navigation_markers/rotation_arrow" unique_id=1487089547]
 transform = Transform3D(0.25, 0, 0, 0, -1.0927847e-08, 0.25, 0, -0.25, -1.0927847e-08, 0, 0, 5)
 sorting_offset = 1000.0
 modulate = Color(0.51666665, 1, 0, 1)
 render_priority = 127
 texture = ExtResource("5_cmder")
-
-[node name="world_bars" parent="." unique_id=1446492284 instance=ExtResource("6_cmder")]
 
 [node name="Boarding_Area" type="Area3D" parent="." unique_id=167467948]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.39939904, 0)
@@ -116,6 +127,7 @@ script = ExtResource("8_kxdp2")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone" unique_id=325412580]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.41918945, 0, 0)
 shape = SubResource("BoxShape3D_v2j2m")
+debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 
 [node name="DamageZone3" type="Area3D" parent="." unique_id=255861524]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.898337, -2.0839553)
@@ -124,6 +136,7 @@ script = ExtResource("8_kxdp2")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone3" unique_id=1078958427]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.419, 0, 0)
 shape = SubResource("BoxShape3D_1m05r")
+debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 
 [node name="DamageZone4" type="Area3D" parent="." unique_id=632899585]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.898337, -2.0839553)
@@ -132,6 +145,7 @@ damage_multiplier = 4.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone4" unique_id=1489041512]
 shape = SubResource("BoxShape3D_ssryt")
+debug_color = Color(0.9742307, 0, 0.43171304, 0.41960785)
 
 [node name="DamageZone6" type="Area3D" parent="." unique_id=1296104301]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36505747, 1.9160447)
@@ -140,6 +154,7 @@ script = ExtResource("8_kxdp2")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone6" unique_id=1404826691]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.41918945, 0, 0)
 shape = SubResource("BoxShape3D_v2j2m")
+debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 
 [node name="DamageZone7" type="Area3D" parent="." unique_id=1195959272]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36505747, 1.9160447)
@@ -148,6 +163,7 @@ script = ExtResource("8_kxdp2")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone7" unique_id=706813638]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.419, 0, 0)
 shape = SubResource("BoxShape3D_1m05r")
+debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 
 [node name="DamageZone8" type="Area3D" parent="." unique_id=310556161]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36505747, 1.9160447)
@@ -156,6 +172,7 @@ damage_multiplier = 4.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone8" unique_id=550786625]
 shape = SubResource("BoxShape3D_ssryt")
+debug_color = Color(0.9742307, 0, 0.43171304, 0.41960785)
 
 [node name="DamageZone2" type="Area3D" parent="." unique_id=1814017804]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3679967, -0.08395529)
@@ -163,6 +180,7 @@ script = ExtResource("8_kxdp2")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone2" unique_id=756191694]
 shape = SubResource("BoxShape3D_sk2ms")
+debug_color = Color(0.3794396, 0.47541577, 1, 0.41960785)
 
 [node name="DamageZone5" type="Area3D" parent="." unique_id=1767187440]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6720729, -0.08395529)
@@ -172,9 +190,27 @@ damage_multiplier = 0.2
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone5" unique_id=1964558885]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.71899414, 0.24560547)
 shape = SubResource("BoxShape3D_odhhf")
+debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 
 [node name="Wake" parent="." unique_id=391220487 instance=ExtResource("9_v2j2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
+
+[node name="lights" type="Node3D" parent="." unique_id=1428190088]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="lights" unique_id=1105497422]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9814739, -0.5132023)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="lights" unique_id=989591676]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9814739, 0.8304757)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="lights" unique_id=345868513]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3841858e-07, 1.5136224, -2.223363)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
 
 [connection signal="body_entered" from="DamageZone" to="DamageZone" method="_on_body_entered"]
 [connection signal="body_entered" from="DamageZone3" to="DamageZone3" method="_on_body_entered"]

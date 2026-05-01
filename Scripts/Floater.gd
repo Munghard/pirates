@@ -23,12 +23,29 @@ func _physics_process(_delta):
 	# lerping once its correct
 	# target.position.y = lerp(target.position.y, wave_data.height, 5.0 * _delta)
 	
-	var up = wave_data.normal
-	var forward = target.global_transform.basis.z.normalized()
+	var up = wave_data.normal.normalized()
+	
+	if not up.is_finite():
+		return
+	
+	var forward = target.global_transform.basis.z
+	if forward.length() < 0.001:
+		forward = Vector3.FORWARD
+	else:
+		forward = forward.normalized()
 
 	# rebuild rotation from normal
-	var right = - forward.cross(up).normalized()
-	forward = - up.cross(right).normalized()
+	var right = forward.cross(up)
+	if right.length() < 0.001:
+		right = Vector3.RIGHT
+	else:
+		right = right.normalized()
+
+	forward = up.cross(right)
+	if forward.length() < 0.001:
+		forward = Vector3.FORWARD
+	else:
+		forward = forward.normalized()
 
 	if target is RigidBody3D:
 		var target_rb = target as RigidBody3D

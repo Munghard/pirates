@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://8npumfs46s5j"]
+
+[ext_resource type="Script" uid="uid://cc8ebj671onbw" path="res://Scripts/loot.gd" id="1_rg653"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_dvcho"]
+[ext_resource type="Texture2D" uid="uid://cv5g2wkdkm7vs" path="res://Textures/locked-chest.png" id="3_dvcho"]
+[ext_resource type="Shader" uid="uid://cxbaolkr41hig" path="res://Scenes/gradient_effect.gdshader" id="4_lk60n"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_wse8f"]
+top_radius = 0.1
+bottom_radius = 0.1
+height = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ic0uy"]
+albedo_color = Color(0.49933165, 0.26008815, 0.1986669, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_rg653"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_lk60n"]
+viewport_path = NodePath("world_bars/SubViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h4ol7"]
+resource_local_to_scene = true
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+shading_mode = 0
+albedo_texture = SubResource("ViewportTexture_lk60n")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_50uj4"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_h4ol7")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h4ol7"]
+render_priority = 0
+shader = ExtResource("4_lk60n")
+shader_parameter/color = Color(1, 1, 1, 0.16862746)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_50uj4"]
+material = SubResource("ShaderMaterial_h4ol7")
+height = 6.0
+radial_segments = 16
+cap_top = false
+cap_bottom = false
+
+[node name="loot" type="RigidBody3D" unique_id=1134582906 node_paths=PackedStringArray("loot_icon") groups=["Floaters"]]
+gravity_scale = 0.0
+contact_monitor = true
+max_contacts_reported = 1
+angular_damp = 10.0
+script = ExtResource("1_rg653")
+loot_icon = NodePath("world_bars/SubViewport/Control/loot_icon")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=2022293595]
+transform = Transform3D(1, 0, 0, 0, 0.94879335, -0.31589743, 0, 0.31589743, 0.94879335, -0.04595852, 0, 0.14721233)
+mesh = SubResource("CylinderMesh_wse8f")
+surface_material_override/0 = SubResource("StandardMaterial3D_ic0uy")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=712720006]
+transform = Transform3D(0.9291851, -0.22727604, -0.29148012, 0.22296505, 0.97362447, -0.048393637, 0.2947908, -0.020023257, 0.95535195, -0.04595852, 0, -0.14477184)
+mesh = SubResource("CylinderMesh_wse8f")
+surface_material_override/0 = SubResource("StandardMaterial3D_ic0uy")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="." unique_id=1910397793]
+transform = Transform3D(0.8585115, 0.15490496, -0.48883858, -0.19294621, 0.9808084, -0.028055208, 0.4751107, 0.11840534, 0.8719232, 0.14324546, 0, 0.007801175)
+mesh = SubResource("CylinderMesh_wse8f")
+surface_material_override/0 = SubResource("StandardMaterial3D_ic0uy")
+
+[node name="floater" type="Node3D" parent="." unique_id=1671136720 node_paths=PackedStringArray("target")]
+script = ExtResource("2_dvcho")
+target = NodePath("..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=937266724]
+shape = SubResource("SphereShape3D_rg653")
+
+[node name="world_bars" type="Node3D" parent="." unique_id=1446492284]
+
+[node name="SubViewport" type="SubViewport" parent="world_bars" unique_id=16075736]
+disable_3d = true
+transparent_bg = true
+size = Vector2i(256, 256)
+
+[node name="Control" type="VBoxContainer" parent="world_bars/SubViewport" unique_id=27787931]
+custom_minimum_size = Vector2(200, 200)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -256.0
+offset_right = 256.0
+offset_bottom = 256.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
+pivot_offset_ratio = Vector2(0.5, 0.5)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="loot_icon" type="TextureRect" parent="world_bars/SubViewport/Control" unique_id=708740894]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("3_dvcho")
+stretch_mode = 3
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="world_bars" unique_id=1565056926]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.750824, 0)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_50uj4")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2042848339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+mesh = SubResource("CylinderMesh_50uj4")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -197,7 +197,7 @@ func _physics_process(_delta: float) -> void:
 
 func _process(delta):
 	# deactivate process
-	if not active:
+	if not active or destroyed:
 		return
 	
 	super._process(delta)
@@ -416,7 +416,7 @@ func _on_ship_sunk():
 
 func spawn_lifeboat():
 	var l = lifeboat.instantiate()
-	get_tree().current_scene.add_child(l)
+	gameManager.world.add_child(l)
 	l.global_position = global_position
 	l.global_position.y = 0
 	l.supplies = supplies
@@ -438,7 +438,7 @@ func draw_line_to_target_point(_line: ImmediateMesh, _target_point: Vector3, col
 	line_instance.mesh = _line
 	line_instance.material_override = material
 
-	get_tree().current_scene.add_child(line_instance)
+	gameManager.world.add_child(line_instance)
 	await get_tree().create_timer(0.1).timeout
 	line_instance.queue_free()
 

@@ -38,7 +38,12 @@ func _on_body_entered(body: Node3D) -> void:
 
 	if body is Loot:
 		var loot = body as Loot
-		sell(loot.item, loot.dropped_by)
+		if not is_instance_valid(loot):
+			return
+		var beneficiary = loot.dropped_by
+		if beneficiary == null:
+			beneficiary = gameManager.player_ship
+		sell(loot.item, beneficiary)
 		loot.queue_free()
 
 func _on_body_exited(body: Node3D) -> void:
@@ -50,9 +55,9 @@ func _on_body_exited(body: Node3D) -> void:
 		player_ship = null
 		
 
-func get_valid_water_position(center: Vector3) -> Vector3:
+func get_valid_water_position() -> Vector3:
+	var center: Vector3 = global_position
 	var radius = 15.0
-
 	for i in range(30): # safety limit
 		var angle = randf() * TAU
 		var distance = sqrt(randf()) * radius
@@ -94,10 +99,12 @@ func depart():
 	if player_ship:
 		player_ship.set_docked(null)
 		departing = true
-		player_ship.target_speed = player_ship.top_speed
+		#player_ship.target_speed = player_ship.top_speed
 
 
 func sell(item: InventoryItem, seller: Ship):
+	if not item or not seller:
+		return
 	var item_def = Item_Database.get_item_definition(item.id)
 	var value = item_def.value
 	seller.gain_gold(value)

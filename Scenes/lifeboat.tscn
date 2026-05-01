@@ -25,4 +25,11 @@ shape = SubResource("BoxShape3D_4cq66")
 script = ExtResource("4_52p0d")
 target = NodePath("..")
 
+[node name="lights" type="Node3D" parent="." unique_id=931211824]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="lights" unique_id=233659495]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41558552, -0.14642408)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

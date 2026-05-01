@@ -121,7 +121,7 @@ func place_player(ports: Array[Node3D]):
 		print("NO PORTS RECEIVED")
 		return
 	var port = ports[randi_range(0, ports.size() - 1)]
-	var water_pos = port.get_valid_water_position(port.global_position)
+	var water_pos = port.get_valid_water_position()
 	var dir = (water_pos - port.global_position).normalized()
 	var angle_rad = atan2(dir.x, dir.z)
 	var angle_deg = rad_to_deg(angle_rad)

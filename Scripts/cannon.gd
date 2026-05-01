@@ -6,6 +6,8 @@ class_name Cannon
 @export var particle: GPUParticles3D
 @export var particle1: GPUParticles3D
 @onready var canon_mesh: Node3D = canon.get_node("mesh")
+@onready var light: OmniLight3D = $OmniLight3D
+
 
 @export var pb: ProgressBar
 
@@ -31,6 +33,7 @@ func _ready():
 func shoot(attack: float, shooter: Node3D, audioManager: AudioManager) -> bool:
 	if not fire_timer <= 0.0:
 		return false
+	light.light_energy = 2.0
 	fire_timer = fire_rate
 
 	var dir: Vector3 = canon.global_basis.z
@@ -46,7 +49,19 @@ func shoot(attack: float, shooter: Node3D, audioManager: AudioManager) -> bool:
 	particle.restart()
 	particle1.restart()
 	audioManager.play_sound_at(canon.global_position, audio_canon_fire, 0.3)
+	fade_light()
 	return true
+
+func fade_light() -> void:
+	var duration = 0.2
+	var elapsed = duration
+
+	while elapsed > 0.0:
+		elapsed -= get_process_delta_time()
+		light.light_energy = (elapsed / duration) * 10.0
+		await get_tree().process_frame
+
+	light.light_energy = 0.0
 
 func _process(delta):
 	if fire_timer > 0.0:

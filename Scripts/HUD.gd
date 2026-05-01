@@ -18,6 +18,8 @@ class_name HUD
 var notification_queue: Array[String] = []
 var showing_notifications = false
 
+var label_stacks := {}
+
 var selected_ship: Ship
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
@@ -59,20 +61,44 @@ func select_ship(ship: Ship):
 
 
 func ddd_label(text: String, _position: Vector3, _color: Color = Color.WHITE):
+	var key = _position.snapped(Vector3(0.5, 0.5, 0.5)) # group nearby positions
+
+	if not label_stacks.has(key):
+		label_stacks[key] = 0
+
+	var count = label_stacks[key]
+	label_stacks[key] += 1
+
 	var label3d = Label3D.new()
-	get_tree().current_scene.add_child(label3d)
+	gameManager.world.add_child(label3d)
+
+	var offset = Vector3(
+		0,
+		count * 2.5,
+		0
+	)
+
 	label3d.text = text
 	label3d.font_size = 160
-	# label3d.no_depth_test = true
-	label3d.global_position = _position
+	label3d.global_position = _position + offset
 	label3d.billboard = true
 	label3d.no_depth_test = true
 	label3d.alpha_cut = true
 	label3d.modulate = _color
 
-	get_tree().create_tween().tween_property(label3d, "global_position", label3d.global_position + Vector3.UP * 10.0, 5.0)
+	get_tree().create_tween().tween_property(
+		label3d,
+		"global_position",
+		label3d.global_position + Vector3.UP * 10.0,
+		5.0
+	)
 
 	await get_tree().create_timer(5.0).timeout
+
+	label_stacks[key] -= 1
+	if label_stacks[key] <= 0:
+		label_stacks.erase(key)
+
 	label3d.queue_free()
 
 func new_notification(text: String):

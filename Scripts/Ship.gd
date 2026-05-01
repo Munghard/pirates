@@ -1,11 +1,13 @@
 extends RigidBody3D
 class_name Ship
 
-@onready var forward_arrow: Node3D = $forward_arrow
-@onready var right_arrow: Node3D = $right_arrow
-@onready var left_arrow: Node3D = $left_arrow
-@onready var rotation_arrow: Node3D = $rotation_arrow
-@onready var rot_arrow: Sprite3D = $rotation_arrow/arrow
+@onready var navigation_markers: Node3D = $Navigation_markers
+@onready var forward_arrow: Node3D = $Navigation_markers/forward_arrow
+@onready var backward_arrow: Node3D = $Navigation_markers/backward_arrow
+@onready var right_arrow: Node3D = $Navigation_markers/right_arrow
+@onready var left_arrow: Node3D = $Navigation_markers/left_arrow
+@onready var rotation_arrow: Node3D = $Navigation_markers/rotation_arrow
+@onready var rot_arrow: Sprite3D = $Navigation_markers/rotation_arrow/arrow
 
 var ship_name := "Ship"
 var faction: FactionsData.Faction = FactionsData.Faction.NAVY
@@ -24,6 +26,7 @@ var gold := 0
 var supplies := 100
 var max_supplies := 100
 var guns := 1
+var sunk := false
 
 var actual_speed := 0.0
 
@@ -50,8 +53,8 @@ var controlled_ships: Array[Ship] = []
 @export var boarding_area: Area3D
 @export var arrow_scene: PackedScene
 @export var rigidbody: RigidBody3D = self
-@export var loot: PackedScene
 @export var floater: Node3D
+@export var loot: PackedScene
 
 @onready var cannons_layout: Cannons = $ship_pivot/Cannons
 
@@ -79,6 +82,7 @@ signal recieved_damage(amount: float, attacker: Node3D)
 signal hit_points_changed(amount: float)
 signal recovery_changed(time: float)
 signal on_sink
+signal on_destroyed(destroyer: Node3D)
 signal boarding_target_changed(ship: Ship)
 signal boarding_changed(ship: Ship)
 
@@ -133,13 +137,19 @@ func set_faction(_faction: FactionsData.Faction):
 	set_faction_texture()
 
 func _on_recovery_changed(_progress: float):
+	if not recovery_healthbar:
+		return
 	recovery_healthbar.value = _progress
 
 func _on_hit_points_changed(_amount: float):
+	if not ship_healthbar:
+		return
 	ship_healthbar.value = hit_points
 	ship_healthbar.max_value = max_hit_points
 
 func _on_crew_changed(_amount: int, _gained: bool):
+	if not crew_healthbar:
+		return
 	crew_healthbar.value = crew
 	crew_healthbar.max_value = max_crew
 
@@ -173,7 +183,7 @@ func lose_supplies(_supplies: int):
 func gain_crew(amount: int):
 	if crew >= max_crew:
 		return
-	gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
+	#gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
 	crew += amount
 	crew = min(crew, max_crew)
 	emit_signal("crew_changed", amount, true)
@@ -181,15 +191,22 @@ func gain_crew(amount: int):
 func kill_crew(amount: int):
 	if crew <= 0:
 		return
-	gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
+	#gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
 	crew -= amount
 	crew = max(crew, 0)
 	emit_signal("crew_changed", amount, false)
 	if crew <= 0:
-		destroyed = true
+		destroy_ship(attacker)
+
+
+func destroy_ship(destroyer: Node3D):
+	on_destroyed.emit(destroyer)
+	destroyed = true
+	navigation_markers.queue_free()
+	world_bars.queue_free()
+
 
 # GET AND REMOVE STATS
-
 func _process(_delta):
 	if destroyed:
 		return
@@ -210,26 +227,27 @@ func repair(_delta):
 		emit_signal("hit_points_changed", hit_points)
 
 func sink():
-	world_bars.visible = false
 	spawn_loot()
 	queue_free()
 	emit_signal("on_sink")
 
 func world_edge_push():
 	var world_size := gameManager.world.terrain.world_size * gameManager.world.terrain.tile_size
-	var pos := global_position
+	var pos := Vector2(global_position.x, global_position.z)
 	# check if outside bounds
-	if pos.x < 0 or pos.x > world_size.x or pos.z < 0 or pos.z > world_size.y:
-		var center := Vector3.ZERO
+	if pos.x < 0 or pos.x > world_size.x or pos.y < 0 or pos.y > world_size.y:
+		var center := gameManager.world.terrain.terrain_world_size / 2.0
 		var dir_to_center := (center - pos).normalized()
 		
 		# get target yaw (Y rotation)
-		yaw_deg = rad_to_deg(atan2(dir_to_center.x, dir_to_center.z))
+		yaw_deg = rad_to_deg(atan2(dir_to_center.x, dir_to_center.y))
 		
 var previous_speed
 var previous_h_speed
 
 func _physics_process(_delta: float) -> void:
+	if not global_basis.x.is_finite() or not global_basis.y.is_finite() or not global_basis.z.is_finite():
+		return
 	world_edge_push()
 
 	if destroyed:
@@ -240,7 +258,7 @@ func _physics_process(_delta: float) -> void:
 		position += -basis.y * sink_speed * _delta
 		# apply_torque(Vector3.UP * 5.0 * mass)
 		rotation.y += _delta # radians per second
-		if ship_pivot.global_position.y <= -5.0:
+		if ship_pivot.global_position.y <= -5.0 and not sunk:
 			sink()
 		return
 
@@ -248,22 +266,27 @@ func _physics_process(_delta: float) -> void:
 	rotation.z = lerp_angle(rotation.z, 0, _delta)
 
 	if previous_speed != target_speed:
-		update_arrow(forward_arrow, floor(target_speed))
-	if side_to_side_speed != previous_h_speed:
+		queue_free_children(forward_arrow)
+		queue_free_children(backward_arrow)
+
+		if target_speed > 0:
+			update_arrow(forward_arrow, round(target_speed))
+		elif target_speed < 0:
+			update_arrow(backward_arrow, round(abs(target_speed)))
+	if previous_h_speed != side_to_side_speed:
+		queue_free_children(left_arrow)
+		queue_free_children(right_arrow)
+
 		if side_to_side_speed > 0:
-			update_arrow(left_arrow, floor(side_to_side_speed))
-			queue_free_children(right_arrow)
+			update_arrow(left_arrow, round(side_to_side_speed))
 		elif side_to_side_speed < 0:
-			update_arrow(right_arrow, abs(side_to_side_speed))
-			queue_free_children(left_arrow)
-		elif side_to_side_speed == 0:
-			queue_free_children(right_arrow)
-			queue_free_children(left_arrow)
+			update_arrow(right_arrow, round(abs(side_to_side_speed)))
 
 	rotation_arrow.global_rotation_degrees = Vector3(0.0, yaw_deg, 0.0)
 	#forward_arrow.scale.z = target_speed
 	previous_speed = target_speed
-
+	previous_h_speed = side_to_side_speed
+	
 	var forward = global_basis.z
 	var right = global_basis.x
 	#var wind_along_forward = gameManager.wind.direction.dot(forward)
@@ -288,7 +311,8 @@ func _physics_process(_delta: float) -> void:
 
 	# Apply a turning force based on how far we need to turn
 	# rotation = Vector3(0, new_yaw, 0)
-	apply_torque(Vector3.UP * rotation_diff * agility / (target_speed + 1.0) * 10.0)
+	var speed_factor = max(abs(capable_speed), 1.0)
+	apply_torque(Vector3.UP * rotation_diff * agility / speed_factor * 10.0)
 
 	#clamp to top speed
 	var speed = linear_velocity.length()
@@ -316,10 +340,18 @@ func update_arrow(container: Node3D, count: int):
 		a.modulate.a = 1.0 / (i + 1)
 
 func spawn_loot():
-	for i in range(inventory.items.size() - 1):
-		var l: Loot = loot.instantiate()
+	var valid_items: Array = []
 
-		get_tree().current_scene.add_child(l)
+	# collect only real items
+	for item in inventory.items:
+		if item != null:
+			valid_items.append(item)
+
+	# spawn loot from valid items
+	for item in valid_items:
+		var l: Loot = loot.instantiate()
+		gameManager.world.add_child(l)
+
 		var radius = 5.0
 		var angle = randf() * TAU
 		var distance = sqrt(randf()) * radius
@@ -329,11 +361,14 @@ func spawn_loot():
 			0,
 			sin(angle) * distance
 		)
+
 		l.global_position = global_position + offset
 		l.global_position.y = 0
-		var item = inventory.items[i]
+
 		l.setup_loot(item, self )
-		inventory.remove_item(item)
+
+	# clear inventory AFTER
+	inventory.clear()
 
 
 func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: Node3D):

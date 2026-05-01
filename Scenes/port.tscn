@@ -42,5 +42,32 @@ shape = SubResource("BoxShape3D_d8raq")
 [node name="Port_SecondAge_Level1" parent="body" unique_id=1489965803 instance=ExtResource("1_s2k7l")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 4)
 
+[node name="lights" type="Node3D" parent="." unique_id=1420617996]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="lights" unique_id=1884010672]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6474586, 0.9814739, -1.4162536)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="lights" unique_id=46359774]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35254145, 0.9814739, -3.4162536)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="lights" unique_id=1354757294]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0230503, 0.9814739, -1.4162536)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="lights" unique_id=1403742068]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6474586, 0.9814739, 6.1708646)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="lights" unique_id=574639681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0230503, 0.9814739, 3.5837464)
+light_color = Color(1, 0.6166667, 0, 1)
+light_energy = 2.0
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

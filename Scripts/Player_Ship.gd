@@ -96,9 +96,9 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_D:
 			side_to_side_speed -= 1.0
 		if event.keycode == KEY_W:
-			target_speed = clamp(target_speed + 1.0, 0, top_speed)
+			target_speed = clamp(target_speed + 1.0, -1.0, top_speed)
 		if event.keycode == KEY_S:
-			target_speed = clamp(target_speed - 1.0, 0, top_speed)
+			target_speed = clamp(target_speed - 1.0, -1.0, top_speed)
 		if event.keycode == KEY_END:
 			shoot_bow()
 		if event.keycode == KEY_LEFT:

@@ -13,12 +13,12 @@ var debugMenu: DebugMenu
 
 
 func _ready() -> void:
-	world = $World
-	player_ship = $PlayerShip
+	world = $SubViewportContainer/SubViewport/World
+	player_ship = $SubViewportContainer/SubViewport/World/PlayerShip
 	hud = $MarginContainer/HUD
 	debugMenu = $MarginContainer/DebugMenu
-	camera = $camrig/Camera3D
-	camerarig = $camrig
+	camera = $SubViewportContainer/SubViewport/camera_rig/Camera3D
+	camerarig = $SubViewportContainer/SubViewport/camera_rig
 	audioManager = $AudioManager
 
 	assert(world != null, "world is null in gamemanager start")
@@ -46,10 +46,23 @@ func _input(event: InputEvent) -> void:
 			spawn_ships_around_player(1)
 		if event.keycode == KEY_F2:
 			toggle_debug_menu()
+		if event.keycode == KEY_F3:
+			move_player_to_random_port()
 		if event.keycode == KEY_TAB:
 			hud.toggle_player_inventory_panel()
 		if event.keycode == KEY_G:
 			player_ship.toggle_cannons_trajectory()
+
+func move_player_to_random_port():
+	var ports = get_tree().get_nodes_in_group("Ports")
+	var port: Port = ports[randi_range(0, ports.size() - 1)]
+	var water_pos = port.get_valid_water_position()
+	var dir = (water_pos - port.global_position).normalized()
+	var angle_rad = atan2(dir.x, dir.z)
+	var angle_deg = rad_to_deg(angle_rad)
+	player_ship.global_position = water_pos
+	player_ship.rotation.y = angle_rad
+	player_ship.yaw_deg = angle_deg
 
 func spawn_ships_around_player(count: int):
 	var enemy_ship = preload("res://Scenes/enemy_ship.tscn")

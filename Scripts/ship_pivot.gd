@@ -9,9 +9,9 @@ var sails: Array[Node3D] = []
 
 func set_flag():
 	#setup flag
-	var mat = flag_mesh.get_active_material(0) as StandardMaterial3D
+	var mat = flag_mesh.get_active_material(0) as ShaderMaterial
 	var flag_texture = FactionsData.get_flag(ship.nation, ship.faction)
-	mat.albedo_texture = flag_texture
+	mat.set_shader_parameter("flag_texture", flag_texture)
 
 func _ready():
 	sails.append(ship_model.get_node("BackSail"))

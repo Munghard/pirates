@@ -78,7 +78,7 @@ func update_minimap():
 		if ship == gameManager.player_ship:
 			continue
 		var color = FactionsData.get_faction_color(ship.faction)
-		add_blip_to_minimap(ship, color, 2.5, blip_a_scene)
+		add_blip_to_minimap(ship, color, 1.75, blip_a_scene)
 	
 	for floater: Node3D in get_tree().get_nodes_in_group("Floaters"):
 		var color = Color(1, 1, 1, 0.5)

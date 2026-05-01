@@ -4,4 +4,6 @@
 
 [node name="star" type="TextureRect" unique_id=186653662]
 self_modulate = Color(1, 0.9016667, 0.41000003, 1)
+custom_minimum_size = Vector2(64, 64)
 texture = ExtResource("1_ph7j1")
+expand_mode = 1

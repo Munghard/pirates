@@ -6,7 +6,7 @@ var world_owner: Node3D
 var inventory_name
 var size
 
-var world_item: PackedScene = preload("res://Scenes/barrels.tscn")
+var world_item: PackedScene = preload("res://Scenes/loot.tscn")
 
 var items: Array[InventoryItem]
 
@@ -25,6 +25,9 @@ func new_notification(message: String):
 	print(message);
 	inventory_notification.emit(message)
 
+func clear():
+	items.clear()
+
 func has_space() -> bool:
 	return find_empty_slot() != -1
 
@@ -37,7 +40,9 @@ func find_empty_slot() -> int:
 
 func drop_item(index: int):
 	var w_item = world_item.instantiate() as Loot
-	get_tree().current_scene.add_child(w_item)
+	var ship = world_owner as Ship
+	var world = ship.gameManager.world
+	world.add_child(w_item)
 	w_item.setup_loot(items[index], world_owner)
 	w_item.global_position = world_owner.global_position + (-world_owner.basis.z * 5.0)
 	w_item.global_rotation_degrees.y = randf() * 360.0
