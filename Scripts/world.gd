@@ -100,8 +100,8 @@ func _process(delta):
 	w_mat.set_shader_parameter("wind_offset", wind_offset)
 	w_mat.set_shader_parameter("wind_dir", wind_2d)
 
-func pass_time():
-	time.pass_time(1.0)
+func pass_time(_time: float):
+	time.pass_time(_time)
 	wind.randomize_wind()
 
 func _on_time_changed(_time: float):

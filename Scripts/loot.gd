@@ -3,12 +3,12 @@ extends Node3D
 class_name Loot
 
 var item: InventoryItem
-var dropped_by: Ship
+var dropped_by: Node3D
 var recieved := false
 var water: Water
 @export var loot_icon: TextureRect
 
-func setup_loot(_item: InventoryItem, _dropped_by: Ship):
+func setup_loot(_item: InventoryItem, _dropped_by: Node3D):
 	item = _item if _item != null else roll_item()
 	dropped_by = _dropped_by
 

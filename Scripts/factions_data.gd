@@ -20,7 +20,7 @@ static func get_flag(nation: Nation, faction: Faction) -> Texture2D:
 		flag = preload("res://Textures/Pirate_Flag_of_Jack_Rackham.png")
 	return flag
 
-enum Faction {PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING}
+enum Faction {PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING, FISHERMAN}
 
 const FACTION_NAMES = {
 	Faction.PIRATE: "Pirate",
@@ -29,6 +29,8 @@ const FACTION_NAMES = {
 	Faction.SLAVER: "Slaver",
 	Faction.CARTOGRAPHER: "Cartographer",
 	Faction.BOUNTYHUNTER: "Bounty Hunter",
+	Faction.VIKING: "Viking",
+	Faction.FISHERMAN: "Fisherman",
 }
 
 
@@ -89,12 +91,36 @@ const NAMES = [
 	"The Leaky Bucket"
 ]
 
+const PORT_NAMES = [
+	"Blackwater Port",
+	"Saltmarrow",
+	"Driftwood Haven",
+	"Redwake Harbor",
+	"Ironhook Bay",
+	"Stormreach Port",
+	"Gull’s Rest",
+	"Broken Mast Cove",
+	"Widow’s Anchorage",
+	"Brinewatch",
+	"Daggerfall Cove",
+	"Bloodtide Harbor",
+	"Blackreef Port",
+	"Hangman’s Bay",
+	"Scarshore",
+	"Deadman’s Wake",
+	"Rusthook Anchorage",
+	"Thieves’ Refuge",
+	"Grimwater Port",
+	"Crowscar Dock",
+]
+
 static var enemy_factions := {
-	FactionsData.Faction.NAVY: [FactionsData.Faction.PIRATE, FactionsData.Faction.SLAVER],
-	FactionsData.Faction.PIRATE: [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.BOUNTYHUNTER],
+	FactionsData.Faction.NAVY: [FactionsData.Faction.PIRATE, FactionsData.Faction.SLAVER, FactionsData.Faction.VIKING],
+	FactionsData.Faction.PIRATE: [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.BOUNTYHUNTER, FactionsData.Faction.VIKING],
 	FactionsData.Faction.MERCHANT: [FactionsData.Faction.PIRATE],
 	FactionsData.Faction.SLAVER: [FactionsData.Faction.NAVY],
 	FactionsData.Faction.BOUNTYHUNTER: [FactionsData.Faction.PIRATE],
+	FactionsData.Faction.VIKING: [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.PIRATE],
 }
 
 static func is_enemy(f1, f2) -> bool:
@@ -200,6 +226,7 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 			items = [
 				InventoryItem.new(0, randi_range(5, 50)),
 				InventoryItem.new(1, randi_range(5, 25)),
+				InventoryItem.new(3, randi_range(1, 10)),
 				InventoryItem.new(4, randi_range(1, 10)),
 				InventoryItem.new(6, randi_range(1, 10)),
 				InventoryItem.new(8, randi_range(1, 10)),
@@ -221,6 +248,23 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 				InventoryItem.new(4, randi_range(1, 25)),
 				InventoryItem.new(7, randi_range(100, 200)),
 				InventoryItem.new(8, randi_range(1, 25)),
+			]
+		Faction.BOUNTYHUNTER:
+			items = [
+				InventoryItem.new(0, randi_range(1, 50)),
+				InventoryItem.new(2, randi_range(1, 5)),
+				InventoryItem.new(3, randi_range(50, 200)),
+				InventoryItem.new(4, randi_range(1, 25)),
+				InventoryItem.new(7, randi_range(100, 200)),
+				InventoryItem.new(8, randi_range(1, 25)),
+			]
+		Faction.FISHERMAN:
+			items = [
+				InventoryItem.new(0, randi_range(1, 10)),
+				InventoryItem.new(1, randi_range(5, 50)),
+				InventoryItem.new(4, randi_range(5, 50)),
+				InventoryItem.new(5, randi_range(1, 5)),
+				InventoryItem.new(9, randi_range(20, 50)),
 			]
 		_:
 			items = [
@@ -244,3 +288,23 @@ static func roll_weighted(options: Dictionary):
 			return key
 
 	return options.keys()[0]
+
+static func roll_nation() -> FactionsData.Nation:
+	var rolled_nation = FactionsData.roll_weighted({
+		FactionsData.Nation.ENGLAND: 20,
+		FactionsData.Nation.SPAIN: 20,
+		FactionsData.Nation.FRANCE: 20,
+		FactionsData.Nation.NETHERLANDS: 20
+		})
+	return rolled_nation
+
+static func roll_faction() -> FactionsData.Faction:
+	var rolled_faction = FactionsData.roll_weighted({
+		FactionsData.Faction.NAVY: 25,
+		FactionsData.Faction.MERCHANT: 25,
+		FactionsData.Faction.PIRATE: 20,
+		FactionsData.Faction.SLAVER: 10,
+		FactionsData.Faction.CARTOGRAPHER: 10,
+		FactionsData.Faction.BOUNTYHUNTER: 10,
+	})
+	return rolled_faction

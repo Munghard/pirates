@@ -40,7 +40,7 @@ var line_route: ImmediateMesh
 var line_avoidance: ImmediateMesh
 
 signal state_changed(_ai_State: AIState)
-enum AIState {IDLE, ENROUTE, COMBAT, CAPTURED}
+enum AIState {IDLE, ENROUTE, COMBAT, CAPTURED, SUNK}
 
 signal combat_state_changed(_combat_State: CombatState)
 enum CombatState {AGRO, PURSUE, FLEE}
@@ -50,6 +50,7 @@ var AIStateNames = {
 	AIState.ENROUTE: "ENROUTE",
 	AIState.COMBAT: "COMBAT",
 	AIState.CAPTURED: "CAPTURED",
+	AIState.SUNK: "SUNK",
 }
 var CombatStateNames = {
 	CombatState.AGRO: "AGRO",
@@ -70,8 +71,8 @@ func _ready() -> void:
 	ship_name = FactionsData.get_random_name()
 
 	level = randi_range(1, 5)
-	faction = roll_faction()
-	nation = roll_nation()
+	faction = FactionsData.roll_faction()
+	nation = FactionsData.roll_nation()
 
 	var faction_stats = FactionsData.get_faction_stats(faction)
 
@@ -99,35 +100,18 @@ func _ready() -> void:
 	set_state(AIState.ENROUTE)
 	setup_inventory()
 
+	navigation_markers.visible = false
+	world_bars.visible = false
+
 
 func setup_inventory():
-	inventory = Inventory.new(self , 16, ship_name + " cargo")
+	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
 	await get_tree().process_frame
 		
 	var items := FactionsData.get_faction_inventory(faction)
 	for item in items:
 		inventory.add_item(item)
 
-
-func roll_nation() -> FactionsData.Nation:
-	var rolled_nation = FactionsData.roll_weighted({
-		FactionsData.Nation.ENGLAND: 20,
-		FactionsData.Nation.SPAIN: 20,
-		FactionsData.Nation.FRANCE: 20,
-		FactionsData.Nation.NETHERLANDS: 20
-		})
-	return rolled_nation
-
-func roll_faction() -> FactionsData.Faction:
-	var rolled_faction = FactionsData.roll_weighted({
-		FactionsData.Faction.NAVY: 25,
-		FactionsData.Faction.MERCHANT: 25,
-		FactionsData.Faction.PIRATE: 20,
-		FactionsData.Faction.SLAVER: 10,
-		FactionsData.Faction.CARTOGRAPHER: 10,
-		FactionsData.Faction.BOUNTYHUNTER: 10,
-	})
-	return rolled_faction
 
 func _on_damage_recieved(_damage: float, _attacker: Node3D):
 	attacker = _attacker
@@ -139,10 +123,12 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		if ship and FactionsData.is_enemy(faction, ship.faction):
 			#compare ship stats and decide what to do
 			set_state(AIState.COMBAT)
-			if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense:
+			if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item(3, 1):
 				set_combat_state(CombatState.PURSUE)
 			else:
 				set_combat_state(CombatState.FLEE)
+	if hit_points <= 0:
+		set_state(AIState.SUNK)
 
 
 func set_state(_ai_State: AIState):
@@ -302,7 +288,7 @@ func _handle_shooting(target: Vector3):
 	# We check if the PORT side (rotation + 90) is facing the target
 	var diff = wrapf(yaw_deg - 90.0 - angle_to_target, -180, 180)
 
-	if abs(diff) < 15.0:
+	if abs(diff) < 15.0 and inventory.has_item(3, 1):
 		set_canon_pitch(dist / 2.0) # Ensure your Ship class handles pitch units correctly
 		shoot_port()
 		
@@ -420,7 +406,7 @@ func spawn_lifeboat():
 	l.global_position = global_position
 	l.global_position.y = 0
 	l.supplies = supplies
-	l.crew = max_crew / 10.0
+	l.crew = crew
 
 
 func draw_line_to_target_point(_line: ImmediateMesh, _target_point: Vector3, color: Color):

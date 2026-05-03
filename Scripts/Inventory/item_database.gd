@@ -18,6 +18,7 @@ func create_items():
 	item_database.append(Item_Definition.new(7, 2, "Shackles", 50, preload("res://Textures/handcuffs.png")))
 	item_database.append(Item_Definition.new(8, 5, "Firearms", 50, preload("res://Textures/blunderbuss.png")))
 	item_database.append(Item_Definition.new(9, 5, "Fishing gear", 50, preload("res://Textures/fishing-net.png")))
+	item_database.append(Item_Definition.new(10, 1, "Gold", 500, preload("res://Textures/coins.png")))
 	
 	print("Items created in database: ", item_database.size());
 

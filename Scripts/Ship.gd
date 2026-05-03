@@ -42,7 +42,7 @@ var accumulated_damage := 0.0
 var damage_threshold := 1.0
 
 var damage_sustained := 0.0
-var crew_health := 1.0
+var crew_health := 20.0
 
 var boarding_target: Ship
 var boarded_ship: Ship
@@ -160,6 +160,9 @@ func setup_guns():
 	cannons_layout.create_canons(int(float(guns) / 2.0), int(float(guns) / 2.0), int(float(guns) / 4.0))
 # GET AND REMOVE STATS
 
+func has_gold(_gold: int) -> bool:
+	return gold >= _gold
+	
 func gain_gold(_gold: int):
 	gold += _gold
 	emit_signal("gold_changed", _gold, true)
@@ -205,20 +208,43 @@ func destroy_ship(destroyer: Node3D):
 	navigation_markers.queue_free()
 	world_bars.queue_free()
 
+# ================================================================================================================
+# CREW RATIONS
+# ================================================================================================================
+
+var ration_interval := 30000 # 30 seconds
+var last_ration := 0.0
+
+func ration():
+	last_ration = Time.get_ticks_msec()
+	if inventory.has_item(0, 1):
+		inventory.consume_item(0, 1)
+	else:
+		kill_crew(1)
+
+# ================================================================================================================
+# CREW RATIONS
+# ================================================================================================================
+
 
 # GET AND REMOVE STATS
 func _process(_delta):
+	ship_pivot.position = Vector3.ZERO
+	var elapsed_since_damage := Time.get_ticks_msec() - last_damage_time
+	var elapsed_since_ration := Time.get_ticks_msec() - last_ration
+
+	if elapsed_since_ration > ration_interval:
+		ration()
+
 	if destroyed:
 		return
-	if not destroyed:
+	if not destroyed and crew > 0:
+		recovery_progress = clamp(elapsed_since_damage / float(out_of_combat_time), 0.0, 1.0)
 		repair(_delta)
 
-	ship_pivot.position = Vector3.ZERO
 	# check if in combat
-	var elapsed := Time.get_ticks_msec() - last_damage_time
-	recovery_progress = clamp(elapsed / float(out_of_combat_time), 0.0, 1.0)
 	emit_signal("recovery_changed", recovery_progress)
-	if in_combat and elapsed > out_of_combat_time:
+	if in_combat and elapsed_since_damage > out_of_combat_time:
 		in_combat = false
 
 func repair(_delta):
@@ -373,6 +399,10 @@ func spawn_loot():
 
 func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: Node3D):
 	# gameManager.hud.selected_ship = self
+	attacker = _attacker
+	in_combat = true
+	last_damage_time = Time.get_ticks_msec()
+	
 	var multiplied_damage = _damage * _multiplier
 	
 	var color = Color.WHITE
@@ -380,6 +410,7 @@ func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: N
 		color = Color.GRAY
 	elif _multiplier > 1.0:
 		color = Color.YELLOW
+	
 	accumulated_damage += multiplied_damage
 
 	if accumulated_damage >= damage_threshold:
@@ -387,22 +418,21 @@ func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: N
 		gameManager.hud.ddd_label(s, _position, color)
 		accumulated_damage = 0
 
-	attacker = _attacker
 	hit_points = clamp(hit_points - (multiplied_damage / defense), 0, max_hit_points)
 	emit_signal("recieved_damage", (multiplied_damage / defense), _attacker)
 	emit_signal("hit_points_changed", hit_points)
-	in_combat = true
-	last_damage_time = Time.get_ticks_msec()
 
-	if hit_points <= 0 and not incapacitated:
+	if crew <= 0 and not incapacitated:
 		incapacitated = true
 		gameManager.hud.ddd_label("INCAPACITATED!", position, Color.CYAN)
 	
-	if incapacitated:
-		damage_sustained += multiplied_damage
-		while damage_sustained >= crew_health:
-			damage_sustained -= crew_health
-			kill_crew(1)
+	if hit_points <= 0:
+		destroyed = true
+
+	damage_sustained += multiplied_damage
+	while damage_sustained >= crew_health:
+		damage_sustained -= crew_health
+		kill_crew(1)
 
 func port_pitch(value: float):
 	for canon in cannons_layout.cannons_port:
@@ -443,12 +473,14 @@ func shoot_bow():
 	shoot(cannons_layout.cannons_bow)
 
 func shoot(canons: Array[Cannon]):
-	if supplies <= 0:
+	# id 3 is cannonball
+	if not inventory.has_item(3, 1):
+		gameManager.hud.ddd_label("No cannon balls", global_position, Color.RED)
 		return
 	for canon in canons:
 		await get_tree().create_timer(randf() / 5.0).timeout
 		if canon.shoot(attack, self , gameManager.audioManager):
-			supplies -= 1
+			inventory.consume_item(3, 1)
 
 func toggle_cannons_trajectory():
 	var active = cannons_layout.cannons_starboard[0].active

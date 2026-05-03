@@ -147,8 +147,8 @@ shader_parameter/edge_threshold = 0.06
 shader_parameter/edge_strength = -0.2
 
 [sub_resource type="Gradient" id="Gradient_pyn1s"]
-offsets = PackedFloat32Array(0, 0.9331307, 0.96103895, 1)
-colors = PackedColorArray(0, 0, 0, 1, 0.030768208, 0.26677826, 0.3218483, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+offsets = PackedFloat32Array(0, 0.9331307, 0.96103895, 0.9665971)
+colors = PackedColorArray(0, 0, 0, 1, 0.030768208, 0.26677826, 0.3218483, 1, 0, 0, 0, 1, 0, 0, 0, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_no8kt"]
 gradient = SubResource("Gradient_pyn1s")
@@ -363,15 +363,16 @@ theme_override_constants/margin_bottom = 20
 [node name="DebugMenu" parent="MarginContainer" unique_id=188675057 instance=ExtResource("8_1vso6")]
 layout_mode = 2
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "wind_control", "button_dock", "boarding_button", "notification_label")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "depth_panel", "wind_control", "button_dock", "boarding_button", "notification_label")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
 script = ExtResource("2_k7acu")
 ship_panel_target = NodePath("Target_ship_panel")
 ship_panel_player = NodePath("Player_ship_panel")
-inventory_panel = NodePath("../../Inventory_panel")
+inventory_panel = NodePath("Inventory_panel")
 time_panel = NodePath("Time_panel")
+depth_panel = NodePath("Depth_panel")
 wind_control = NodePath("wind_gauge")
 button_dock = NodePath("HBoxContainer/Button_dock")
 boarding_button = NodePath("HBoxContainer/Button")
@@ -462,14 +463,11 @@ text = "Notifications"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1984033058]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -94.0
-offset_top = -40.0
-offset_right = 94.0
+offset_top = -31.0
 grow_horizontal = 2
 grow_vertical = 0
 alignment = 1
@@ -512,7 +510,49 @@ text = "12:00"
 [node name="Button2" type="Button" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=604320044]
 layout_mode = 2
 size_flags_horizontal = 0
-text = "Pass time"
+text = "Pass time 1h"
+
+[node name="Button3" type="Button" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=1657434824]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Pass time 6h"
+
+[node name="Depth_panel" type="PanelContainer" parent="MarginContainer/HUD" unique_id=1583161667]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 312.0
+offset_top = -85.0
+offset_right = 407.0
+grow_vertical = 0
+pivot_offset_ratio = Vector2(0, 1)
+theme = ExtResource("2_0fj1v")
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HUD/Depth_panel" unique_id=796987506]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/Depth_panel/MarginContainer" unique_id=888034977]
+layout_mode = 2
+
+[node name="Label_h" type="Label" parent="MarginContainer/HUD/Depth_panel/MarginContainer/VBoxContainer" unique_id=503704096]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Depth"
+
+[node name="Label_depth" type="Label" parent="MarginContainer/HUD/Depth_panel/MarginContainer/VBoxContainer" unique_id=450185551]
+layout_mode = 2
+text = "10m"
+
+[node name="Inventory_panel" parent="MarginContainer/HUD" unique_id=1043611700 instance=ExtResource("3_3ua1v")]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -400.0
+offset_right = 0.0
+grow_horizontal = 0
+pivot_offset_ratio = Vector2(1, 0)
 
 [node name="Target_ship_panel" parent="MarginContainer/HUD" unique_id=1821436781 instance=ExtResource("4_yq1aw")]
 layout_mode = 1
@@ -537,14 +577,11 @@ offset_top = 0.0
 offset_bottom = 451.0
 grow_vertical = 1
 
-[node name="Inventory_panel" parent="." unique_id=1043611700 instance=ExtResource("3_3ua1v")]
-offset_top = 0.0
-offset_bottom = 0.0
-
 [node name="Item_Database" type="Node" parent="." unique_id=2120478333]
 script = ExtResource("35_coyub")
 metadata/_custom_type_script = "uid://bcmyufc0xuoqc"
 
+[connection signal="body_entered" from="SubViewportContainer/SubViewport/World/PlayerShip" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_body_entered"]
 [connection signal="body_entered" from="SubViewportContainer/SubViewport/World/PlayerShip/Boarding_Area" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="SubViewportContainer/SubViewport/World/PlayerShip/Boarding_Area" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_boarding_area_body_exited"]
 [connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD/Minimap" method="_on_v_slider_value_changed"]
@@ -552,6 +589,7 @@ metadata/_custom_type_script = "uid://bcmyufc0xuoqc"
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button_dock" to="MarginContainer/HUD" method="_on_button_dock_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer/Button2" to="MarginContainer/HUD" method="_on_button_pass_time_pressed"]
+[connection signal="pressed" from="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer/Button3" to="MarginContainer/HUD" method="_on_button_3_pressed"]
 
 [editable path="SubViewportContainer/SubViewport/World/PlayerShip"]
 [editable path="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/Sail ship"]

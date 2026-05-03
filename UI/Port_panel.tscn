@@ -1,33 +1,57 @@
 [gd_scene format=3 uid="uid://b3nnix6jurcl3"]
 
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="2_fsihh"]
+[ext_resource type="PackedScene" uid="uid://mdoxy52gslc1" path="res://UI/ship_inventory_panel.tscn" id="2_jp1f8"]
 
-[sub_resource type="Theme" id="Theme_5dwy5"]
-
-[node name="Port_panel" type="PanelContainer" unique_id=1068476575]
+[node name="Control" type="Control" unique_id=1857573593]
+layout_mode = 3
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_top = -127.5
-offset_right = 188.0
-offset_bottom = 127.5
+offset_top = -210.0
+offset_right = 494.0
+offset_bottom = 210.0
 grow_vertical = 2
-theme = SubResource("Theme_5dwy5")
+theme = ExtResource("2_fsihh")
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=830364857]
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=102278157]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Port_panel" type="PanelContainer" parent="HBoxContainer" unique_id=1068476575]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/Port_panel" unique_id=830364857]
 layout_mode = 2
 theme = ExtResource("2_fsihh")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1524480552]
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/Port_panel/MarginContainer" unique_id=111096263]
 layout_mode = 2
 
-[node name="Label_h" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2005593663]
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer" unique_id=1524480552]
+layout_mode = 2
+
+[node name="Label_h" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=2005593663]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Port"
 
-[node name="DepartButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=5709390]
+[node name="Label_f" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=2106170172]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Port"
+
+[node name="Label_gold" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1606088974]
+layout_mode = 2
+text = "Gold:"
+
+[node name="DepartButton" type="Button" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=5709390]
 layout_mode = 2
 text = "Depart"
 
-[connection signal="pressed" from="MarginContainer/VBoxContainer/DepartButton" to="." method="_on_button_depart_pressed"]
+[node name="Inventory_panel" parent="HBoxContainer" unique_id=1043611700 instance=ExtResource("2_jp1f8")]
+layout_mode = 2
+size_flags_vertical = 0
+
+[connection signal="pressed" from="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/DepartButton" to="HBoxContainer/Port_panel" method="_on_button_depart_pressed"]

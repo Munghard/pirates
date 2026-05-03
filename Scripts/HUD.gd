@@ -7,6 +7,7 @@ class_name HUD
 @export var inventory_panel: Control
 
 @export var time_panel: Control
+@export var depth_panel: Control
 
 @export var wind_control: Control
 
@@ -20,7 +21,8 @@ var showing_notifications = false
 
 var label_stacks := {}
 
-var selected_ship: Ship
+
+var buy_panel := preload("res://UI/buy_panel.tscn")
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
@@ -52,13 +54,11 @@ func _on_time_changed(time: float):
 func _on_boarding_target_changed(ship: Ship):
 	boarding_button.visible = ship != null and ship.can_be_boarded()
 
-
 func select_ship(ship: Ship):
-	selected_ship = ship
-	gameManager.camerarig.secondary_target = selected_ship
-	ship_panel_target.set_ship(selected_ship)
-	ship_panel_target.update_ship_panel(selected_ship)
-
+	gameManager.select_ship(ship)
+	gameManager.camerarig.secondary_target = gameManager.selected_ship
+	ship_panel_target.set_ship(gameManager.selected_ship)
+	ship_panel_target.update_ship_panel(gameManager.selected_ship)
 
 func ddd_label(text: String, _position: Vector3, _color: Color = Color.WHITE):
 	var key = _position.snapped(Vector3(0.5, 0.5, 0.5)) # group nearby positions
@@ -120,14 +120,24 @@ func _show_notifications() -> void:
 func _on_update_wind(wind: Wind):
 	wind_control.rotation = atan2(wind.direction.x, -wind.direction.z)
 
+var depth_check_timer := 0.0
 
 func _process(_delta):
-	if selected_ship:
-		ship_panel_target.update_ship_panel(selected_ship)
+	if gameManager.selected_ship:
+		ship_panel_target.update_ship_panel(gameManager.selected_ship)
 
 	
 	ship_panel_player.update_ship_panel(gameManager.player_ship)
+	depth_check_timer += _delta
+	if depth_check_timer >= 1.0:
+		depth_check_timer = 0.0
+		update_depth_label()
 	
+func update_depth_label():
+	var depth_label: Label = depth_panel.get_node("MarginContainer/VBoxContainer/Label_depth")
+	var player_pos = gameManager.player_ship.global_position
+	var depth = gameManager.world.terrain.get_height_world(player_pos.x, player_pos.z)
+	depth_label.text = "%.1f m" % [abs(depth)]
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -148,7 +158,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				ship_panel_target.folded = true
 				return
 			var ship = result.collider
-			if selected_ship != ship and gameManager.player_ship != ship:
+			if gameManager.selected_ship != ship and gameManager.player_ship != ship:
 				select_ship(ship)
 				ship_panel_target.folded = false
 			if ship == gameManager.player_ship:
@@ -207,4 +217,8 @@ func _on_board_button_pressed() -> void:
 # ================================================================================================================
 
 func _on_button_pass_time_pressed() -> void:
-	gameManager.world.pass_time()
+	gameManager.world.pass_time(1.0)
+
+
+func _on_button_3_pressed() -> void:
+	gameManager.world.pass_time(6.0)

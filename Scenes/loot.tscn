@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cc8ebj671onbw" path="res://Scripts/loot.gd" id="1_rg653"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_dvcho"]
 [ext_resource type="Texture2D" uid="uid://cv5g2wkdkm7vs" path="res://Textures/locked-chest.png" id="3_dvcho"]
-[ext_resource type="Shader" uid="uid://cxbaolkr41hig" path="res://Scenes/gradient_effect.gdshader" id="4_lk60n"]
+[ext_resource type="Shader" uid="uid://cxbaolkr41hig" path="res://Materials/gradient_effect.gdshader" id="4_lk60n"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_wse8f"]
 top_radius = 0.1

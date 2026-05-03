@@ -2,11 +2,12 @@ extends Control
 
 @onready var grid: GridContainer = $MarginContainer/HBoxContainer/Control/GridContainer
 @onready var slot_scene: PackedScene = preload("res://UI/slot.tscn")
-
 @onready var gameManager: GameManager = get_node("/root/GameManager")
+@onready var label: Label = $MarginContainer/HBoxContainer/Control/Label
 
 
-func update_inventory_ui(inventory: Inventory):
+func update_inventory_ui(inventory: Inventory, on_slot_pressed: Callable):
+	label.text = inventory.inventory_name
 	#clear
 	for child in grid.get_children():
 		child.queue_free()
@@ -32,8 +33,8 @@ func update_inventory_ui(inventory: Inventory):
 			label_stack.text = ""
 			icon.texture = null
 
-		new_slot.pressed.connect(inventory.drop_item.bind(i))
-		
+		new_slot.pressed.connect(on_slot_pressed.bind(i))
+
 
 func _on_close_button_pressed() -> void:
 	visible = false

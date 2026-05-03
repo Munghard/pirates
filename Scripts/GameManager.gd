@@ -11,6 +11,7 @@ var camerarig: Camera
 var audioManager: AudioManager
 var debugMenu: DebugMenu
 
+var selected_ship: Ship
 
 func _ready() -> void:
 	world = $SubViewportContainer/SubViewport/World
@@ -32,6 +33,15 @@ func _ready() -> void:
 	hud.init_hud()
 	debugMenu.init_debugMenu()
 
+
+func select_ship(ship: Ship):
+	if selected_ship:
+		selected_ship.navigation_markers.visible = false
+		selected_ship.world_bars.visible = false
+	selected_ship = ship
+	if selected_ship:
+		selected_ship.navigation_markers.visible = true
+		selected_ship.world_bars.visible = true
 
 func toggle_debug_menu():
 	debugMenu.visible = !debugMenu.visible

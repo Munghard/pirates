@@ -237,6 +237,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3841858e-07, 1.5136224, -2.
 light_color = Color(1, 0.6166667, 0, 1)
 light_energy = 2.0
 
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_entered" from="Area3D" to="." method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="Area3D" to="." method="_on_boarding_area_body_exited"]
 [connection signal="body_entered" from="DamageZone" to="DamageZone" method="_on_body_entered"]

@@ -36,16 +36,73 @@ func _ready() -> void:
 
 
 func setup_inventory():
-	inventory = Inventory.new(self , 16, "Player cargo")
+	inventory = Inventory.new(self , gameManager, 16, "Player cargo")
 	
 	# ensure HUD exists before connecting
 	await get_tree().process_frame
 
-	inventory.inventory_changed.connect(gameManager.hud.inventory_panel.update_inventory_ui)
+	inventory.inventory_changed.connect(_on_inventory_changed)
 	inventory.inventory_notification.connect(_inventory_changed)
 
 	inventory.add_item(InventoryItem.new(0, 30))
-	inventory.add_item(InventoryItem.new(1, 10))
+	inventory.add_item(InventoryItem.new(3, 50))
+
+	docked_changed.connect(func(_dock): _on_inventory_changed(inventory))
+
+func _on_inventory_changed(_inventory: Inventory):
+	if docked:
+		gameManager.hud.inventory_panel.update_inventory_ui(
+			_inventory,
+			sell_item
+		)
+	else:
+		gameManager.hud.inventory_panel.update_inventory_ui(
+			_inventory,
+			_inventory.drop_item_at_index
+		)
+
+func sell_item(item_index: int):
+	var item = inventory.items[item_index]
+	var item_def = Item_Database.get_item_definition(item.id)
+
+	var bp = gameManager.hud.buy_panel.instantiate()
+	gameManager.hud.add_child(bp)
+	bp.label.text = "Sell %s" % [item_def.item_name]
+	bp.icon.texture = item_def.icon
+	bp.cost = item_def.value
+	bp.available_money = docked.gold
+	#bp.available_money = docked.inventory.item_amount(10)
+
+	var slider: Slider = bp.slider
+	slider.max_value = item.stack
+	slider.value = 1
+
+	bp.cancel.connect(func():
+		bp.queue_free()
+	)
+
+	bp.confirm.connect(func():
+		var sell_amount = bp.slider.value # or bp.slider.value
+		var cost = sell_amount * item_def.value
+		var item_to_sell = InventoryItem.new(item.id, sell_amount)
+
+		#if docked.inventory.item_amount(10) >= cost:
+		if docked.gold >= cost:
+			docked.remove_gold(cost)
+			gain_gold(cost)
+			if docked.inventory.has_space():
+				docked.inventory.add_item(item_to_sell)
+			else:
+				inventory.drop_item(item_to_sell)
+
+			inventory.consume_item(item_to_sell.id, item_to_sell.stack)
+			print("player sold item in index: " + str(item_index))
+		else:
+			print(docked.name + " doesn't have enough money for item in index: " + str(item_index))
+		
+		bp.queue_free()
+	)
+
 
 func _inventory_changed(_message: String):
 	gameManager.hud.new_notification(_message)
@@ -119,6 +176,8 @@ func _input(event: InputEvent) -> void:
 			yaw_deg = yaw_deg - 22.5
 		if event.keycode == KEY_X:
 			emergency_brake()
+		if dockable_port != null and event.keycode == KEY_SPACE:
+			dockable_port.dock()
 
 
 func _on_boarding_area_body_entered(body: Node3D) -> void:
