@@ -19,6 +19,7 @@ class_name World
 @export_group("Spawn data")
 @export var ports_amount: int
 @export var min_distance_between_ports: float = 100.0
+@export var nominal_ship_count: int = 20
 
 @export_group("Sun")
 @export var sun_gradient: Gradient
@@ -64,6 +65,16 @@ func _ready():
 
 	terrain.create_terrain()
 
+	ship_spawner()
+
+func ship_spawner():
+	var radius := 75.0
+	while true:
+		await get_tree().create_timer(10.0).timeout
+		var all_ships = get_tree().get_nodes_in_group("Ships")
+		if all_ships.size() < nominal_ship_count:
+			var _new_ships = gameManager.spawn_ships_around_player(1, radius)
+		
 
 func scatter_scatterers(_heightmap):
 	print("Scattering scatterers");
@@ -110,7 +121,7 @@ func _on_time_changed(_time: float):
 	moon.rotation_degrees.x = angle - 90.0
 	sun.rotation_degrees.x = angle + 90.0
 	var t = normalized_time # 0–1
-	sun.light_energy = max(0.0, sin(t * PI)) * 2.0
+	sun.light_energy = max(0.0, sin(t * PI)) * 1.5
 	sun.light_color = sun_gradient.sample(normalized_time)
 	moon.light_energy = max(0.0, 1.0 - max(0.0, sin(t * PI)))
 

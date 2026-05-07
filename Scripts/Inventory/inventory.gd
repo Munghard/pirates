@@ -38,8 +38,27 @@ func item_amount(id: int) -> int:
 	for item in items:
 		if item != null and item.id == id:
 			total += item.stack
-			return total
-	return 0
+	return total
+
+func consume_item_at(index: int, amount: int) -> bool:
+	var remaining := amount
+	var item = items[index]
+
+	if item == null:
+		return false
+
+	var take = min(item.stack, remaining)
+	item.stack -= take
+	remaining -= take
+
+	if item.stack == 0:
+		remove_item_at(index)
+		inventory_changed.emit(self )
+
+	if remaining <= 0:
+		inventory_changed.emit(self )
+
+	return true
 
 
 func consume_item(id: int, amount: int) -> bool:
@@ -72,7 +91,7 @@ func consume_item(id: int, amount: int) -> bool:
 
 
 func new_notification(message: String):
-	print(message);
+	#print(message);
 	inventory_notification.emit(message)
 
 func clear():

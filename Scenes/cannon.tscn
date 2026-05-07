@@ -110,21 +110,20 @@ resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_nsfx8")
 size = Vector2(5, 5)
 
-[node name="Cannon" type="Node3D" unique_id=101832743 node_paths=PackedStringArray("canon", "particle", "particle1", "pb")]
+[sub_resource type="BoxMesh" id="BoxMesh_3uv2y"]
+size = Vector3(0.3, 0.2, 0.5)
+
+[node name="Cannon" type="Node3D" unique_id=101832743 node_paths=PackedStringArray("canon", "particle", "particle1", "light", "pb")]
 script = ExtResource("1_qskhg")
 cannon_ball = ExtResource("2_dqm4n")
 canon = NodePath("direction")
 particle = NodePath("direction/GPUParticles3D")
 particle1 = NodePath("direction/GPUParticles3D2")
+light = NodePath("direction/OmniLight3D")
 pb = NodePath("SubViewport/Control/pb_canon")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1892053795]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.37600556)
-light_color = Color(1, 0.25, 0, 1)
-light_energy = 0.0
-
 [node name="direction" type="Node3D" parent="." unique_id=140954952]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.1956411, 0)
 
 [node name="mesh" type="MeshInstance3D" parent="direction" unique_id=1114620963]
 transform = Transform3D(0.9999999, 0, 0, 0, -4.371138e-08, -0.99999994, 0, 0.9999998, -4.3711385e-08, 0, 0, 0)
@@ -150,6 +149,11 @@ explosiveness = 1.0
 randomness = 0.31
 process_material = SubResource("ParticleProcessMaterial_t0owi")
 draw_pass_1 = SubResource("SphereMesh_dqm4n")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="direction" unique_id=1892053795]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.37600556)
+light_color = Color(1, 0.25, 0, 1)
+light_energy = 0.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1565056926]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.750824, 2)
@@ -188,3 +192,7 @@ theme = ExtResource("3_0jbhj")
 theme_type_variation = &"crew_pb"
 value = 15.78
 show_percentage = false
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=671073467]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.09296736, -0.07100126)
+mesh = SubResource("BoxMesh_3uv2y")

@@ -22,7 +22,8 @@ var time: float = 0.0
 @onready var gameManager: GameManager = get_node_or_null("/root/GameManager")
 
 func _enter_tree():
-	terrain.heightmap_created.connect(_on_heightmap_created)
+	if not terrain.heightmap_created.is_connected(_on_heightmap_created):
+		terrain.heightmap_created.connect(_on_heightmap_created)
 
 func _ready():
 	# This is usually a viewport texture or a generated ImageTexture

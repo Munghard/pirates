@@ -7,6 +7,7 @@ var allegiance: Allegiance
 var inventory: Inventory
 @export var port_ui: PackedScene
 
+var agro_range := 25
 var gold := 500
 var player_ship: PlayerShip
 var docked := false
@@ -15,7 +16,9 @@ var ui: Control
 var inventory_panel
 signal docking_changed(ship: Ship)
 signal in_docking_radius(value: bool)
-signal gold_changed(amount: int, gained: bool)
+signal gold_changed(amount: int)
+
+@onready var cannon_layout_port: Cannons_port = $Cannons
 
 @export_group("World UI")
 @onready var world_bars: Node3D = $world_bars
@@ -33,24 +36,96 @@ func _ready():
 	var faction := FactionsData.roll_faction()
 	var nation := FactionsData.roll_nation()
 	allegiance = Allegiance.new(nation, faction, faction_texture)
+	
 	setup_inventory()
+
+	var faction_data = FactionsData.get_faction_stats(faction)
+	gold = faction_data.gold
 	
 	# just mocking the bars for now
 	ship_healthbar.value = 100.0
 	crew_healthbar.value = 100.0
 	recovery_healthbar.value = 100.0
+	gold_changed.connect(_on_gold_changed)
 
+func get_closest_enemy_ship():
+	var ship_nodes: Array = get_tree().get_nodes_in_group("Ships")
+	var ships: Array[Ship] = []
+	for n in ship_nodes:
+		if n is Ship:
+			ships.append(n)
+	
+	var enemy_factions: Array[FactionsData.Faction] = FactionsData.get_enemy_factions(allegiance.faction)
+	var enemy_ships := GameManager.get_ships_by_faction(ships, enemy_factions)
+	var _closest_ship := GameManager.get_closest_ship(enemy_ships, self )
+	return _closest_ship
+
+var targeting_timer := 0.0
+var targeting_interval := 5.0
+var closest_ship: Ship
+
+func handle_targeting(delta: float):
+	targeting_timer -= delta
+	if targeting_timer <= 0.0:
+		targeting_timer = targeting_interval
+
+		var new_target = get_closest_enemy_ship()
+
+		if new_target:
+			var in_range = global_position.distance_squared_to(new_target.global_position) < agro_range * agro_range
+
+			if in_range:
+				closest_ship = new_target
+			else:
+				closest_ship = null
+
+		for c in cannon_layout_port.cannons:
+			c.active = closest_ship != null
+		if closest_ship:
+			gameManager.hud.ddd_label(
+				"Target acquired " + closest_ship.ship_name,
+				global_position,
+				Color.WHEAT
+			)
+
+	if closest_ship:
+		_handle_shooting(closest_ship.global_position, delta)
+
+
+func _handle_shooting(target: Vector3, delta: float):
+	#print("port shooting");
+	var dist = global_position.distance_to(target)
+
+	var cannons = cannon_layout_port.cannons
+
+	for i in range(cannons.size()):
+		var cannon: Cannon = cannons[i]
+		var dir_to_target = (target - cannon.global_position).normalized()
+		var angle_to_target = rad_to_deg(atan2(dir_to_target.x, dir_to_target.z))
+		var current = cannon.global_rotation_degrees.y
+		var diff = wrapf(current - angle_to_target, -180, 180)
+		var target_angle = current - diff
+		var target_degrees = lerp(current, target_angle, delta)
+		cannon.global_rotation_degrees.y = target_degrees
+
+		var pitch = dist / 2.0
+		cannon.pitch = clampf(pitch, -25.0, 25.0)
+		
+		if abs(diff) < 15.0 and inventory.has_item(3, 1):
+			cannon.shoot(1.0, self , gameManager.audioManager)
+
+	
 func has_gold(amount: int) -> bool:
 	return gold >= amount
 
 
 func gain_gold(_gold: int):
 	gold += _gold
-	emit_signal("gold_changed", _gold, true)
+	emit_signal("gold_changed", _gold)
 
 func remove_gold(_gold: int):
 	gold -= _gold
-	emit_signal("gold_changed", _gold, false)
+	emit_signal("gold_changed", _gold)
 
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, port_name + " market")
@@ -71,6 +146,8 @@ func _input(event):
 				depart()
 
 func _process(delta):
+	handle_targeting(delta)
+
 	if departing and player_ship:
 		if player_ship.global_position.distance_to(global_position) > 200.0:
 			departing = false
@@ -150,6 +227,7 @@ func depart():
 	player_ship.gameManager.hud.set_player_inventory_panel_visible(false)
 	docked = false
 	docking_changed.emit(null)
+	left_port()
 
 	if player_ship:
 		player_ship.set_docked(null)
@@ -166,6 +244,15 @@ func sell(item: InventoryItem, seller: Node3D):
 		seller.gain_gold(value)
 	else:
 		print("Seller isnt a ship, probably a port");
+
+func _on_gold_changed(_gold: int):
+	if ui:
+		var label_gold: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_gold")
+		label_gold.text = "Gold: %s" % gold
+
+func left_port():
+	pass
+	
 
 func entered_port():
 	# delete existing ui if any
@@ -186,36 +273,38 @@ func entered_port():
 	label_gold.text = "Gold: %s"%gold
 	label_faction.text = "%s\n%s" % [FactionsData.NATION_NAMES.get(allegiance.nation), FactionsData.FACTION_NAMES.get(allegiance.faction)]
 	
-	gold_changed.connect(func(_gold, _gained): label_gold.text = "Gold: %s"%gold)
-
 	inventory_panel = ui.get_node("HBoxContainer/Inventory_panel")
 	if not inventory.inventory_changed.is_connected(_on_inventory_changed):
 		inventory.inventory_changed.connect(_on_inventory_changed)
-	inventory_panel.update_inventory_ui(inventory, buy_item)
+	inventory_panel.update_inventory_ui(inventory, buy_item, func(_index): pass )
 
 	var ps = player_ship
 
+	var root = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer")
 	# create upgrades
-	create_upgrade_ui(ui, "SUPPLIES", "Buy supplies", 100, func(): ps.gain_supplies(100))
-	create_upgrade_ui(ui, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
-	create_upgrade_ui(ui, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
-	create_upgrade_ui(ui, "CREW", "Hire crew", 100, func(): ps.gain_crew(1))
-	create_upgrade_ui(ui, "CREW", "Recruit crew", 0, func(): ps.gain_crew(1))
-	create_upgrade_ui(ui, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
-	create_upgrade_ui(ui, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
-	create_upgrade_ui(ui, "COMBAT", "Upgrade defense", 500, func(): ps.defense += 1.0)
+	create_upgrade_ui(root, "SUPPLIES", "Buy supplies", 100, func(): ps.gain_supplies(100))
+	create_upgrade_ui(root, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
+	create_upgrade_ui(root, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
+	create_upgrade_ui(root, "CREW", "Hire crew", 100, func(): ps.gain_crew(1))
+	create_upgrade_ui(root, "CREW", "Recruit crew", 0, func(): ps.gain_crew(1))
+	create_upgrade_ui(root, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
+	create_upgrade_ui(root, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
+	create_upgrade_ui(root, "COMBAT", "Upgrade defense", 500, func(): ps.defense += 1.0)
 
 func _on_inventory_changed(_inventory: Inventory):
 	if inventory_panel:
 		inventory_panel.update_inventory_ui(
 			_inventory,
-			buy_item
+			buy_item,
+			func(_index): pass ,
 		)
 
 func buy_item(item_index: int):
 	var _player_ship = gameManager.player_ship
 	
 	var item = inventory.items[item_index]
+	if not item:
+		return
 	var item_def = Item_Database.get_item_definition(item.id)
 
 	var bp = gameManager.hud.buy_panel.instantiate()
@@ -255,9 +344,7 @@ func buy_item(item_index: int):
 		bp.queue_free()
 	)
 
-func create_upgrade_ui(_ui: Control, category: String, upgrade_name: String, upgrade_cost: int, function: Callable):
-	var root = _ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer")
-
+func create_upgrade_ui(root: Control, category: String, upgrade_name: String, upgrade_cost: int, function: Callable):
 	# Try to find existing category container
 	var category_vbox: VBoxContainer = root.get_node_or_null(category)
 

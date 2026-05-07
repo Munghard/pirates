@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://dn20k5bjbl0qp"]
+
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_u0rrq"]
+[ext_resource type="Script" uid="uid://3trdjip8bhrm" path="res://UI/prompt.gd" id="2_u0rrq"]
+[ext_resource type="Texture2D" uid="uid://b3thhvth104ux" path="res://Textures/fishing-net.png" id="3_bum5y"]
+
+[node name="Prompt_panel" type="PanelContainer" unique_id=683077697 node_paths=PackedStringArray("label_h", "label_message", "button_cancel", "button_confirm", "icon")]
+custom_minimum_size = Vector2(250, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -125.0
+offset_top = -138.0
+offset_right = 125.0
+offset_bottom = 62.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_u0rrq")
+script = ExtResource("2_u0rrq")
+label_h = NodePath("MarginContainer/VBoxContainer/Label_h")
+label_message = NodePath("MarginContainer/VBoxContainer/Label_message")
+button_cancel = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/Button_cancel")
+button_confirm = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/Button_confirm")
+icon = NodePath("MarginContainer/VBoxContainer/icon")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=693553752]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=573109242]
+layout_mode = 2
+
+[node name="Label_h" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1914290970]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Header"
+horizontal_alignment = 1
+
+[node name="icon" type="TextureRect" parent="MarginContainer/VBoxContainer" unique_id=27253774]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("3_bum5y")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label_message" type="Label" parent="MarginContainer/VBoxContainer" unique_id=744086713]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "message"
+horizontal_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=205625406]
+layout_mode = 2
+alignment = 1
+
+[node name="Button_cancel" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1131693891]
+layout_mode = 2
+text = "Cancel"
+
+[node name="Button_confirm" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1428320286]
+layout_mode = 2
+text = "Confirm"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/Button_cancel" to="." method="_on_button_cancel_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/Button_confirm" to="." method="_on_button_confirm_pressed"]

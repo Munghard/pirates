@@ -5,8 +5,8 @@ class_name Cannon
 @export var canon: Node3D
 @export var particle: GPUParticles3D
 @export var particle1: GPUParticles3D
-@onready var canon_mesh: Node3D = canon.get_node("mesh")
-@onready var light: OmniLight3D = $OmniLight3D
+@onready var cannon_mesh: Node3D = canon.get_node("mesh")
+@export var light: OmniLight3D
 
 
 @export var pb: ProgressBar
@@ -70,7 +70,7 @@ func _process(delta):
 		pb.max_value = fire_rate
 		emit_signal("_fire_timer_changed", fire_timer)
 	#visual
-	canon_mesh.rotation_degrees.x = - pitch + 90
+	cannon_mesh.rotation_degrees.x = - pitch + 90
 	if active:
 		create_line()
 	elif line:

@@ -85,7 +85,7 @@ func update_minimap():
 		add_blip_to_minimap(floater, color, 0.5, blip_scene)
 	
 	for port: Node3D in get_tree().get_nodes_in_group("Ports"):
-		var color = Color(0, 1, 0, 0.5)
+		var color = FactionsData.get_faction_color(port.allegiance.faction)
 		add_blip_to_minimap(port, color, 1.25, blip_scene)
 
 func add_blip_to_minimap(node: Node3D, color: Color, _scale: float, _blip_scene: PackedScene):

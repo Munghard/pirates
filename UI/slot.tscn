@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://chrt2xt3y3x4p"]
 
 [ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="1_p5h00"]
+[ext_resource type="Script" uid="uid://biyagq3e63u0f" path="res://Scripts/slot.gd" id="1_ycaob"]
 
 [sub_resource type="Gradient" id="Gradient_67in8"]
 offsets = PackedFloat32Array(0, 0.88328075, 0.9544073, 0.9726444)
@@ -24,12 +25,37 @@ height = 86
 fill = 2
 fill_from = Vector2(0.5, 0.5)
 
+[sub_resource type="Gradient" id="Gradient_ycaob"]
+colors = PackedColorArray(1, 1, 1, 0.26666668, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_wosx4"]
+gradient = SubResource("Gradient_ycaob")
+fill_from = Vector2(1, 1)
+fill_to = Vector2(0.98717946, 0.2820513)
+
 [node name="slot" type="TextureButton" unique_id=464758293]
 custom_minimum_size = Vector2(86, 86)
 offset_right = 86.0
 offset_bottom = 86.0
 texture_normal = SubResource("GradientTexture2D_m4ryr")
 texture_hover = SubResource("GradientTexture2D_ycaob")
+script = ExtResource("1_ycaob")
+
+[node name="Color" type="TextureRect" parent="." unique_id=1655113209]
+modulate = Color(1, 0.42000002, 0.42000002, 1)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -38.0
+offset_top = -38.0
+offset_right = 38.0
+offset_bottom = 38.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_wosx4")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=895840959]
 layout_mode = 1
@@ -94,3 +120,6 @@ horizontal_alignment = 2
 vertical_alignment = 2
 autowrap_mode = 1
 text_overrun_behavior = 5
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

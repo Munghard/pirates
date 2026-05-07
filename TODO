@@ -1,17 +1,21 @@
+rum consume to regen morale
+
+make a fishing mechanic
+
 work on selling items at ports
 
 port factions, trades different items, ie. slaver port buys shackles, pirate ports buy rum etc.
 
 make cannons that spawn on certain ports, cannons also have nation and shoots at rival nations
 
-interesting idea, you have a stat max_cargo space lets say 500, and cargo space is shared between supplies and gold, so you have to manage looting in a way where you can dump supplies to take on more gold.
+neat idea, you have a stat max_cargo space lets say 500, and cargo space is shared between supplies and gold, so you have to manage looting in a way where you can dump supplies to take on more gold.
 
-another idea, food stat that slowly depletes when you are voyaging, food <= 0, crew starts dying one by one.
+neat idea, food stat that slowly depletes when you are voyaging, food <= 0, crew starts dying one by one.
 
-neat idea :plug heightmap into bird particle so you get birds where theres land and not everywhere
+neat idea, plug heightmap into bird particle so you get birds where theres land and not everywhere
 
 neat idea, dump items to get more speed and get away from attackers or to catch up with a ship,
-
+neat idea, fishing gear accumulates rations over time
 
 TRY WEB BUILD TO SEE HOW IT WORKS
 RESEARCH WEB MULTIPLAYER

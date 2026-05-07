@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="2_8t5up"]
 [ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="4_42ohx"]
 
-[node name="Player_ship_panel" type="FoldableContainer" unique_id=1821436781 node_paths=PackedStringArray("flag_texture_rect", "faction_texture_rect", "label_h", "label_f", "status_label", "stats_label", "hitpoints_pb", "crew_pb", "recovery_pb", "release_button", "tab_bar", "status_panel", "stats_panel", "cannons_panel")]
+[node name="Player_ship_panel" type="FoldableContainer" unique_id=1821436781 node_paths=PackedStringArray("flag_texture_rect", "faction_texture_rect", "label_h", "label_f", "status_label", "stats_label", "fleet_label", "hitpoints_pb", "crew_pb", "recovery_pb", "morale_pb", "release_button", "tab_bar", "status_panel", "stats_panel", "cannons_panel", "fleet_panel")]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -24,14 +24,17 @@ label_h = NodePath("MarginContainer/VBoxContainer2/Label_h")
 label_f = NodePath("MarginContainer/VBoxContainer2/Label_f")
 status_label = NodePath("MarginContainer/VBoxContainer2/Status/Label_status")
 stats_label = NodePath("MarginContainer/VBoxContainer2/Stats/Label_stats")
+fleet_label = NodePath("MarginContainer/VBoxContainer2/Fleet/Label_fleet")
 hitpoints_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_health")
 crew_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_crew")
 recovery_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_recovery")
+morale_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_morale")
 release_button = NodePath("MarginContainer/VBoxContainer2/Status/release_button")
 tab_bar = NodePath("MarginContainer/VBoxContainer2/TabBar")
 status_panel = NodePath("MarginContainer/VBoxContainer2/Status")
 stats_panel = NodePath("MarginContainer/VBoxContainer2/Stats")
 cannons_panel = NodePath("MarginContainer/VBoxContainer2/Cannons")
+fleet_panel = NodePath("MarginContainer/VBoxContainer2/Fleet")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=525341913]
 layout_mode = 2
@@ -40,9 +43,11 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="texture_flag" type="TextureRect" parent="MarginContainer/VBoxContainer2" unique_id=435471963]
+custom_minimum_size = Vector2(20, 50)
 layout_mode = 2
 texture = ExtResource("2_8t5up")
-expand_mode = 5
+expand_mode = 1
+stretch_mode = 4
 
 [node name="ColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer2/texture_flag" unique_id=850960465]
 layout_mode = 1
@@ -81,10 +86,11 @@ text = "Faction"
 layout_mode = 2
 current_tab = 0
 clip_tabs = false
-tab_count = 3
+tab_count = 4
 tab_0/title = "Status"
 tab_1/title = "Stats"
 tab_2/title = "Cannons"
+tab_3/title = "Fleet"
 
 [node name="Status" type="VBoxContainer" parent="MarginContainer/VBoxContainer2" unique_id=399619905]
 layout_mode = 2
@@ -116,6 +122,15 @@ layout_mode = 2
 theme_type_variation = &"recovery_pb"
 value = 50.0
 
+[node name="Label_morale" type="Label" parent="MarginContainer/VBoxContainer2/Status" unique_id=26243730]
+layout_mode = 2
+text = "Morale"
+
+[node name="pb_morale" type="ProgressBar" parent="MarginContainer/VBoxContainer2/Status" unique_id=969703278]
+layout_mode = 2
+theme_type_variation = &"morale_pb"
+value = 50.0
+
 [node name="Label_status" type="Label" parent="MarginContainer/VBoxContainer2/Status" unique_id=315969818]
 layout_mode = 2
 text = "State: Idle"
@@ -126,6 +141,7 @@ text = "Release"
 
 [node name="Button_sink" type="Button" parent="MarginContainer/VBoxContainer2/Status" unique_id=583077401]
 layout_mode = 2
+focus_mode = 1
 text = "Sink ship"
 
 [node name="Stats" type="VBoxContainer" parent="MarginContainer/VBoxContainer2" unique_id=878780573]
@@ -133,12 +149,14 @@ layout_mode = 2
 
 [node name="Label_stats" type="Label" parent="MarginContainer/VBoxContainer2/Stats" unique_id=93678355]
 layout_mode = 2
-text = "speed:
-agility:
-attack:
-defense:"
 
 [node name="Cannons" type="VBoxContainer" parent="MarginContainer/VBoxContainer2" unique_id=709644122]
+layout_mode = 2
+
+[node name="Fleet" type="VBoxContainer" parent="MarginContainer/VBoxContainer2" unique_id=1357852474]
+layout_mode = 2
+
+[node name="Label_fleet" type="Label" parent="MarginContainer/VBoxContainer2/Fleet" unique_id=1813467961]
 layout_mode = 2
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer2/Status/Button_sink" to="." method="_on_button_sink_pressed"]

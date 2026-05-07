@@ -3,6 +3,7 @@ extends Node3D
 class_name Terrain
 
 @export_group("Assets")
+@export var rock: PackedScene
 @export var palm: PackedScene
 @export var terrain_material: Material
 
@@ -21,6 +22,7 @@ var terrain_cell_size: Vector2
 		regen = false
 
 @export_group("Vegetation")
+@export var rock_density: float = 0.2
 @export var tree_density: float = 0.2
 @export var height_min: float = 1.0
 @export var height_max: float = 8.0
@@ -109,7 +111,8 @@ func create_terrain_mesh():
 	mesh_instance.mesh.surface_set_material(0, terrain_material)
 	
 	# 2. Setup Trees (passing the same offset)
-	generate_trees_poisson()
+	generate_scatter_poisson(palm, tree_density)
+	generate_scatter_poisson(rock, rock_density)
 
 func get_downhill_direction(x: float, z: float) -> Vector3:
 	var step := 1.0
@@ -162,15 +165,13 @@ func get_height_world(x: float, z: float) -> float:
 
 	return n * terrain_height - terrain_height / 2.0
 
-func generate_trees_poisson():
-	if not palm: return
-	
-	var tree_container = Node3D.new()
-	tree_container.name = "Trees"
-	add_child(tree_container)
+func generate_scatter_poisson(asset_scene: PackedScene, density: float):
+	var scatter_container = Node3D.new()
+	scatter_container.name = "Scatter_assets"
+	add_child(scatter_container)
 	
 
-	var max_attempts = int(world_size.x * world_size.y * tree_density)
+	var max_attempts = int(world_size.x * world_size.y * density)
 	
 	for i in range(max_attempts):
 		var rx = randf() * world_size.x
@@ -180,7 +181,7 @@ func generate_trees_poisson():
 		var h = get_height_world(x, z)
 
 		if h >= height_min and h <= height_max:
-			var tree = palm.instantiate()
-			tree_container.add_child(tree)
-			tree.global_position = Vector3(x, h, z)
-			tree.rotate_y(randf() * TAU)
+			var asset = asset_scene.instantiate()
+			scatter_container.add_child(asset)
+			asset.global_position = Vector3(x, h, z)
+			asset.rotate_y(randf() * TAU)

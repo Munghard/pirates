@@ -1,8 +1,8 @@
 extends RigidBody3D
 
+@onready var prompt_scene: PackedScene = preload("res://UI/prompt.tscn")
 @export var lifeboat_ui: PackedScene
 var crew := 5
-var supplies := 20
 var gold_per_crew := 20
 var chance := 0.2
 var lbu
@@ -21,18 +21,47 @@ func _on_body_entered(body: Node) -> void:
 
 
 func _on_kill_pressed(player_ship: PlayerShip):
-	if randf() > 0.5:
-		player_ship.gain_gold(crew * gold_per_crew)
+	var message := ""
+	if randf() < chance:
+		if randf() > 0.5:
+			var _gold = crew * gold_per_crew
+			player_ship.gain_gold(_gold)
+			message += "Crew was slaughtered and you gained gold: " + str(_gold)
+		else:
+			var item_def = Item_Database.get_random_item_def()
+			var item = InventoryItem.new(item_def.id, randi_range(0, item_def.max_stack))
+			player_ship.gameManager.spawn_item_in_world(item, global_position)
+			message += "Crew was slaughtered and you recovered an item: " + item_def.item_name
 	else:
-		player_ship.gain_supplies(supplies)
-	#queue_free the lifeboat
-	queue_free()
+		var _crew = randi_range(0, crew)
+		player_ship.kill_crew(_crew)
+		message += "Fought the crew and lost " + str(_crew) + " crew"
+	
+	var prompt: Prompt = prompt_scene.instantiate()
+	prompt.setup("Skirmish results", message, load("res://Textures/pirate-flag.png"), false)
+	player_ship.gameManager.hud.add_child(prompt)
+	prompt.confirm.connect(func():
+		prompt.queue_free()
+		#queue_free the lifeboat
+		queue_free()
+	)
 
 
 func _on_recruit_pressed(player_ship: PlayerShip):
+	var message := ""
 	if randf() < chance:
 		player_ship.gain_crew(crew)
+		message += "Successfully recruited " + str(crew) + " crew"
 	else:
-		player_ship.kill_crew(int(float(crew) / 2.0))
-	#queue_free the lifeboat
-	queue_free()
+		var _crew = randi_range(0, crew)
+		message += "Failed at recruiting\nThe crew attacked and you lost " + str(_crew) + " crew"
+		player_ship.kill_crew(_crew)
+
+	var prompt: Prompt = prompt_scene.instantiate()
+	prompt.setup("Skirmish results", message, load("res://Textures/pirate-flag.png"), false)
+	player_ship.gameManager.hud.add_child(prompt)
+	prompt.confirm.connect(func():
+		prompt.queue_free()
+		#queue_free the lifeboat
+		queue_free()
+	)

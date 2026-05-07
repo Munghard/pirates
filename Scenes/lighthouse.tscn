@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://df6rrpx40pss0"]
+
+[ext_resource type="Script" uid="uid://cqjlhpydu6p2i" path="res://Scripts/lighthouse.gd" id="1_3v32o"]
+[ext_resource type="ArrayMesh" uid="uid://c2s68p53e8j77" path="res://Models/Lighthouse/CHAHIN_LIGHTHOUSE.obj" id="1_yevh3"]
+
+[node name="Lighthouse" type="Node3D" unique_id=1740008201]
+script = ExtResource("1_3v32o")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1295417766]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0.85030985, 0)
+mesh = ExtResource("1_yevh3")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="." unique_id=1687575528]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9601064, 0)
+light_color = Color(1, 0.5, 0, 1)
+light_energy = 100.0
+spot_range = 42.524605
+spot_angle = 65.04

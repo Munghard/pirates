@@ -52,6 +52,7 @@ script = ExtResource("2_1v7sr")
 target = NodePath("..")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=265744814]
+sorting_offset = -1000.0
 mesh = SubResource("QuadMesh_lf8sy")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

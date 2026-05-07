@@ -125,7 +125,6 @@ var depth_check_timer := 0.0
 func _process(_delta):
 	if gameManager.selected_ship:
 		ship_panel_target.update_ship_panel(gameManager.selected_ship)
-
 	
 	ship_panel_player.update_ship_panel(gameManager.player_ship)
 	depth_check_timer += _delta
@@ -217,8 +216,5 @@ func _on_board_button_pressed() -> void:
 # ================================================================================================================
 
 func _on_button_pass_time_pressed() -> void:
-	gameManager.world.pass_time(1.0)
-
-
-func _on_button_3_pressed() -> void:
-	gameManager.world.pass_time(6.0)
+	var slider = time_panel.get_node("MarginContainer/VBoxContainer/HSlider") as HSlider
+	gameManager.world.pass_time(slider.value)

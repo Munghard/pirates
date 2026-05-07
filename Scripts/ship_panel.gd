@@ -13,10 +13,12 @@ var ship: Ship
 @export var label_f: Label
 @export var status_label: Label
 @export var stats_label: Label
+@export var fleet_label: Label
 
 @export var hitpoints_pb: ProgressBar
 @export var crew_pb: ProgressBar
 @export var recovery_pb: ProgressBar
+@export var morale_pb: ProgressBar
 
 @export var release_button: Button
 @export var tab_bar: TabBar
@@ -24,6 +26,7 @@ var ship: Ship
 @export var status_panel: Control
 @export var stats_panel: Control
 @export var cannons_panel: Control
+@export var fleet_panel: Control
 
 func _ready() -> void:
 	tab_bar.tab_clicked.connect(_on_tab_pressed)
@@ -43,6 +46,7 @@ func set_active_tab(_tab: int):
 	stats_panel.visible = false
 	status_panel.visible = false
 	cannons_panel.visible = false
+	fleet_panel.visible = false
 	match _tab:
 		0:
 			status_panel.visible = true
@@ -51,6 +55,8 @@ func set_active_tab(_tab: int):
 		2:
 			create_canon_ui(ship)
 			cannons_panel.visible = true
+		3:
+			fleet_panel.visible = true
 
 func _on_release_pressed(_ship: Ship):
 	print("release pressed")
@@ -66,6 +72,7 @@ func update_ship_panel(_ship: Ship):
 		crew_pb.visible = false
 		hitpoints_pb.visible = false
 		recovery_pb.visible = false
+		morale_pb.visible = false
 		release_button.visible = false
 		flag_texture_rect.visible = false
 		return
@@ -74,6 +81,7 @@ func update_ship_panel(_ship: Ship):
 		crew_pb.visible = true
 		hitpoints_pb.visible = true
 		recovery_pb.visible = true
+		morale_pb.visible = true
 		release_button.visible = true
 		flag_texture_rect.visible = true
 
@@ -84,7 +92,8 @@ func update_ship_panel(_ship: Ship):
 
 	release_button.visible = _ship.boarded_by != null
 	
-	flag_texture_rect.texture = FactionsData.get_flag(_ship.nation, _ship.faction)
+	var flag_texture = FactionsData.get_flag(_ship.nation, _ship.faction)
+	flag_texture_rect.texture = flag_texture
 
 	var ship_name = ""
 	
@@ -105,7 +114,11 @@ func update_ship_panel(_ship: Ship):
 	
 	var stats_text = ""
 	var status_text = ""
+	var fleet_text = ""
 	if _ship:
+		fleet_text += "Controlled ships:\n"
+		for s in ship.controlled_ships:
+			fleet_text += s.ship_name + "\n"
 		# debug info
 		# ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
 		# ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
@@ -116,8 +129,6 @@ func update_ship_panel(_ship: Ship):
 		stats_text += "\nAttack: %.2f" % [_ship.attack]
 		stats_text += "\nDefense: %.2f" % [_ship.defense]
 		stats_text += "\nGold: %.2f" % [_ship.gold]
-		stats_text += "\nSupplies: %.2f" % [_ship.supplies]
-		stats_text += "\nGuns: %.2f" % [_ship.guns]
 		
 		crew_pb.max_value = _ship.max_crew
 		crew_pb.value = _ship.crew
@@ -126,6 +137,9 @@ func update_ship_panel(_ship: Ship):
 
 		recovery_pb.value = progress
 		recovery_pb.max_value = 1.0
+
+		morale_pb.value = _ship.morale
+		morale_pb.max_value = 100.0
 		
 		hitpoints_pb.max_value = _ship.max_hit_points
 		hitpoints_pb.value = _ship.hit_points
@@ -133,6 +147,7 @@ func update_ship_panel(_ship: Ship):
 
 	status_label.text = ai_text + status_text
 	stats_label.text = stats_text
+	fleet_label.text = fleet_text
 
 func create_canon_ui(_ship: Ship):
 	for child in cannons_panel.get_children():

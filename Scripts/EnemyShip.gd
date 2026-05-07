@@ -80,13 +80,10 @@ func _ready() -> void:
 	attack = faction_stats.attack
 	defense = faction_stats.defense
 	top_speed = faction_stats.speed
-	guns = faction_stats.guns
 	gold = faction_stats.gold
-	supplies = faction_stats.supplies
 	crew = faction_stats.max_crew
 	max_crew = faction_stats.max_crew
 
-	setup_guns()
 	set_faction_texture()
 	set_stars(level)
 	ship_pivot.set_flag()
@@ -98,24 +95,27 @@ func _ready() -> void:
 	connect("boarded_changed", Callable(self , "_on_boarded_changed"))
 	
 	set_state(AIState.ENROUTE)
-	setup_inventory()
 
 	navigation_markers.visible = false
 	world_bars.visible = false
 
+	setup_inventory()
+	setup_cannons()
 
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
+	inventory.inventory_changed.connect(_on_inventory_changed)
 	await get_tree().process_frame
 		
 	var items := FactionsData.get_faction_inventory(faction)
 	for item in items:
 		inventory.add_item(item)
-
+	
 
 func _on_damage_recieved(_damage: float, _attacker: Node3D):
 	attacker = _attacker
 	target_point = attacker.global_position
+	
 	if _attacker is Ship:
 		var ship = _attacker as Ship
 		if ai_state == AIState.CAPTURED:
@@ -123,7 +123,7 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		if ship and FactionsData.is_enemy(faction, ship.faction):
 			#compare ship stats and decide what to do
 			set_state(AIState.COMBAT)
-			if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item(3, 1):
+			if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item(2, 1) and inventory.has_item(3, 1):
 				set_combat_state(CombatState.PURSUE)
 			else:
 				set_combat_state(CombatState.FLEE)
@@ -405,7 +405,6 @@ func spawn_lifeboat():
 	gameManager.world.add_child(l)
 	l.global_position = global_position
 	l.global_position.y = 0
-	l.supplies = supplies
 	l.crew = crew
 
 

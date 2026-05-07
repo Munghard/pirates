@@ -4,6 +4,8 @@
 [ext_resource type="Script" uid="uid://qgd5q2n4avh1" path="res://Scripts/Port.gd" id="2_pyx3s"]
 [ext_resource type="PackedScene" uid="uid://b3nnix6jurcl3" path="res://UI/Port_panel.tscn" id="3_gfjmb"]
 [ext_resource type="PackedScene" uid="uid://c8lqfix34gnpp" path="res://UI/ship_world_bars.tscn" id="4_fn2mj"]
+[ext_resource type="Script" uid="uid://s3kjyhbgh674" path="res://Scripts/cannon_layout_port.gd" id="5_4g063"]
+[ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="6_w7ulp"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gfjmb"]
 height = 4.0
@@ -95,6 +97,26 @@ light_energy = 2.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=68640573]
 mesh = SubResource("QuadMesh_w7ulp")
+
+[node name="Cannons" type="Node3D" parent="." unique_id=678394786 node_paths=PackedStringArray("port", "cannon_points")]
+script = ExtResource("5_4g063")
+port = NodePath("..")
+cannon_scene = ExtResource("6_w7ulp")
+length = 10.0
+width = 10.0
+cannon_points = [NodePath("cannon_point"), NodePath("cannon_point2"), NodePath("cannon_point3"), NodePath("cannon_point4")]
+
+[node name="cannon_point" type="Node3D" parent="Cannons" unique_id=1176160967]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.060614, -4.7683716e-07, -1.8817763)
+
+[node name="cannon_point2" type="Node3D" parent="Cannons" unique_id=1441454992]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.572884, -4.7683716e-07, -1.8817763)
+
+[node name="cannon_point3" type="Node3D" parent="Cannons" unique_id=1837753472]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.572884, -4.7683716e-07, 3.1438737)
+
+[node name="cannon_point4" type="Node3D" parent="Cannons" unique_id=727286117]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2834148, -4.7683716e-07, 5.5756054)
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

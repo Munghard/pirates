@@ -23,10 +23,8 @@ var agility := 1.0
 var attack := 1.0
 var defense := 1.0
 var gold := 0
-var supplies := 100
-var max_supplies := 100
-var guns := 1
 var sunk := false
+var morale := 100.0
 
 var actual_speed := 0.0
 
@@ -75,12 +73,21 @@ var docked: Port
 signal docked_changed(port: Port)
 signal dockable_port_changed(port: Port)
 
-signal gold_changed(amount: int, gained: bool)
-signal crew_changed(amount: int, gained: bool)
-signal supplies_changed(amount: int, gained: bool)
-signal recieved_damage(amount: float, attacker: Node3D)
+signal gold_changed(amount: int)
+signal gold_gained(amount: int)
+signal gold_lost(amount: int)
+
+signal crew_changed(amount: int)
+signal crew_gained(amount: int)
+signal crew_lost(amount: int)
+
+signal morale_changed(current: float)
+signal morale_gained(current: float)
+signal morale_lost(current: float)
+
 signal hit_points_changed(amount: float)
 signal recovery_changed(time: float)
+signal recieved_damage(amount: float, attacker: Node3D)
 signal on_sink
 signal on_destroyed(destroyer: Node3D)
 signal boarding_target_changed(ship: Ship)
@@ -116,6 +123,15 @@ func _ready():
 	recovery_healthbar.value = 1.0
 	recovery_healthbar.max_value = 1.0
 
+func setup_inventory():
+	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
+	inventory.inventory_changed.connect(_on_inventory_changed)
+	
+	setup_cannons()
+
+func _on_inventory_changed(_inventory: Inventory):
+	setup_cannons()
+
 func set_docked(port: Port): # port null means not docked
 	docked = port
 	docked_changed.emit(port)
@@ -141,13 +157,13 @@ func _on_recovery_changed(_progress: float):
 		return
 	recovery_healthbar.value = _progress
 
-func _on_hit_points_changed(_amount: float):
+func _on_hit_points_changed(_hp: float):
 	if not ship_healthbar:
 		return
 	ship_healthbar.value = hit_points
 	ship_healthbar.max_value = max_hit_points
 
-func _on_crew_changed(_amount: int, _gained: bool):
+func _on_crew_changed(_crew: int):
 	if not crew_healthbar:
 		return
 	crew_healthbar.value = crew
@@ -156,32 +172,59 @@ func _on_crew_changed(_amount: int, _gained: bool):
 func set_faction_texture():
 	faction_texture.texture = FactionsData.get_faction_icon(faction)
 
-func setup_guns():
-	cannons_layout.create_canons(int(float(guns) / 2.0), int(float(guns) / 2.0), int(float(guns) / 4.0))
+var previous_cannons = 0
+
+func setup_cannons():
+	var total = inventory.item_amount(2)
+
+	if total == previous_cannons:
+		return
+
+	previous_cannons = total
+
+	# weights
+	var bow_weight = 0.15
+	var side_weight = 0.35
+	#var stern_weight = 0.15
+
+	var bow = roundi(total * bow_weight)
+	var port = roundi(total * side_weight)
+	var starboard = roundi(total * side_weight)
+
+	# give remaining to stern
+	#var stern = total - bow - port - starboard
+
+	cannons_layout.create_canons(
+		port,
+		starboard,
+	#	stern,
+		bow,
+		trajectories
+	)
+
 # GET AND REMOVE STATS
+func gain_morale(_amount: float):
+	morale = clampf(morale + _amount, 0.0, 100.0)
+	emit_signal("morale_changed", morale)
+	emit_signal("morale_gained", _amount)
+
+func lose_morale(_amount: float):
+	morale = clampf(morale - _amount, 0.0, 100.0)
+	emit_signal("morale_changed", morale)
+	emit_signal("morale_lost", _amount)
 
 func has_gold(_gold: int) -> bool:
 	return gold >= _gold
 	
 func gain_gold(_gold: int):
 	gold += _gold
-	emit_signal("gold_changed", _gold, true)
+	emit_signal("gold_changed", gold)
+	emit_signal("gold_gained", _gold)
 
 func remove_gold(_gold: int):
 	gold -= _gold
-	emit_signal("gold_changed", _gold, false)
-
-func gain_supplies(_supplies: int):
-	if supplies >= max_supplies:
-		return
-	supplies += _supplies
-	emit_signal("supplies_changed", _supplies, true)
-
-func lose_supplies(_supplies: int):
-	if supplies <= 0:
-		return
-	supplies -= _supplies
-	emit_signal("supplies_changed", _supplies, false)
+	emit_signal("gold_changed", gold)
+	emit_signal("gold_lost", _gold)
 
 func gain_crew(amount: int):
 	if crew >= max_crew:
@@ -189,7 +232,8 @@ func gain_crew(amount: int):
 	#gameManager.hud.ddd_label("%s CREW GAINED!" % str(amount), position)
 	crew += amount
 	crew = min(crew, max_crew)
-	emit_signal("crew_changed", amount, true)
+	emit_signal("crew_gained", amount)
+	emit_signal("crew_changed", crew)
 
 func kill_crew(amount: int):
 	if crew <= 0:
@@ -197,12 +241,15 @@ func kill_crew(amount: int):
 	#gameManager.hud.ddd_label("%s CREW LOST!" % str(amount), position)
 	crew -= amount
 	crew = max(crew, 0)
-	emit_signal("crew_changed", amount, false)
-	if crew <= 0:
-		destroy_ship(attacker)
+	emit_signal("crew_lost", amount)
+	emit_signal("crew_changed", crew)
+	#if crew <= 0:
+		#destroy_ship(attacker)
 
 
 func destroy_ship(destroyer: Node3D):
+	if destroyed:
+		return
 	on_destroyed.emit(destroyer)
 	destroyed = true
 	navigation_markers.queue_free()
@@ -215,7 +262,7 @@ func destroy_ship(destroyer: Node3D):
 var ration_interval := 30000 # 30 seconds
 var last_ration := 0.0
 
-func ration():
+func ration_drain():
 	last_ration = Time.get_ticks_msec()
 	if inventory.has_item(0, 1):
 		inventory.consume_item(0, 1)
@@ -223,8 +270,18 @@ func ration():
 		kill_crew(1)
 
 # ================================================================================================================
-# CREW RATIONS
+# MORALE
 # ================================================================================================================
+
+var morale_interval := 10000 # 30 seconds
+var last_morale := 0.0
+
+func morale_drain():
+	last_morale = Time.get_ticks_msec()
+	if inventory.has_item(1, 1):
+		inventory.consume_item(1, 1)
+	else:
+		lose_morale(1.0)
 
 
 # GET AND REMOVE STATS
@@ -232,9 +289,17 @@ func _process(_delta):
 	ship_pivot.position = Vector3.ZERO
 	var elapsed_since_damage := Time.get_ticks_msec() - last_damage_time
 	var elapsed_since_ration := Time.get_ticks_msec() - last_ration
+	var elapsed_since_morale := Time.get_ticks_msec() - last_morale
 
-	if elapsed_since_ration > ration_interval:
-		ration()
+	if not docked:
+		if elapsed_since_ration > ration_interval:
+			ration_drain()
+		
+		if elapsed_since_morale > morale_interval:
+			morale_drain()
+	else:
+		gain_morale(_delta)
+
 
 	if destroyed:
 		return
@@ -427,7 +492,8 @@ func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: N
 		gameManager.hud.ddd_label("INCAPACITATED!", position, Color.CYAN)
 	
 	if hit_points <= 0:
-		destroyed = true
+		destroy_ship(_attacker)
+		#destroyed = true
 
 	damage_sustained += multiplied_damage
 	while damage_sustained >= crew_health:
@@ -478,15 +544,18 @@ func shoot(canons: Array[Cannon]):
 		gameManager.hud.ddd_label("No cannon balls", global_position, Color.RED)
 		return
 	for canon in canons:
-		await get_tree().create_timer(randf() / 5.0).timeout
+		if is_inside_tree():
+			await get_tree().create_timer(randf() / 5.0).timeout
 		if canon.shoot(attack, self , gameManager.audioManager):
 			inventory.consume_item(3, 1)
 
+var trajectories := false
+
 func toggle_cannons_trajectory():
-	var active = cannons_layout.cannons_starboard[0].active
-	active_port(!active)
-	active_starboard(!active)
-	active_bow(!active)
+	trajectories = !trajectories
+	active_port(trajectories)
+	active_starboard(trajectories)
+	active_bow(trajectories)
 
 func active_starboard(value: bool):
 	for canon in cannons_layout.cannons_starboard:

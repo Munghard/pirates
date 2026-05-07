@@ -88,6 +88,25 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8epi8"]
+bg_color = Color(0.7527666, 0.42186555, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pdxi3"]
+bg_color = Color(0.48959476, 0.5461416, 0.5097392, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ahcqd"]
 bg_color = Color(0.76766664, 0, 0.98, 1)
 corner_radius_top_left = 4
@@ -116,6 +135,10 @@ TabBar/styles/tab_selected = SubResource("StyleBoxFlat_i4k6b")
 TabBar/styles/tab_unselected = SubResource("StyleBoxFlat_o03gw")
 crew_pb/base_type = &"ProgressBar"
 crew_pb/styles/fill = SubResource("StyleBoxFlat_78ylj")
+morale_pb/base_type = &"ProgressBar"
+morale_pb/styles/fill = SubResource("StyleBoxFlat_8epi8")
+panel_secondary/base_type = &"PanelContainer"
+panel_secondary/styles/panel = SubResource("StyleBoxFlat_pdxi3")
 recovery_pb/base_type = &"ProgressBar"
 recovery_pb/styles/fill = SubResource("StyleBoxFlat_ahcqd")
 ship_pb/base_type = &"ProgressBar"

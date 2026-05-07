@@ -7,21 +7,56 @@ func _ready():
 	create_items()
 
 func create_items():
-	# ID, VALUE, NAME, MAX_STACK, TEXTURE
-	item_database.append(Item_Definition.new(0, 5, "Rations", 50, preload("res://Textures/barrel.png")))
-	item_database.append(Item_Definition.new(1, 10, "Rum", 50, preload("res://Textures/brandy-bottle.png")))
-	item_database.append(Item_Definition.new(2, 20, "Cannons", 50, preload("res://Textures/cannon.png")))
-	item_database.append(Item_Definition.new(3, 5, "Cannon balls", 50, preload("res://Textures/ball-pyramid.png")))
-	item_database.append(Item_Definition.new(4, 1, "Ropes", 50, preload("res://Textures/rope-coil.png")))
-	item_database.append(Item_Definition.new(5, 5, "Navigation equipment", 50, preload("res://Textures/sextant.png")))
-	item_database.append(Item_Definition.new(6, 2, "Documents", 50, preload("res://Textures/tied-scroll.png")))
-	item_database.append(Item_Definition.new(7, 2, "Shackles", 50, preload("res://Textures/handcuffs.png")))
-	item_database.append(Item_Definition.new(8, 5, "Firearms", 50, preload("res://Textures/blunderbuss.png")))
-	item_database.append(Item_Definition.new(9, 5, "Fishing gear", 50, preload("res://Textures/fishing-net.png")))
-	item_database.append(Item_Definition.new(10, 1, "Gold", 500, preload("res://Textures/coins.png")))
+	# ID, TYPE, VALUE, MAX_STACK, NAME, DESCRIPTION, ICON TEXTURE
+	item_database.append(Item_Definition.new(0, 3, 5, 50, "Rations", "Consumed daily to feed the crew. Running out leads to starvation and death.", preload("res://Textures/canned-fish.png")))
+
+	item_database.append(Item_Definition.new(1, 3, 10, 50, "Rum", "Consumed by the crew to maintain morale and discipline.", preload("res://Textures/brandy-bottle.png")))
+
+	item_database.append(Item_Definition.new(2, 1, 500, 1, "Cannon", "Heavy naval weapon mounted on the ship.", preload("res://Textures/cannon.png")))
+
+	item_database.append(Item_Definition.new(3, 3, 5, 50, "Cannon balls", "Ammunition used by cannons.", preload("res://Textures/ball-pyramid.png")))
+
+	item_database.append(Item_Definition.new(4, 3, 1, 50, "Ropes", "Essential repair material used to maintain the ship.", preload("res://Textures/rope-coil.png")))
+
+	item_database.append(Item_Definition.new(5, 1, 5, 50, "Navigation equipment", "Specialized maritime tools valued by traders and navigators.", preload("res://Textures/sextant.png")))
+
+	item_database.append(Item_Definition.new(6, 0, 2, 50, "Documents", "Letters, permits, and records valuable for trade and diplomacy.", preload("res://Textures/tied-scroll.png")))
+
+	item_database.append(Item_Definition.new(7, 0, 2, 50, "Shackles", "Iron restraints commonly used for prisoners and slaves.", preload("res://Textures/handcuffs.png")))
+
+	item_database.append(Item_Definition.new(8, 0, 5, 50, "Firearms", "Muskets and pistols sought after across the seas.", preload("res://Textures/blunderbuss.png")))
+
+	item_database.append(Item_Definition.new(9, 2, 5, 50, "Fishing gear", "Used to catch fish and gather additional rations while at sea.", preload("res://Textures/fishing-net.png")))
+
+	item_database.append(Item_Definition.new(10, 0, 1, 500, "Gold", "Universal currency used for trade, repairs, and recruitment.", preload("res://Textures/coins.png")))
+
+	item_database.append(Item_Definition.new(11, 0, 10, 10, "Maps", "Charts and sea maps that can reveal valuable routes and locations.", preload("res://Textures/tied-scroll.png")))
+
+	item_database.append(Item_Definition.new(12, 1, 200, 1, "Spyglass", "Optical tool that greatly increases viewing distance at sea.", preload("res://Textures/spyglass.png")))
+	# generate ids for items automatically, this is a problem if im looking up items from previously known id
+	# for i in range(item_database.size()):
+	# 	var item = item_database[i] as Item_Definition
+	# 	item.id = i
 	
 	print("Items created in database: ", item_database.size());
 
+static func get_item_type_color(type: Item_Definition.Type) -> Color:
+	match type:
+		Item_Definition.Type.GOODS:
+			return Color.ORANGE
+		Item_Definition.Type.EQUIPMENT:
+			return Color.CORNFLOWER_BLUE
+		Item_Definition.Type.CONSUMABLE:
+			return Color.GREEN
+		Item_Definition.Type.PASSIVE:
+			return Color.CYAN
+		_:
+			return Color.WHITE
+	
+
+static func get_random_item_def() -> Item_Definition:
+	var item = item_database.pick_random()
+	return item
 
 static func get_item_definition(_id: int) -> Item_Definition:
 	for item in item_database:

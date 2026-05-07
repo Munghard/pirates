@@ -12,7 +12,7 @@ var cannons_starboard: Array[Cannon] = []
 var cannons_bow: Array[Cannon] = []
 
 
-func create_canons(port: int, starboard: int, bow: int):
+func create_canons(port: int, starboard: int, bow: int, active: bool):
 	for child in get_children():
 		child.queue_free()
 	cannons_port.clear()
@@ -30,6 +30,7 @@ func create_canons(port: int, starboard: int, bow: int):
 
 		canon.position = Vector3(x, y, z)
 		cannons_port.append(canon)
+		canon.active = active
 	for i in range(starboard):
 		var canon = cannon_scene.instantiate() as Cannon
 		add_child(canon)
@@ -42,7 +43,7 @@ func create_canons(port: int, starboard: int, bow: int):
 		var y = 0.5
 		canon.position = Vector3(x, y, z)
 		cannons_starboard.append(canon)
-		
+		canon.active = active
 	
 	for i in range(bow):
 		var canon = cannon_scene.instantiate() as Cannon
@@ -54,3 +55,4 @@ func create_canons(port: int, starboard: int, bow: int):
 		var y = 0.5
 		canon.position = Vector3(x, y, z)
 		cannons_bow.append(canon)
+		canon.active = active

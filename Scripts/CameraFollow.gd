@@ -9,8 +9,13 @@ var target_position
 var return_delay := 2.0
 var return_timer := 0.0
 var is_dragging := false
+var max_distance := 25.0
+var pan_multiplier := 1.0
 
 var max_camera_size := 200.0
+
+func get_max_distance() -> float:
+	return max_distance * pan_multiplier
 
 func _process(delta: float) -> void:
 	var move := Vector3.ZERO
@@ -20,8 +25,13 @@ func _process(delta: float) -> void:
 		return_timer = 0.0
 		
 		var mouse_delta = Input.get_last_mouse_velocity()
-		move = Vector3(mouse_delta.x, 0, mouse_delta.y) * 0.0005
+		move = Vector3(mouse_delta.x, 0, mouse_delta.y) * delta * 0.05
+		
 		target_position += move
+
+		var offset = target_position - target.global_position
+		offset = offset.limit_length(get_max_distance())
+		target_position = target.global_position + offset
 	else:
 		if is_dragging:
 			is_dragging = false

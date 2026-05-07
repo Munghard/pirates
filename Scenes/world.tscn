@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/loot.tscn" id="5_5v1tr"]
 [ext_resource type="Script" uid="uid://dlmrgn1ttek83" path="res://Scripts/World.gd" id="5_axeuq"]
 [ext_resource type="Script" uid="uid://cvq33ekw76o45" path="res://Scripts/Wind.gd" id="5_kn0ld"]
+[ext_resource type="PackedScene" uid="uid://02p2nx888ai3" path="res://Scenes/rock.tscn" id="6_p5wkl"]
 [ext_resource type="Script" uid="uid://cxek611gjckkt" path="res://Scripts/minimap.gd" id="6_r0ikl"]
 [ext_resource type="Material" uid="uid://cypyf8n66hyww" path="res://Materials/water_shader.tres" id="7_ikia7"]
 [ext_resource type="PackedScene" uid="uid://bmpnpyq6xlodj" path="res://UI/debug_menu.tscn" id="8_1vso6"]
@@ -26,6 +27,8 @@
 [ext_resource type="Script" uid="uid://bxdp73tg0wwul" path="res://Scripts/Terrain.gd" id="17_0pcbe"]
 [ext_resource type="PackedScene" uid="uid://5u1uqatga6r7" path="res://UI/arrow.tscn" id="17_xbk3s"]
 [ext_resource type="PackedScene" uid="uid://dsdgtegub08f0" path="res://Models/Palm Tree/Environment_PalmTree_1.fbx" id="18_axeuq"]
+[ext_resource type="PackedScene" uid="uid://df6rrpx40pss0" path="res://Scenes/lighthouse.tscn" id="18_ochwf"]
+[ext_resource type="PackedScene" uid="uid://pf0uomw5fakb" path="res://Scenes/whale.tscn" id="19_04jkj"]
 [ext_resource type="Script" uid="uid://dh5bsqrqcglgt" path="res://Scripts/time.gd" id="21_hmc15"]
 [ext_resource type="PackedScene" uid="uid://24as4be8bxhb" path="res://Scenes/debris.tscn" id="21_opbav"]
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="21_pyn1s"]
@@ -35,10 +38,11 @@
 [ext_resource type="Texture2D" uid="uid://vv17m6wwh6ht" path="res://Textures/bird.png" id="27_r0ikl"]
 [ext_resource type="Shader" uid="uid://xe1idcnl8y4i" path="res://Materials/tilt_shift.gdshader" id="33_coyub"]
 [ext_resource type="Script" uid="uid://bcmyufc0xuoqc" path="res://Scripts/Inventory/item_database.gd" id="35_coyub"]
+[ext_resource type="Script" uid="uid://cqvdwut1w32af" path="res://Scripts/factions_data.gd" id="38_r74th"]
 
 [sub_resource type="Gradient" id="Gradient_r0ikl"]
 offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
-colors = PackedColorArray(0.25, 0.4375, 1, 1, 1, 0.36666667, 0, 1, 1, 1, 1, 1, 1, 0.36862746, 0, 1, 0.2509804, 0.4392157, 1, 1)
+colors = PackedColorArray(0.25, 0.4375, 1, 1, 1, 0.36666667, 0, 1, 1, 0.8923333, 0.62, 1, 1, 0.36862746, 0, 1, 0.2509804, 0.4392157, 1, 1)
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_coyub"]
 frequency = 0.0136
@@ -62,7 +66,7 @@ render_priority = 0
 shader = ExtResource("22_dt0r1")
 shader_parameter/noise = SubResource("NoiseTexture2D_o2rbt")
 shader_parameter/color = Color(1, 1, 1, 1)
-shader_parameter/scale = 6.17999986186464
+shader_parameter/scale = 11.58999974094032
 shader_parameter/wind_speed_multiplier = 0.07999999821184
 shader_parameter/cloud_opacity = 0.28999999351792
 shader_parameter/offset = Vector2(0, 0)
@@ -158,11 +162,18 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.84615386, 0.14957266)
 
+[sub_resource type="Environment" id="Environment_p5wkl"]
+ambient_light_source = 2
+ambient_light_color = Color(0, 0.56747925, 0.6076092, 1)
+tonemap_mode = 3
+glow_enabled = true
+glow_intensity = 0.39
+glow_strength = 1.71
+volumetric_fog_density = 0.01
+volumetric_fog_albedo = Color(0.32999998, 0.6203334, 1, 1)
+
 [node name="GameManager" type="Node3D" unique_id=418889483]
 script = ExtResource("1_5ukr8")
-
-[node name="AudioManager" type="Node3D" parent="." unique_id=1614830830]
-script = ExtResource("2_o2rbt")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1428168652]
 anchors_preset = 15
@@ -175,8 +186,12 @@ stretch = true
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=1879686265]
 handle_input_locally = false
 msaa_3d = 3
+audio_listener_enable_3d = true
 size = Vector2i(1152, 648)
 render_target_update_mode = 4
+
+[node name="AudioManager" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1614830830]
+script = ExtResource("2_o2rbt")
 
 [node name="World" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=1431584057 node_paths=PackedStringArray("scatterers")]
 script = ExtResource("5_axeuq")
@@ -187,11 +202,13 @@ port_scene = ExtResource("16_hgpy0")
 
 [node name="Terrain" type="Node3D" parent="SubViewportContainer/SubViewport/World" unique_id=476364891]
 script = ExtResource("17_0pcbe")
+rock = ExtResource("6_p5wkl")
 palm = ExtResource("18_axeuq")
 terrain_material = ExtResource("11_xbk3s")
 noise = SubResource("FastNoiseLite_coyub")
 terrain_world_size = Vector2(500, 500)
 heightmap_size = Vector2i(500, 500)
+rock_density = 2.0
 tree_density = 1.0
 height_min = 2.0
 height_max = 10.0
@@ -218,7 +235,6 @@ prefab = ExtResource("4_k7acu")
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
-water_level = 25.0
 
 [node name="loot" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=714804176 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -227,7 +243,6 @@ amount = 5
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
-water_level = 25.0
 
 [node name="debris" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=495085758 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -236,7 +251,6 @@ amount = 20
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
-water_level = 25.0
 
 [node name="maelstroms" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1431239431 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -245,7 +259,6 @@ amount = 2
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
-water_level = 25.0
 
 [node name="lifeboats" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1914553766 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -254,7 +267,6 @@ amount = 5
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
-water_level = 25.0
 
 [node name="buoyus" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1595812411 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -262,7 +274,22 @@ prefab = ExtResource("15_hgpy0")
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
-water_level = 25.0
+
+[node name="whales" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=271512521 node_paths=PackedStringArray("water")]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("19_04jkj")
+rotation_range_min = Vector3(0, -180, 0)
+rotation_range_max = Vector3(0, 180, 0)
+water = NodePath("../../Water")
+
+[node name="lighthouses" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1491532876 node_paths=PackedStringArray("water")]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("18_ochwf")
+rotation_range_min = Vector3(0, -180, 0)
+rotation_range_max = Vector3(0, 180, 0)
+water = NodePath("../../Water")
+min_spawn_height = 1.0
+spawn_in_water = false
 
 [node name="Sun" type="DirectionalLight3D" parent="SubViewportContainer/SubViewport/World" unique_id=85683695]
 transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 3.3022847, 0)
@@ -320,6 +347,7 @@ target = NodePath("../World/PlayerShip")
 [node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/camera_rig" unique_id=389494367]
 transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, -3.7413856e-06, 0, -62.797466)
 projection = 1
+current = true
 size = 30.0
 near = 0.001
 
@@ -328,6 +356,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4210855e-14, -1.7881393e-0
 visible = false
 sorting_offset = -100.0
 mesh = SubResource("QuadMesh_xbk3s")
+
+[node name="AudioListener3D" type="AudioListener3D" parent="SubViewportContainer/SubViewport/camera_rig" unique_id=2106523858]
+doppler_tracking = 2
+current = true
 
 [node name="TiltShift" type="ColorRect" parent="." unique_id=675852209]
 visible = false
@@ -477,6 +509,7 @@ layout_mode = 2
 text = "Board ship"
 
 [node name="Button_dock" type="Button" parent="MarginContainer/HUD/HBoxContainer" unique_id=186751169]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Dock"
 
@@ -510,12 +543,13 @@ text = "12:00"
 [node name="Button2" type="Button" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=604320044]
 layout_mode = 2
 size_flags_horizontal = 0
-text = "Pass time 1h"
+text = "Pass time"
 
-[node name="Button3" type="Button" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=1657434824]
+[node name="HSlider" type="HSlider" parent="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer" unique_id=1449268199]
 layout_mode = 2
-size_flags_horizontal = 0
-text = "Pass time 6h"
+max_value = 24.0
+value = 1.0
+rounded = true
 
 [node name="Depth_panel" type="PanelContainer" parent="MarginContainer/HUD" unique_id=1583161667]
 layout_mode = 1
@@ -577,9 +611,15 @@ offset_top = 0.0
 offset_bottom = 451.0
 grow_vertical = 1
 
+[node name="Faction_data" type="Node" parent="." unique_id=1574932247]
+script = ExtResource("38_r74th")
+
 [node name="Item_Database" type="Node" parent="." unique_id=2120478333]
 script = ExtResource("35_coyub")
 metadata/_custom_type_script = "uid://bcmyufc0xuoqc"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1801650937]
+environment = SubResource("Environment_p5wkl")
 
 [connection signal="body_entered" from="SubViewportContainer/SubViewport/World/PlayerShip" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_body_entered"]
 [connection signal="body_entered" from="SubViewportContainer/SubViewport/World/PlayerShip/Boarding_Area" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_boarding_area_body_entered"]
@@ -589,7 +629,6 @@ metadata/_custom_type_script = "uid://bcmyufc0xuoqc"
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button_dock" to="MarginContainer/HUD" method="_on_button_dock_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer/Button2" to="MarginContainer/HUD" method="_on_button_pass_time_pressed"]
-[connection signal="pressed" from="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer/Button3" to="MarginContainer/HUD" method="_on_button_3_pressed"]
 
 [editable path="SubViewportContainer/SubViewport/World/PlayerShip"]
 [editable path="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/Sail ship"]

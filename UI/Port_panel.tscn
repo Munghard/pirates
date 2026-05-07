@@ -20,6 +20,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="Port_panel" type="PanelContainer" parent="HBoxContainer" unique_id=1068476575]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/Port_panel" unique_id=830364857]
@@ -49,6 +50,17 @@ text = "Gold:"
 [node name="DepartButton" type="Button" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=5709390]
 layout_mode = 2
 text = "Depart"
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1559354531]
+layout_mode = 2
+theme = ExtResource("2_fsihh")
+theme_type_variation = &"panel_secondary"
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer" unique_id=1278603270]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/MarginContainer" unique_id=253937507]
+layout_mode = 2
 
 [node name="Inventory_panel" parent="HBoxContainer" unique_id=1043611700 instance=ExtResource("2_jp1f8")]
 layout_mode = 2

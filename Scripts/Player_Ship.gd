@@ -15,54 +15,90 @@ func _ready() -> void:
 	defense = faction_stats.defense
 	top_speed = faction_stats.speed
 	
-	guns = faction_stats.guns
 	gold = faction_stats.gold
-	supplies = faction_stats.supplies
 	crew = faction_stats.max_crew
 	max_crew = faction_stats.max_crew
 
 	#connect("crew_changed", Callable(self , "_on_crew_changed"))
-	connect("supplies_changed", Callable(self , "_on_supplies_changed"))
 	connect("gold_changed", Callable(self , "_on_gold_changed"))
+	connect("gold_gained", Callable(self , "_on_gold_gained"))
+	connect("gold_lost", Callable(self , "_on_gold_lost"))
+	
+	connect("crew_lost", Callable(self , "_on_crew_lost"))
+
 	connect("recieved_damage", Callable(self , "_on_recieved_damage"))
 	
 	#active_starboard(true)
 	#active_port(true)
 	set_faction_texture()
 	
-	setup_guns()
-
 	setup_inventory()
-
-
+	setup_cannons()
+	
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, "Player cargo")
-	
+	inventory.inventory_changed.connect(_on_inventory_changed)
 	# ensure HUD exists before connecting
 	await get_tree().process_frame
 
-	inventory.inventory_changed.connect(_on_inventory_changed)
 	inventory.inventory_notification.connect(_inventory_changed)
 
+	inventory.add_item(InventoryItem.new(2, 4))
 	inventory.add_item(InventoryItem.new(0, 30))
+	inventory.add_item(InventoryItem.new(1, 30))
 	inventory.add_item(InventoryItem.new(3, 50))
+	inventory.add_item(InventoryItem.new(12, 1))
+	inventory.add_item(InventoryItem.new(9, 1))
 
 	docked_changed.connect(func(_dock): _on_inventory_changed(inventory))
 
+
 func _on_inventory_changed(_inventory: Inventory):
+	super._on_inventory_changed(_inventory)
+	# spyglass effect
+	var pan_multiplier = 1.0
+	if _inventory.has_item(12, 1):
+		pan_multiplier = 2.0
+	gameManager.camerarig.pan_multiplier = pan_multiplier
+
+	# item click behaviour
 	if docked:
 		gameManager.hud.inventory_panel.update_inventory_ui(
 			_inventory,
-			sell_item
+			sell_item,
+			func(_index): pass ,
 		)
 	else:
 		gameManager.hud.inventory_panel.update_inventory_ui(
 			_inventory,
+			use_item,
 			_inventory.drop_item_at_index
 		)
 
+var item_use: Item_Use
+
+func use_item(item_index: int):
+	var item = inventory.items[item_index]
+	if not item:
+		return
+	var item_def = Item_Database.get_item_definition(item.id)
+	
+	# only one use operation at a time
+	if item_use:
+		gameManager.hud.ddd_label("Already using an item", global_position, Color.RED)
+		return
+	item_use = Item_Use.new()
+	add_child(item_use)
+	print("Trying to use " + item_def.item_name);
+	item_use.use_item(item_def.id, self , func finished():
+		inventory.consume_item_at(item_index, 1)
+	)
+	
+
 func sell_item(item_index: int):
 	var item = inventory.items[item_index]
+	if not item:
+		return
 	var item_def = Item_Database.get_item_definition(item.id)
 
 	var bp = gameManager.hud.buy_panel.instantiate()
@@ -103,23 +139,26 @@ func sell_item(item_index: int):
 		bp.queue_free()
 	)
 
-
 func _inventory_changed(_message: String):
 	gameManager.hud.new_notification(_message)
 
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
 	gameManager.camerarig.secondary_target = _attacker
 
-func _on_crew_changed(amount: int, gained: bool):
-	var text = "Gained" if gained else "Lost"
+func _on_crew_gained(amount: int):
+	var text = "Gained"
 	gameManager.hud.new_notification("%s: %d crew" % [text, amount])
 
-func _on_supplies_changed(amount: int, gained: bool):
-	var text = "Gained" if gained else "Lost"
-	gameManager.hud.new_notification("%s: %d supplies" % [text, amount])
+func _on_crew_lost(amount: int):
+	var text = "Lost"
+	gameManager.hud.new_notification("%s: %d crew" % [text, amount])
 
-func _on_gold_changed(amount: int, gained: bool):
-	var text = "Gained" if gained else "Lost"
+func _on_gold_gained(amount: int):
+	var text = "Gained"
+	gameManager.hud.new_notification("%s: %d gold" % [text, amount])
+
+func _on_gold_lost(amount: int):
+	var text = "Lost"
 	gameManager.hud.new_notification("%s: %d gold" % [text, amount])
 
 func sink():
@@ -130,8 +169,8 @@ func sink():
 	get_tree().reload_current_scene()
 
 func upgrade_guns():
-	guns += 1
-	setup_guns()
+	print("not implemented")
+	pass
 
 func emergency_brake():
 	side_to_side_speed = 0.0
@@ -156,6 +195,8 @@ func _input(event: InputEvent) -> void:
 			target_speed = clamp(target_speed + 1.0, -1.0, top_speed)
 		if event.keycode == KEY_S:
 			target_speed = clamp(target_speed - 1.0, -1.0, top_speed)
+		if event.keycode == KEY_G:
+			toggle_cannons_trajectory()
 		if event.keycode == KEY_END:
 			shoot_bow()
 		if event.keycode == KEY_LEFT:

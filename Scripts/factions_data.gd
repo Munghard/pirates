@@ -1,3 +1,5 @@
+extends Node
+
 class_name FactionsData
 
 enum Nation {ENGLAND, SPAIN, FRANCE, NETHERLANDS}
@@ -114,17 +116,26 @@ const PORT_NAMES = [
 	"Crowscar Dock",
 ]
 
-static var enemy_factions := {
-	FactionsData.Faction.NAVY: [FactionsData.Faction.PIRATE, FactionsData.Faction.SLAVER, FactionsData.Faction.VIKING],
-	FactionsData.Faction.PIRATE: [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.BOUNTYHUNTER, FactionsData.Faction.VIKING],
-	FactionsData.Faction.MERCHANT: [FactionsData.Faction.PIRATE],
-	FactionsData.Faction.SLAVER: [FactionsData.Faction.NAVY],
-	FactionsData.Faction.BOUNTYHUNTER: [FactionsData.Faction.PIRATE],
-	FactionsData.Faction.VIKING: [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.PIRATE],
-}
+static func get_enemy_factions(f1: FactionsData.Faction) -> Array[FactionsData.Faction]:
+	match f1:
+		FactionsData.Faction.NAVY:
+			return [FactionsData.Faction.PIRATE, FactionsData.Faction.SLAVER, FactionsData.Faction.VIKING]
+		FactionsData.Faction.PIRATE:
+			return [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.BOUNTYHUNTER, FactionsData.Faction.VIKING]
+		FactionsData.Faction.MERCHANT:
+			return [FactionsData.Faction.PIRATE]
+		FactionsData.Faction.SLAVER:
+			return [FactionsData.Faction.NAVY]
+		FactionsData.Faction.BOUNTYHUNTER:
+			return [FactionsData.Faction.PIRATE]
+		FactionsData.Faction.VIKING:
+			return [FactionsData.Faction.NAVY, FactionsData.Faction.MERCHANT, FactionsData.Faction.PIRATE]
+		_:
+			return []
+
 
 static func is_enemy(f1, f2) -> bool:
-	return enemy_factions.get(f1, []).has(f2)
+	return get_enemy_factions(f1).has(f2)
 
 static func get_random_name() -> String:
 	return NAMES[randi() % NAMES.size()]
@@ -155,62 +166,58 @@ static func get_faction_icon(faction: Faction) -> Texture:
 			texture = preload("res://Textures/anchor.png")
 		Faction.SLAVER:
 			texture = preload("res://Textures/handcuffs.png")
+		Faction.FISHERMAN:
+			texture = preload("res://Textures/fishing-net.png")
+		Faction.BOUNTYHUNTER:
+			texture = preload("res://Textures/wanted-reward.png")
+		Faction.VIKING:
+			texture = preload("res://Textures/viking-helmet.png")
 		_:
 			texture = preload("res://Textures/sailboat.png")
 	return texture
 
-static func get_faction_stats(faction: Faction) -> FactionStats:
+static func get_faction_stats(faction: Faction) -> ShipStats:
 	match faction:
 		Faction.PIRATE:
 			var attack = randf_range(0.5, 2.5)
 			var defense = randf_range(0.5, 2.0)
 			var max_speed = randf_range(3, 5)
-			var guns = randi_range(2, 6)
 			var max_hp = randi_range(50, 100)
 			var gold = randi_range(0, 100)
-			var supplies = randi_range(50, 200)
 			var max_crew = randi_range(25, 100)
-			return FactionStats.new(attack, defense, max_speed, guns, max_hp, gold, supplies, max_crew)
+			return ShipStats.new(attack, defense, max_speed, max_hp, gold, max_crew)
 		Faction.MERCHANT:
 			var attack = randf_range(0.5, 1.0)
 			var defense = randf_range(0.5, 3.0)
 			var max_speed = randf_range(3, 5)
-			var guns = randi_range(0, 2)
 			var max_hp = randi_range(50, 200)
 			var gold = randi_range(200, 500)
-			var supplies = randi_range(50, 200)
 			var max_crew = randi_range(25, 50)
-			return FactionStats.new(attack, defense, max_speed, guns, max_hp, gold, supplies, max_crew)
+			return ShipStats.new(attack, defense, max_speed, max_hp, gold, max_crew)
 		Faction.NAVY:
 			var attack = randf_range(1, 3)
 			var defense = randf_range(1, 3)
 			var max_speed = randf_range(2, 5)
-			var guns = randi_range(2, 6)
 			var max_hp = randi_range(50, 150)
 			var gold = randi_range(50, 100)
-			var supplies = randi_range(50, 150)
 			var max_crew = randi_range(50, 200)
-			return FactionStats.new(attack, defense, max_speed, guns, max_hp, gold, supplies, max_crew)
+			return ShipStats.new(attack, defense, max_speed, max_hp, gold, max_crew)
 		Faction.SLAVER:
 			var attack = randf_range(0.5, 2.0)
 			var defense = randf_range(0.5, 2.0)
 			var max_speed = randf_range(1, 5)
-			var guns = randi_range(1, 4)
 			var max_hp = randi_range(50, 150)
 			var gold = randi_range(50, 300)
-			var supplies = randi_range(50, 100)
 			var max_crew = randi_range(50, 150)
-			return FactionStats.new(attack, defense, max_speed, guns, max_hp, gold, supplies, max_crew)
+			return ShipStats.new(attack, defense, max_speed, max_hp, gold, max_crew)
 		_:
 			var attack = randf_range(0.5, 1.0)
 			var defense = randf_range(0.5, 1.0)
 			var max_speed = randf_range(0.5, 2.5)
-			var guns = randi_range(0, 2)
 			var max_hp = randi_range(20, 50)
 			var gold = randi_range(0, 50)
-			var supplies = randi_range(0, 50)
 			var max_crew = randi_range(10, 20)
-			return FactionStats.new(attack, defense, max_speed, guns, max_hp, gold, supplies, max_crew)
+			return ShipStats.new(attack, defense, max_speed, max_hp, gold, max_crew)
 
 static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 	var items: Array[InventoryItem]
@@ -219,8 +226,7 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 			items = [
 				InventoryItem.new(0, randi_range(5, 50)),
 				InventoryItem.new(1, randi_range(5, 50)),
-				InventoryItem.new(2, randi_range(5, 20)),
-				InventoryItem.new(2, randi_range(20, 50)),
+				InventoryItem.new(2, randi_range(1, 6)),
 			]
 		Faction.MERCHANT:
 			items = [
@@ -257,6 +263,12 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 				InventoryItem.new(4, randi_range(1, 25)),
 				InventoryItem.new(7, randi_range(100, 200)),
 				InventoryItem.new(8, randi_range(1, 25)),
+			]
+		Faction.CARTOGRAPHER:
+			items = [
+				InventoryItem.new(0, randi_range(0, 20)),
+				InventoryItem.new(11, randi_range(10, 50)),
+				InventoryItem.new(6, randi_range(10, 50)),
 			]
 		Faction.FISHERMAN:
 			items = [
@@ -306,5 +318,7 @@ static func roll_faction() -> FactionsData.Faction:
 		FactionsData.Faction.SLAVER: 10,
 		FactionsData.Faction.CARTOGRAPHER: 10,
 		FactionsData.Faction.BOUNTYHUNTER: 10,
+		FactionsData.Faction.VIKING: 10,
+		FactionsData.Faction.FISHERMAN: 10,
 	})
 	return rolled_faction

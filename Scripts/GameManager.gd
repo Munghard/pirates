@@ -13,6 +13,8 @@ var debugMenu: DebugMenu
 
 var selected_ship: Ship
 
+var world_item: PackedScene = preload("res://Scenes/loot.tscn")
+
 func _ready() -> void:
 	world = $SubViewportContainer/SubViewport/World
 	player_ship = $SubViewportContainer/SubViewport/World/PlayerShip
@@ -20,7 +22,7 @@ func _ready() -> void:
 	debugMenu = $MarginContainer/DebugMenu
 	camera = $SubViewportContainer/SubViewport/camera_rig/Camera3D
 	camerarig = $SubViewportContainer/SubViewport/camera_rig
-	audioManager = $AudioManager
+	audioManager = $SubViewportContainer/SubViewport/AudioManager
 
 	assert(world != null, "world is null in gamemanager start")
 	assert(player_ship != null, "player_ship is null in gamemanager start")
@@ -34,14 +36,21 @@ func _ready() -> void:
 	debugMenu.init_debugMenu()
 
 
+func spawn_item_in_world(item: InventoryItem, _position: Vector3):
+	var w_item = world_item.instantiate() as Loot
+	world.add_child(w_item)
+	w_item.setup_loot(item, self )
+	w_item.global_position = _position
+	w_item.global_rotation_degrees.y = randf() * 360.0
+
 func select_ship(ship: Ship):
-	if selected_ship:
-		selected_ship.navigation_markers.visible = false
-		selected_ship.world_bars.visible = false
+	if selected_ship and selected_ship.is_inside_tree():
+		if selected_ship.navigation_markers: selected_ship.navigation_markers.visible = false
+		if selected_ship.world_bars: selected_ship.world_bars.visible = false
 	selected_ship = ship
-	if selected_ship:
-		selected_ship.navigation_markers.visible = true
-		selected_ship.world_bars.visible = true
+	if selected_ship and selected_ship.is_inside_tree():
+		if selected_ship.navigation_markers: selected_ship.navigation_markers.visible = true
+		if selected_ship.world_bars: selected_ship.world_bars.visible = true
 
 func toggle_debug_menu():
 	debugMenu.visible = !debugMenu.visible
@@ -53,15 +62,13 @@ func _input(event: InputEvent) -> void:
 			var rotated = world.wind.target_direction.rotated(Vector3.UP, deg_to_rad(90))
 			world.wind.set_direction(rotated)
 		if event.keycode == KEY_F1:
-			spawn_ships_around_player(1)
+			spawn_ships_around_player(1, 10.0)
 		if event.keycode == KEY_F2:
 			toggle_debug_menu()
 		if event.keycode == KEY_F3:
 			move_player_to_random_port()
 		if event.keycode == KEY_TAB:
 			hud.toggle_player_inventory_panel()
-		if event.keycode == KEY_G:
-			player_ship.toggle_cannons_trajectory()
 
 func move_player_to_random_port():
 	var ports = get_tree().get_nodes_in_group("Ports")
@@ -74,32 +81,37 @@ func move_player_to_random_port():
 	player_ship.rotation.y = angle_rad
 	player_ship.yaw_deg = angle_deg
 
-func spawn_ships_around_player(count: int):
+func spawn_ships_around_player(count: int, radius: float) -> Array[Ship]:
 	var enemy_ship = preload("res://Scenes/enemy_ship.tscn")
-	var radius := 10.0
-
+	
+	var ships: Array[Ship] = []
 	for i in range(count):
-		var ship: Ship = enemy_ship.instantiate()
+		var ship: Ship = enemy_ship.instantiate() as Ship
 		add_child(ship)
 		
 		var angle = randf() * TAU
 		var _offset = Vector3(cos(angle), 0, sin(angle)) * radius
 		
 		ship.global_position = player_ship.global_position + _offset
+		ships.append(ship)
+	
+	return ships
 		
 
-static func get_ships_by_faction(ships: Array, target_factions: Array[FactionsData.Faction]) -> Array:
-	var result = []
+static func get_ships_by_faction(ships: Array[Ship], target_factions: Array[FactionsData.Faction]) -> Array[Ship]:
+	var result: Array[Ship] = []
+
 	for ship in ships:
 		if target_factions.has(ship.faction):
 			result.append(ship)
+
 	return result
 
-static func get_closest_ship(ships: Array, _ship: Node3D) -> Ship:
+static func get_closest_ship(ships: Array[Ship], _ship: Node3D) -> Ship:
 	var closest_ship: Ship = null
 	var closest_dist := INF
 
-	for ship: Ship in ships:
+	for ship in ships:
 		var dist = _ship.global_position.distance_to(ship.global_position)
 		if dist < closest_dist:
 			closest_dist = dist
