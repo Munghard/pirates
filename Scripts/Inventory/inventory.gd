@@ -96,6 +96,7 @@ func new_notification(message: String):
 
 func clear():
 	items.clear()
+	items.resize(size)
 
 func has_space() -> bool:
 	return find_empty_slot() != -1

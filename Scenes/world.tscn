@@ -29,6 +29,7 @@
 [ext_resource type="PackedScene" uid="uid://dsdgtegub08f0" path="res://Models/Palm Tree/Environment_PalmTree_1.fbx" id="18_axeuq"]
 [ext_resource type="PackedScene" uid="uid://df6rrpx40pss0" path="res://Scenes/lighthouse.tscn" id="18_ochwf"]
 [ext_resource type="PackedScene" uid="uid://pf0uomw5fakb" path="res://Scenes/whale.tscn" id="19_04jkj"]
+[ext_resource type="PackedScene" uid="uid://bfwc6ixjowmee" path="res://Scenes/shark.tscn" id="20_lkcvt"]
 [ext_resource type="Script" uid="uid://dh5bsqrqcglgt" path="res://Scripts/time.gd" id="21_hmc15"]
 [ext_resource type="PackedScene" uid="uid://24as4be8bxhb" path="res://Scenes/debris.tscn" id="21_opbav"]
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="21_pyn1s"]
@@ -214,7 +215,6 @@ height_min = 2.0
 height_max = 10.0
 
 [node name="Water" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/World" unique_id=2117390099 node_paths=PackedStringArray("target", "terrain")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 231.67308, 0, 131.56133)
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
@@ -282,6 +282,14 @@ rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
 
+[node name="sharks" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1524624786 node_paths=PackedStringArray("water")]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("20_lkcvt")
+amount = 20
+rotation_range_min = Vector3(0, -180, 0)
+rotation_range_max = Vector3(0, 180, 0)
+water = NodePath("../../Water")
+
 [node name="lighthouses" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1491532876 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("18_ochwf")
@@ -320,7 +328,7 @@ process_material = SubResource("ParticleProcessMaterial_ochwf")
 draw_pass_1 = SubResource("QuadMesh_r74th")
 
 [node name="PlayerShip" parent="SubViewportContainer/SubViewport/World" unique_id=7143519 node_paths=PackedStringArray("boarding_area", "rigidbody", "floater") groups=["Ships"] instance=ExtResource("1_fo5ed")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 268.32037, 0, 20.879745)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2384267, 0)
 mass = 1.0
 script = ExtResource("3_5v1tr")
 boarding_area = NodePath("Boarding_Area")
@@ -330,7 +338,6 @@ floater = NodePath("floater")
 loot = ExtResource("5_5v1tr")
 
 [node name="ship_pivot" parent="SubViewportContainer/SubViewport/World/PlayerShip" index="0" unique_id=1303226422 node_paths=PackedStringArray("ship")]
-transform = Transform3D(0.98866093, 0.15016502, 0, -0.14828178, 0.97626203, 0.1578764, 0.023707513, -0.15608624, 0.9874589, 0, 1.482443, 0)
 ship = NodePath("..")
 
 [node name="Cannons" parent="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot" index="1" unique_id=1435490113 node_paths=PackedStringArray("ship")]
@@ -340,7 +347,7 @@ ship = NodePath("../..")
 water = NodePath("../../Water")
 
 [node name="camera_rig" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=596184847 node_paths=PackedStringArray("target")]
-transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 231.67308, 1.5258789e-05, 131.56133)
+transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 0, 0, 0)
 script = ExtResource("2_5ukr8")
 target = NodePath("../World/PlayerShip")
 
@@ -583,7 +590,7 @@ layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -400.0
+offset_left = -339.0
 offset_right = 0.0
 grow_horizontal = 0
 pivot_offset_ratio = Vector2(1, 0)

@@ -234,6 +234,7 @@ func gain_crew(amount: int):
 	crew = min(crew, max_crew)
 	emit_signal("crew_gained", amount)
 	emit_signal("crew_changed", crew)
+	incapacitated = false
 
 func kill_crew(amount: int):
 	if crew <= 0:
@@ -385,10 +386,11 @@ func _physics_process(_delta: float) -> void:
 	# incapacitated check
 	var capable_speed = target_speed
 	if incapacitated:
-		capable_speed = 0.0
+		capable_speed = clampf(target_speed, -0.5, 0.5)
 
+	var side_limit = abs(capable_speed)
 	actual_speed = capable_speed # + (wind_along_forward) # overriding wind effect (1.0 + wind_along_forward)
-	side_to_side_speed = clamp(side_to_side_speed, -top_speed, top_speed)
+	side_to_side_speed = clamp(side_to_side_speed, -side_limit, side_limit)
 	apply_central_force((right * side_to_side_speed) + (forward * actual_speed) * 5.0)
 	# position += forward * actual_speed * delta
 	# var new_yaw = lerp_angle(rotation.y, deg_to_rad(yaw_deg), delta)
@@ -546,8 +548,18 @@ func shoot(canons: Array[Cannon]):
 	for canon in canons:
 		if is_inside_tree():
 			await get_tree().create_timer(randf() / 5.0).timeout
-		if canon.shoot(attack, self , gameManager.audioManager):
-			inventory.consume_item(3, 1)
+	
+			if !is_instance_valid(canon):
+				continue
+
+			if !is_instance_valid(self ):
+				return
+
+			if !is_instance_valid(inventory):
+				return
+
+			if canon.shoot(attack, self , gameManager.audioManager):
+				inventory.consume_item(3, 1)
 
 var trajectories := false
 

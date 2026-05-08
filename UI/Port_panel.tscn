@@ -8,16 +8,19 @@ layout_mode = 3
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_top = -210.0
-offset_right = 494.0
-offset_bottom = 210.0
 grow_vertical = 2
+mouse_filter = 2
 theme = ExtResource("2_fsihh")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=102278157]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -200.0
+offset_right = 604.0
+offset_bottom = 200.0
+grow_vertical = 2
 
 [node name="Port_panel" type="PanelContainer" parent="HBoxContainer" unique_id=1068476575]
 custom_minimum_size = Vector2(200, 0)
@@ -33,15 +36,20 @@ layout_mode = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer" unique_id=1524480552]
 layout_mode = 2
 
-[node name="Label_h" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=2005593663]
+[node name="PanelContainer2" type="PanelContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1747257394]
 layout_mode = 2
-theme_type_variation = &"HeaderMedium"
+theme_type_variation = &"panel_secondary"
+
+[node name="Label_h" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer2" unique_id=2005593663]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
 text = "Port"
+horizontal_alignment = 1
 
 [node name="Label_f" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=2106170172]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
-text = "Port"
+text = "Faction"
 
 [node name="Label_gold" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1606088974]
 layout_mode = 2
@@ -64,6 +72,6 @@ layout_mode = 2
 
 [node name="Inventory_panel" parent="HBoxContainer" unique_id=1043611700 instance=ExtResource("2_jp1f8")]
 layout_mode = 2
-size_flags_vertical = 0
+size_flags_vertical = 4
 
 [connection signal="pressed" from="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/DepartButton" to="HBoxContainer/Port_panel" method="_on_button_depart_pressed"]

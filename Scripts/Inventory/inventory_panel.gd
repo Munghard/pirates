@@ -4,7 +4,7 @@ extends Control
 @onready var slot_scene: PackedScene = preload("res://UI/slot.tscn")
 @onready var tooltip_scene: PackedScene = preload("res://UI/item_tooltip.tscn")
 @onready var gameManager: GameManager = get_node("/root/GameManager")
-@onready var label: Label = $MarginContainer/HBoxContainer/Control/Label
+@onready var label: Label = $MarginContainer/HBoxContainer/Control/PanelContainer/Label
 
 
 func update_inventory_ui(inventory: Inventory, left_click: Callable, right_click: Callable):

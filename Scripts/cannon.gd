@@ -17,7 +17,7 @@ var pitch := 0.0
 
 var line: Node3D
 
-var fire_rate = 1.0
+var fire_rate = 5.0
 var fire_timer = 0.0
 var active := false
 
@@ -57,11 +57,19 @@ func fade_light() -> void:
 	var elapsed = duration
 
 	while elapsed > 0.0:
+		if !is_instance_valid(light):
+			return
+
 		elapsed -= get_process_delta_time()
 		light.light_energy = (elapsed / duration) * 10.0
+
 		await get_tree().process_frame
 
-	light.light_energy = 0.0
+		if !is_inside_tree():
+			return
+
+	if is_instance_valid(light):
+		light.light_energy = 0.0
 
 func _process(delta):
 	if fire_timer > 0.0:

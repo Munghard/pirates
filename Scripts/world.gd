@@ -131,7 +131,11 @@ func place_player(ports: Array[Node3D]):
 	if ports.is_empty():
 		print("NO PORTS RECEIVED")
 		return
-	var port = ports[randi_range(0, ports.size() - 1)]
+	var friendly_ports = []
+	for p: Port in ports:
+		if not FactionsData.is_enemy(p.allegiance.faction, gameManager.player_ship.faction):
+			friendly_ports.append(p)
+	var port = friendly_ports[randi_range(0, friendly_ports.size() - 1)]
 	var water_pos = port.get_valid_water_position()
 	var dir = (water_pos - port.global_position).normalized()
 	var angle_rad = atan2(dir.x, dir.z)

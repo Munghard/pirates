@@ -7,6 +7,9 @@ var audio_hit = preload("res://Audio/cannonball_hit.mp3")
 var audioManager: AudioManager
 @export var particle: PackedScene
 
+func _ready() -> void:
+	await get_tree().create_timer(10.0).timeout
+	queue_free()
 
 func _on_body_entered(body: Node) -> void:
 	if body is not Ship:

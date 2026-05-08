@@ -24,8 +24,8 @@ var active := true # active status for process
 
 @export_group("Perception")
 var avoidance_distance := 5.0
-var perception_radius := 50.0
-var perception_timer := 0.0
+var perception_radius := 25.0
+var last_perception_time := 0.0
 var perception_interval := 5.0
 var flee_timer := 0.0
 var flee_duration := 10.0
@@ -123,13 +123,15 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		if ship and FactionsData.is_enemy(faction, ship.faction):
 			#compare ship stats and decide what to do
 			set_state(AIState.COMBAT)
-			if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item(2, 1) and inventory.has_item(3, 1):
-				set_combat_state(CombatState.PURSUE)
-			else:
-				set_combat_state(CombatState.FLEE)
+			set_combat_state(decide_combat_action(ship))
 	if hit_points <= 0:
 		set_state(AIState.SUNK)
 
+func decide_combat_action(ship: Ship) -> CombatState:
+	if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item(2, 1) and inventory.has_item(3, 1):
+		return CombatState.PURSUE
+	else:
+		return CombatState.FLEE
 
 func set_state(_ai_State: AIState):
 	ai_state = _ai_State
@@ -193,6 +195,8 @@ func _process(delta):
 			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
 		draw_line_to_target_point(line_route, target_point, Color.GREEN)
 	
+	var time = Time.get_ticks_msec() / 1000.0
+
 	if ai_state == AIState.COMBAT:
 		if is_instance_valid(attacker):
 			var to_attacker = attacker.global_position - global_position
@@ -232,7 +236,9 @@ func _process(delta):
 				final_dir = (target_dir + avoid_dir * 2.0).normalized()
 
 		var look_at_angle = rad_to_deg(atan2(final_dir.x, final_dir.z))
-
+		if time > last_perception_time + perception_interval:
+			last_perception_time = time
+			perception()
 		match ai_state:
 			AIState.ENROUTE:
 				en_route_behaviour(delta)
@@ -321,36 +327,25 @@ var target_point_height: float
 
 func perception():
 	var ships: Array = get_tree().get_nodes_in_group("Ships")
-	var ships_in_perception_radius = []
+	var ships_in_perception_radius: Array[Ship] = []
 	for ship: Ship in ships:
 		if (ship.global_position - global_position).length() < perception_radius:
 			ships_in_perception_radius.append(ship)
-	match faction:
-		FactionsData.Faction.NAVY:
-			var ships_in_faction = GameManager.get_ships_by_faction(ships_in_perception_radius, [FactionsData.Faction.PIRATE])
-			var closest_ship_in_target_faction = GameManager.get_closest_ship(ships_in_faction, self )
-			attacker = closest_ship_in_target_faction
-			set_combat_state(CombatState.PURSUE)
-			gameManager.hud.ddd_label("Spotted enemy ship", global_position)
-			
-		FactionsData.Faction.PIRATE:
-			# check in radius for merchants and slavers
-			var ships_in_faction = GameManager.get_ships_by_faction(ships_in_perception_radius, [FactionsData.Faction.MERCHANT, FactionsData.Faction.SLAVER, FactionsData.Faction.CARTOGRAPHER])
-			var closest_ship_in_target_faction = GameManager.get_closest_ship(ships_in_faction, self )
-			attacker = closest_ship_in_target_faction
-			set_combat_state(CombatState.PURSUE)
-			gameManager.hud.ddd_label("Spotted enemy ship", global_position)
-			
-		FactionsData.Faction.BOUNTYHUNTER:
-			# check in radius for pirates
-			var ships_in_faction = GameManager.get_ships_by_faction(ships_in_perception_radius, [FactionsData.Faction.MERCHANT, FactionsData.Faction.SLAVER])
-			var closest_ship_in_target_faction = GameManager.get_closest_ship(ships_in_faction, self )
-			attacker = closest_ship_in_target_faction
-			set_combat_state(CombatState.PURSUE)
-			gameManager.hud.ddd_label("Spotted enemy ship", global_position)
-		_:
-			#do nothing
-			pass
+
+	var enemy_factions := FactionsData.get_enemy_factions(faction)
+	var enemy_ships_in_perception_radius := GameManager.get_ships_by_faction(ships_in_perception_radius, enemy_factions)
+	var closest_ship_in_enemy_faction := GameManager.get_closest_ship(enemy_ships_in_perception_radius, self )
+	if closest_ship_in_enemy_faction:
+		attacker = closest_ship_in_enemy_faction
+		set_state(AIState.COMBAT)
+		set_combat_state(decide_combat_action(attacker))
+		var action_string = ""
+		if combat_state == CombatState.FLEE:
+			action_string = "fleeing"
+		elif combat_state == CombatState.PURSUE:
+			action_string = "pursuing"
+		gameManager.hud.ddd_label("Spotted enemy ship, " + action_string, global_position)
+	
 
 func get_new_waypoint() -> Vector3:
 	var max_attempts := 20

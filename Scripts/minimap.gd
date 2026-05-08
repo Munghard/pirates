@@ -9,7 +9,7 @@ extends HBoxContainer
 @export var minimap_scale_slider: VSlider
 @export var blip_scene: PackedScene = preload("res://UI/blip.tscn")
 @export var blip_a_scene: PackedScene = preload("res://UI/blip_a.tscn")
-var minimap_scale = 20.0
+var minimap_scale = 50.0
 
 func _ready() -> void:
 	await get_tree().process_frame
@@ -77,16 +77,24 @@ func update_minimap():
 	for ship: Ship in get_tree().get_nodes_in_group("Ships"):
 		if ship == gameManager.player_ship:
 			continue
-		var color = FactionsData.get_faction_color(ship.faction)
-		add_blip_to_minimap(ship, color, 1.75, blip_a_scene)
+		var enemy = FactionsData.is_enemy(gameManager.player_ship.faction, ship.faction)
+		var color = Color.GREEN
+		if enemy:
+			color = Color.RED
+		#var color = FactionsData.get_faction_color(ship.faction)
+		add_blip_to_minimap(ship, color, 1.25, blip_a_scene)
+		
+	for port: Node3D in get_tree().get_nodes_in_group("Ports"):
+		var enemy = FactionsData.is_enemy(gameManager.player_ship.faction, port.allegiance.faction)
+		var color = Color.GREEN
+		if enemy:
+			color = Color.RED
+		#var color = FactionsData.get_faction_color(port.allegiance.faction)
+		add_blip_to_minimap(port, color, 1.25, blip_scene)
 	
 	for floater: Node3D in get_tree().get_nodes_in_group("Floaters"):
 		var color = Color(1, 1, 1, 0.5)
 		add_blip_to_minimap(floater, color, 0.5, blip_scene)
-	
-	for port: Node3D in get_tree().get_nodes_in_group("Ports"):
-		var color = FactionsData.get_faction_color(port.allegiance.faction)
-		add_blip_to_minimap(port, color, 1.25, blip_scene)
 
 func add_blip_to_minimap(node: Node3D, color: Color, _scale: float, _blip_scene: PackedScene):
 	var pos = node.global_position

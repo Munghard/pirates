@@ -12,12 +12,12 @@ func use_item(id: int, ship: Ship, finished: Callable):
 
 func start_fishing(ship: Ship, finished: Callable):
 	ship.gameManager.hud.ddd_label("Started fishing", ship.global_position, Color.WHITE)
+	var pos = ship.global_position
 	await get_tree().create_timer(5.0).timeout
 	var roll = randf()
 	if roll > 0.5:
 		var amount = randi_range(1, 5)
 		ship.gameManager.hud.ddd_label("Got %s fish!" % [amount], ship.global_position, Color.GREEN)
-		var pos = ship.global_position
 		ship.gameManager.spawn_item_in_world(InventoryItem.new(0, amount), pos)
 	else:
 		ship.gameManager.hud.ddd_label("Got nothing...", ship.global_position, Color.GRAY)

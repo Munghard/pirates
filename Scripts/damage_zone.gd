@@ -13,9 +13,20 @@ func get_ship() -> Ship:
 		node = node.get_parent()
 	return null
 
+func get_whale() -> Whale:
+	var node = get_parent()
+	while node:
+		if node is Whale:
+			return node
+		node = node.get_parent()
+	return null
+
 func _on_body_entered(body: Node3D) -> void:
 	if body is CannonBall:
 		var cb = body as CannonBall
 		var ship = get_ship()
 		if ship:
 			ship.damage(cb.damage, damage_multiplier, cb.global_position, cb.shooter)
+		var whale = get_whale()
+		if whale:
+			whale.damage(cb.damage, damage_multiplier, cb.global_position, cb.shooter)

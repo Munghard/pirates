@@ -13,7 +13,13 @@ var player_ship: PlayerShip
 var docked := false
 var departing := false
 var ui: Control
+
+
+@export_group("Inventory")
 var inventory_panel
+var restock_time_left := 0.0
+var restock_interval := 600.0
+
 signal docking_changed(ship: Ship)
 signal in_docking_radius(value: bool)
 signal gold_changed(amount: int)
@@ -25,19 +31,23 @@ signal gold_changed(amount: int)
 @onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
 @onready var recovery_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_recovery
+@onready var restock_timer_label: Label = $world_bars/SubViewport/Control/VBoxContainer/Label_restock
 @onready var faction_texture: TextureRect = $world_bars/SubViewport/Control/faction_icon
 @onready var star_container: Control = $world_bars/SubViewport/Control/star_container
+@onready var header_label: Label = $world_bars/SubViewport/Control/VBoxContainer/Label_h
 
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 func _ready():
 	port_name = FactionsData.PORT_NAMES[randi_range(0, FactionsData.PORT_NAMES.size() - 1)]
+	header_label.text = port_name
 	var faction := FactionsData.roll_faction()
 	var nation := FactionsData.roll_nation()
 	allegiance = Allegiance.new(nation, faction, faction_texture)
 	
 	setup_inventory()
+	await get_tree().process_frame
 
 	var faction_data = FactionsData.get_faction_stats(faction)
 	gold = faction_data.gold
@@ -46,7 +56,26 @@ func _ready():
 	ship_healthbar.value = 100.0
 	crew_healthbar.value = 100.0
 	recovery_healthbar.value = 100.0
+
 	gold_changed.connect(_on_gold_changed)
+	
+	restock()
+	restock_time_left = restock_interval
+	restock_loop()
+
+func restock_loop():
+	while is_inside_tree():
+		await get_tree().process_frame
+		
+		restock_time_left -= get_process_delta_time()
+		var t = int(restock_time_left)
+		var minutes = t / 60.0
+		var seconds = t % 60
+		restock_timer_label.text = "%02d:%02d" % [minutes, seconds]
+		if restock_time_left <= 0.0:
+			restock()
+			restock_time_left = restock_interval
+		
 
 func get_closest_enemy_ship():
 	var ship_nodes: Array = get_tree().get_nodes_in_group("Ships")
@@ -129,11 +158,10 @@ func remove_gold(_gold: int):
 
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, port_name + " market")
-	await get_tree().process_frame
-	restock()
 
 
 func restock():
+	inventory.clear()
 	var items := FactionsData.get_faction_inventory(allegiance.faction)
 	for item in items:
 		inventory.add_item(item)
@@ -265,7 +293,7 @@ func entered_port():
 	player_ship.gameManager.hud.set_player_inventory_panel_visible(true)
 	# connect depart button
 	ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/DepartButton").pressed.connect(func(): depart())
-	var label_header: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_h")
+	var label_header: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer2/Label_h")
 	var label_gold: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_gold")
 	var label_faction: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_f")
 	
@@ -323,6 +351,13 @@ func buy_item(item_index: int):
 	)
 
 	bp.confirm.connect(func():
+		var faction_items = FactionsData.get_faction_inventory(allegiance.faction)
+		var _faction_has_item = false
+		for _item in faction_items:
+			if item.id == _item.id:
+				_faction_has_item = true
+				break
+
 		var buy_amount = bp.slider.value # or bp.slider.value
 		var cost = buy_amount * item_def.value
 		var item_to_buy = InventoryItem.new(item.id, buy_amount)
@@ -335,7 +370,7 @@ func buy_item(item_index: int):
 				_player_ship.inventory.add_item(item_to_buy)
 			else:
 				inventory.drop_item(item_to_buy)
-
+			#if not faction_has_item: ## dont consume item if its a faction item
 			inventory.consume_item(item_to_buy.id, item_to_buy.stack)
 			print("player bought item in index: " + str(item_index))
 		else:
@@ -362,6 +397,10 @@ func create_upgrade_ui(root: Control, category: String, upgrade_name: String, up
 
 	# Create upgrade row
 	var new_upgrade_hbox = HBoxContainer.new()
+	
+	var spacer1 = Control.new()
+	spacer1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
 
 	var new_upgrade_label = Label.new()
 	new_upgrade_label.text = upgrade_name
@@ -383,6 +422,7 @@ func create_upgrade_ui(root: Control, category: String, upgrade_name: String, up
 	)
 
 	new_upgrade_hbox.add_child(new_upgrade_label)
+	new_upgrade_hbox.add_child(spacer1)
 	new_upgrade_hbox.add_child(new_upgrade_price_label)
 	new_upgrade_hbox.add_child(new_upgrade_button)
 

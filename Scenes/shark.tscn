@@ -1,15 +1,15 @@
-[gd_scene format=3 uid="uid://pf0uomw5fakb"]
+[gd_scene format=3 uid="uid://bfwc6ixjowmee"]
 
-[ext_resource type="Script" uid="uid://dyuowufq5420f" path="res://Scripts/whale.gd" id="1_ltmiw"]
-[ext_resource type="PackedScene" uid="uid://ct558ie2pbo8v" path="res://Models/Whale/Whale.fbx" id="1_ycc85"]
-[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_jns7k"]
-[ext_resource type="Texture2D" uid="uid://ckbe3l704haxa" path="res://Textures/canned-fish.png" id="4_ds6pt"]
-[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="5_ufkj0"]
-[ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="6_ufkj0"]
+[ext_resource type="Script" uid="uid://dyuowufq5420f" path="res://Scripts/whale.gd" id="1_neogv"]
+[ext_resource type="PackedScene" uid="uid://dwx2ky6bahhaj" path="res://Models/Shark/Shark.fbx" id="2_neogv"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="3_lqgej"]
+[ext_resource type="Texture2D" uid="uid://ckbe3l704haxa" path="res://Textures/canned-fish.png" id="4_k3iwt"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="5_sc22t"]
+[ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="6_pbome"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltmiw"]
-radius = 1.0380859
-height = 10.0
+radius = 0.76220703
+height = 5.223877
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_ufkj0"]
 viewport_path = NodePath("world_bars/SubViewport")
@@ -30,21 +30,21 @@ material = SubResource("StandardMaterial3D_4vff6")
 size = Vector2(5, 5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uwu8l"]
-size = Vector3(2.9804688, 2.6464844, 10.969727)
+size = Vector3(2.9804688, 1.8896484, 5.796509)
 
 [node name="Node3D2" type="RigidBody3D" unique_id=1904328216]
-script = ExtResource("1_ltmiw")
-max_hit_points = 40.0
+script = ExtResource("1_neogv")
+max_hit_points = 10.0
 
-[node name="Whale" parent="." unique_id=942368147 instance=ExtResource("1_ycc85")]
-transform = Transform3D(1, 0, 0, 0, 0.9759967, -0.21778554, 0, 0.21778554, 0.9759967, 0, 0, 0)
+[node name="Shark" parent="." unique_id=2141155127 instance=ExtResource("2_neogv")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, -0.17364311, 0)
 
 [node name="floater" type="Node3D" parent="." unique_id=1451019401 node_paths=PackedStringArray("target")]
-script = ExtResource("2_jns7k")
+script = ExtResource("3_lqgej")
 target = NodePath("..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=435408661]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.31180704, -1.6163213)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.056540668, -0.041003942)
 shape = SubResource("CapsuleShape3D_ltmiw")
 
 [node name="world_bars" type="Node3D" parent="." unique_id=1446492284]
@@ -77,7 +77,7 @@ custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = ExtResource("4_ds6pt")
+texture = ExtResource("4_k3iwt")
 expand_mode = 1
 stretch_mode = 5
 
@@ -95,7 +95,7 @@ alignment = 1
 
 [node name="pb_hp" type="ProgressBar" parent="world_bars/SubViewport/Control/VBoxContainer" unique_id=1338610037]
 layout_mode = 2
-theme = ExtResource("5_ufkj0")
+theme = ExtResource("5_sc22t")
 theme_type_variation = &"crew_pb"
 value = 15.78
 
@@ -105,10 +105,10 @@ cast_shadow = 0
 mesh = SubResource("QuadMesh_tw2h8")
 
 [node name="DamageZone" type="Area3D" parent="." unique_id=556070284]
-script = ExtResource("6_ufkj0")
+script = ExtResource("6_pbome")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone" unique_id=1617448511]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06677246, -1.3544617)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3116455, 0.052581787)
 shape = SubResource("BoxShape3D_uwu8l")
 debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 

@@ -101,12 +101,24 @@ func sell_item(item_index: int):
 		return
 	var item_def = Item_Database.get_item_definition(item.id)
 
+	var faction_items = FactionsData.get_faction_inventory(docked.allegiance.faction)
+	var faction_has_item = false
+	for _item in faction_items:
+		if item.id == _item.id:
+			faction_has_item = true
+			break
+
+
 	var bp = gameManager.hud.buy_panel.instantiate()
 	gameManager.hud.add_child(bp)
 	bp.label.text = "Sell %s" % [item_def.item_name]
 	bp.icon.texture = item_def.icon
 	bp.cost = item_def.value
-	bp.available_money = docked.gold
+	if faction_has_item:
+		bp.available_money = 999999
+	else:
+		bp.available_money = docked.gold
+
 	#bp.available_money = docked.inventory.item_amount(10)
 
 	var slider: Slider = bp.slider
@@ -121,11 +133,14 @@ func sell_item(item_index: int):
 		var sell_amount = bp.slider.value # or bp.slider.value
 		var cost = sell_amount * item_def.value
 		var item_to_sell = InventoryItem.new(item.id, sell_amount)
-
+		
+		var can_buy = faction_has_item or docked.gold >= cost
 		#if docked.inventory.item_amount(10) >= cost:
-		if docked.gold >= cost:
-			docked.remove_gold(cost)
+		if can_buy:
+			if not faction_has_item:
+				docked.remove_gold(cost)
 			gain_gold(cost)
+			
 			if docked.inventory.has_space():
 				docked.inventory.add_item(item_to_sell)
 			else:
