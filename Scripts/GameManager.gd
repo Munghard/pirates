@@ -34,6 +34,7 @@ func _ready() -> void:
 	
 	hud.init_hud()
 	debugMenu.init_debugMenu()
+	hud.toggle_map()
 
 
 func spawn_item_in_world(item: InventoryItem, _position: Vector3):
@@ -69,6 +70,8 @@ func _input(event: InputEvent) -> void:
 			move_player_to_random_port()
 		if event.keycode == KEY_TAB:
 			hud.toggle_player_inventory_panel()
+		if event.keycode == KEY_M:
+			hud.toggle_map()
 
 func move_player_to_random_port():
 	var ports = get_tree().get_nodes_in_group("Ports")

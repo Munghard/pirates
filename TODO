@@ -16,3 +16,30 @@ neat idea, dump items to get more speed and get away from attackers or to catch 
 
 TRY WEB BUILD TO SEE HOW IT WORKS
 RESEARCH WEB MULTIPLAYER
+
+
+SHIP TYPES
+
+-[x] Pirate → Brigantine
+Fast, aggressive, versatile. Classic pirate silhouette with mixed sails and lots of rigging.
+
+-[x] Merchant → East Indiaman
+Large cargo vessel with heavy hull and trade-focused design. Feels wealthy and important.
+
+-[x] Navy → Ship of the Line
+Massive multi-deck warship with rows of cannons. Instantly communicates military power.
+
+-[x] Slaver → Galley
+Oar-powered, cramped, brutal-looking. Fits the human misery vibe extremely well.
+
+-[x] Cartographer → Caravel
+Exploration ship. Compact, elegant, long-range, discovery-focused.
+
+-[] Bounty Hunter → Sloop-of-War
+Small military pursuit vessel. Fast enough to chase targets, armed enough to win fights.
+
+-[] Viking → Longship
+Obvious choice, but for good reason. Distinct silhouette and iconic identity.
+
+-x] Fisherman → Cutter
+Small practical working vessel. Functional and believable for coastal survival.

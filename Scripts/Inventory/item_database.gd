@@ -33,6 +33,8 @@ func create_items():
 	item_database.append(Item_Definition.new(11, 0, 10, 10, "Maps", "Charts and sea maps that can reveal valuable routes and locations.", preload("res://Textures/tied-scroll.png")))
 
 	item_database.append(Item_Definition.new(12, 1, 200, 1, "Spyglass", "Optical tool that greatly increases viewing distance at sea.", preload("res://Textures/spyglass.png")))
+	
+	item_database.append(Item_Definition.new(13, 2, 100, 5, "Repair kit", "Repair kit that allows quickly fixing the ship. Repairs 50.0hp over 25 seconds", preload("res://Textures/barrel.png")))
 	# generate ids for items automatically, this is a problem if im looking up items from previously known id
 	# for i in range(item_database.size()):
 	# 	var item = item_database[i] as Item_Definition

@@ -14,6 +14,7 @@ var minimap_scale = 50.0
 func _ready() -> void:
 	await get_tree().process_frame
 	minimap_scale_slider.value = minimap_scale
+	#minimap_terrain_texture.texture = create_minimap_terrain_texture()
 
 func _process(_delta):
 	if Time.get_ticks_msec() % 1000 < 50: # update minimap every second
@@ -31,12 +32,12 @@ func create_minimap_terrain_texture():
 			var h = img.get_pixel(x, y).r
 			h = smoothstep(0.3, 0.7, h)
 				# threshold (tweak this)
-			if h > 0.3:
+			if h > 0.5:
 				out.set_pixel(x, y, Color(0.5, 1, 0.5, 0.3))
 			else:
 				out.set_pixel(x, y, Color(1, 1, 1, 0))
 
-	minimap_terrain_texture.texture = ImageTexture.create_from_image(out)
+	return ImageTexture.create_from_image(out)
 
 func set_terrain_texture_transforms():
 	if not minimap_terrain_texture.texture:
@@ -72,7 +73,7 @@ func update_minimap():
 	
 	add_blip_to_minimap(gameManager.player_ship, Color(1, 1, 1), 2.5, blip_a_scene)
 	
-	set_terrain_texture_transforms()
+	#set_terrain_texture_transforms()
 
 	for ship: Ship in get_tree().get_nodes_in_group("Ships"):
 		if ship == gameManager.player_ship:

@@ -39,6 +39,8 @@
 [ext_resource type="Texture2D" uid="uid://vv17m6wwh6ht" path="res://Textures/bird.png" id="27_r0ikl"]
 [ext_resource type="Shader" uid="uid://xe1idcnl8y4i" path="res://Materials/tilt_shift.gdshader" id="33_coyub"]
 [ext_resource type="Script" uid="uid://bcmyufc0xuoqc" path="res://Scripts/Inventory/item_database.gd" id="35_coyub"]
+[ext_resource type="Script" uid="uid://cttiahx2sleji" path="res://Scenes/map.gd" id="36_atqvy"]
+[ext_resource type="Texture2D" uid="uid://n28bcoiuwkeb" path="res://Textures/ancient-parchment.png" id="37_w5giw"]
 [ext_resource type="Script" uid="uid://cqvdwut1w32af" path="res://Scripts/factions_data.gd" id="38_r74th"]
 
 [sub_resource type="Gradient" id="Gradient_r0ikl"]
@@ -400,9 +402,10 @@ theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
 [node name="DebugMenu" parent="MarginContainer" unique_id=188675057 instance=ExtResource("8_1vso6")]
+visible = false
 layout_mode = 2
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "depth_panel", "wind_control", "button_dock", "boarding_button", "notification_label")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "depth_panel", "wind_control", "button_dock", "boarding_button", "notification_label", "map")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
@@ -416,6 +419,7 @@ wind_control = NodePath("wind_gauge")
 button_dock = NodePath("HBoxContainer/Button_dock")
 boarding_button = NodePath("HBoxContainer/Button")
 notification_label = NodePath("notification_Label")
+map = NodePath("Map/Control")
 
 [node name="Minimap" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1823764123 node_paths=PackedStringArray("minimap", "minimap_terrain_texture", "minimap_scale_slider")]
 layout_mode = 1
@@ -423,7 +427,7 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -128.0
-offset_right = 148.0
+offset_right = 147.0
 grow_vertical = 0
 script = ExtResource("6_r0ikl")
 minimap = NodePath("Control/shape/Minimap")
@@ -452,22 +456,91 @@ texture = SubResource("GradientTexture2D_no8kt")
 
 [node name="Minimap" type="TextureRect" parent="MarginContainer/HUD/Minimap/Control/shape" unique_id=1442434696]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = SubResource("GradientTexture2D_no8kt")
 
 [node name="terrain" type="TextureRect" parent="MarginContainer/HUD/Minimap/Control/shape" unique_id=1163863373]
 layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = -64.0
+offset_bottom = -64.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset_ratio = Vector2(0.5, 0.5)
+mouse_filter = 2
+
+[node name="Map" type="Control" parent="MarginContainer/HUD" unique_id=462231806]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
+script = ExtResource("36_atqvy")
+
+[node name="Button_map" type="Button" parent="MarginContainer/HUD/Map" unique_id=1939787194]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -31.0
+offset_top = -31.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_vertical = 8
+text = "Map"
+
+[node name="Control" type="Control" parent="MarginContainer/HUD/Map" unique_id=978702583]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HUD/Map/Control" unique_id=1527875662]
+self_modulate = Color(0.9, 0.76124996, 0.67499995, 1)
+custom_minimum_size = Vector2(500, 500)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("37_w5giw")
+
+[node name="TextureRect2" type="TextureRect" parent="MarginContainer/HUD/Map/Control" unique_id=349148954]
+self_modulate = Color(0.69, 0.40434003, 0.2139, 0.7058824)
+custom_minimum_size = Vector2(500, 500)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 3.1415927
+pivot_offset_ratio = Vector2(0.5, 0.5)
 
 [node name="wind_gauge" type="TextureRect" parent="MarginContainer/HUD" unique_id=1041010364]
 layout_mode = 1
@@ -502,11 +575,14 @@ text = "Notifications"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1984033058]
 layout_mode = 1
-anchors_preset = 12
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
+offset_left = -102.0
 offset_top = -31.0
+offset_right = 102.0
 grow_horizontal = 2
 grow_vertical = 0
 alignment = 1
@@ -632,6 +708,7 @@ environment = SubResource("Environment_p5wkl")
 [connection signal="body_entered" from="SubViewportContainer/SubViewport/World/PlayerShip/Boarding_Area" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="SubViewportContainer/SubViewport/World/PlayerShip/Boarding_Area" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_boarding_area_body_exited"]
 [connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD/Minimap" method="_on_v_slider_value_changed"]
+[connection signal="pressed" from="MarginContainer/HUD/Map/Button_map" to="MarginContainer/HUD/Map" method="_on_button_map_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/HUD/wind_gauge" to="MarginContainer/HUD" method="_on_wind_gauge_mouse_entered"]
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button_dock" to="MarginContainer/HUD" method="_on_button_dock_pressed"]

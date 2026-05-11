@@ -1,21 +1,15 @@
 extends Node3D
 
-@onready var ship: Ship = get_parent() as Ship
 @export var width: float = 2.0
 @export var max_points := 20
 @export var point_distance := 2.0
-var water: Water
+
 var trail_points: Array[Vector3] = []
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @export var material: Material
-@export var y_offset: float = 0.2
 
 
 var last_point: Vector3
-
-func _ready() -> void:
-	await get_tree().process_frame
-	water = ship.gameManager.world.water
 
 func _process(_delta):
 	update_trail()
@@ -33,7 +27,6 @@ func update_trail():
 
 	for i in range(trail_points.size()):
 		var p = trail_points[i]
-		p.y = water.get_wave_data(p).height + y_offset
 		trail_points[i] = p
 
 func build_mesh():

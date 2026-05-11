@@ -13,10 +13,14 @@ func set_flag():
 	var flag_texture = FactionsData.get_flag(ship.nation, ship.faction)
 	mat.set_shader_parameter("flag_texture", flag_texture)
 
-func _ready():
-	sails.append(ship_model.get_node("BackSail"))
-	sails.append(ship_model.get_node("Front Sail"))
-	sails.append(ship_model.get_node("MidleSail"))
+func setup_sails():
+	await get_tree().process_frame
+
+	sails.clear()
+	var children = ship_model.get_children()
+	for c in children:
+		if c.name.to_lower().contains("sail"):
+			sails.append(c)
 
 
 func _process(delta):
@@ -27,6 +31,8 @@ func _process(delta):
 	var target_rot_y = atan2(local_wind.x, local_wind.z)
 
 	for sail in sails:
+		if sail == null:
+			return
 		var rot = sail.rotation
 		rot.y = lerp_angle(rot.y, target_rot_y, 3.0 * delta)
 		sail.rotation = rot

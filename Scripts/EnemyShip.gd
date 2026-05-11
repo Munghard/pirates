@@ -29,8 +29,8 @@ var last_perception_time := 0.0
 var perception_interval := 5.0
 var flee_timer := 0.0
 var flee_duration := 10.0
-var agro_dist := 100.0
-var pursue_dist := 200.0
+var agro_dist := 50.0
+var pursue_dist := 100.0
 var height_buffer = 2.0
 
 
@@ -71,14 +71,14 @@ func _ready() -> void:
 	ship_name = FactionsData.get_random_name()
 
 	level = randi_range(1, 5)
-	faction = FactionsData.roll_faction()
 	nation = FactionsData.roll_nation()
+	faction = FactionsData.roll_faction(nation)
 
 	var faction_stats = FactionsData.get_faction_stats(faction)
 
 	max_hit_points = faction_stats.max_hit_points
-	attack = faction_stats.attack
-	defense = faction_stats.defense
+	attack = 1 # faction_stats.attack
+	defense = 1 # faction_stats.defense
 	top_speed = faction_stats.speed
 	gold = faction_stats.gold
 	crew = faction_stats.max_crew
@@ -99,8 +99,10 @@ func _ready() -> void:
 	navigation_markers.visible = false
 	world_bars.visible = false
 
+
 	setup_inventory()
 	setup_cannons()
+	setup_ship_model(faction)
 
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
@@ -304,7 +306,7 @@ func en_route_behaviour(delta: float):
 	if requesting_waypoint:
 		return
 
-	if route_timer >= change_route or (global_position - target_point).length() < 10.0:
+	if route_timer >= change_route or (global_position - target_point).length() < 20.0:
 		requesting_waypoint = true
 		route_timer = 0
 		change_route = randf_range(100.0, 500.0)

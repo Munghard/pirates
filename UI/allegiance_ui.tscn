@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://bhc60g2vvbldd"]
+
+[ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="1_1wcdd"]
+[ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="2_v4crw"]
+
+[node name="Allegiance_ui" type="HBoxContainer" unique_id=891232409]
+offset_right = 411.0
+offset_bottom = 50.0
+size_flags_horizontal = 3
+
+[node name="texture_flag" type="TextureRect" parent="." unique_id=263656025]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+texture = ExtResource("1_1wcdd")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=2124980279]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 10
+color = Color(0.14406255, 0.14406255, 0.14406255, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="faction_icon" type="TextureRect" parent="ColorRect" unique_id=1779752683]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 1
+offset_right = 50.0
+offset_bottom = 50.0
+texture = ExtResource("2_v4crw")
+expand_mode = 1

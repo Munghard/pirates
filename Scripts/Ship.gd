@@ -95,6 +95,8 @@ signal boarding_changed(ship: Ship)
 
 signal boarded_changed(ship: Ship)
 
+signal destroyed_ship(ship: Ship)
+
 @export_group("World UI")
 @onready var world_bars: Node3D = $world_bars
 @onready var ship_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
@@ -122,6 +124,66 @@ func _ready():
 	ship_healthbar.max_value = max_hit_points
 	recovery_healthbar.value = 1.0
 	recovery_healthbar.max_value = 1.0
+	
+	
+func setup_ship_model(_faction: FactionsData.Faction):
+	var s = ship_pivot.ship_model
+	if s:
+		s.queue_free()
+
+	var ship_model: PackedScene
+	var model
+
+	ship_model = load("res://Models/ships.blend")
+	var ships = ship_model.instantiate()
+	match _faction:
+		FactionsData.Faction.PIRATE:
+			model = ships.get_node("Brigantine")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+
+		FactionsData.Faction.MERCHANT:
+			model = ships.get_node("EastIndiaman")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+		
+		FactionsData.Faction.SLAVER:
+			model = ships.get_node("Galley")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+		
+		FactionsData.Faction.NAVY:
+			model = ships.get_node("SOTL")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+		
+		FactionsData.Faction.CARTOGRAPHER:
+			model = ships.get_node("Caravel")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+
+		FactionsData.Faction.FISHERMAN:
+			model = ships.get_node("Cutter")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+		
+		FactionsData.Faction.VIKING:
+			model = ships.get_node("Longship")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+
+		_:
+			ship_model = load("res://Models/Sail ship.fbx")
+			model = ship_model.instantiate()
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+
+	# wait for ship_model to come into tree
+	await get_tree().process_frame
+
+	ship_pivot.ship_model = model
+
+	ship_pivot.setup_sails()
 
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
@@ -249,6 +311,9 @@ func kill_crew(amount: int):
 
 
 func destroy_ship(destroyer: Node3D):
+	var destroyer_ship = destroyer as Ship
+	if destroyer_ship:
+		destroyer_ship.emit_signal("destroyed_ship", self )
 	if destroyed:
 		return
 	on_destroyed.emit(destroyer)
@@ -315,8 +380,11 @@ func _process(_delta):
 
 func repair(_delta):
 	if not in_combat and hit_points < max_hit_points:
-		hit_points += _delta * 1.0 * (float(crew) / float(max_crew))
-		emit_signal("hit_points_changed", hit_points)
+		gain_hitpoints(_delta * 1.0 * (float(crew) / float(max_crew)))
+
+func gain_hitpoints(hp: float):
+	hit_points = clamp(hit_points + hp, 0, max_hit_points)
+	emit_signal("hit_points_changed", hit_points)
 
 func sink():
 	spawn_loot()
@@ -385,10 +453,11 @@ func _physics_process(_delta: float) -> void:
 
 	# incapacitated check
 	var capable_speed = target_speed
+	var side_limit = top_speed / 2.0
 	if incapacitated:
 		capable_speed = clampf(target_speed, -0.5, 0.5)
+		side_limit *= 0.5
 
-	var side_limit = abs(capable_speed)
 	actual_speed = capable_speed # + (wind_along_forward) # overriding wind effect (1.0 + wind_along_forward)
 	side_to_side_speed = clamp(side_to_side_speed, -side_limit, side_limit)
 	apply_central_force((right * side_to_side_speed) + (forward * actual_speed) * 5.0)

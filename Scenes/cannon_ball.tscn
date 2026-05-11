@@ -2,11 +2,30 @@
 
 [ext_resource type="Script" uid="uid://de126hsuavfvs" path="res://Scripts/cannon_ball.gd" id="1_fd25l"]
 [ext_resource type="PackedScene" uid="uid://dq1j8nemeakaq" path="res://Effects/smoke_plume.tscn" id="2_qobvt"]
+[ext_resource type="Script" uid="uid://buhd37ejbogfu" path="res://Scenes/smoke_trail.gd" id="3_0vp37"]
+[ext_resource type="Shader" uid="uid://dfyv7sk7nc8ku" path="res://Materials/wake.gdshader" id="4_gjd6o"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_10215"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_fd25l"]
 radius = 0.1
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_h2s8a"]
+noise_type = 2
+frequency = 0.0487
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_i6mx8"]
+width = 64
+height = 64
+noise = SubResource("FastNoiseLite_h2s8a")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gjd6o"]
+render_priority = 0
+shader = ExtResource("4_gjd6o")
+shader_parameter/noise = SubResource("NoiseTexture2D_i6mx8")
+shader_parameter/scale = 0.105
+shader_parameter/opacity = 1.0
 
 [node name="cannon_ball" type="RigidBody3D" unique_id=915416495]
 contact_monitor = true
@@ -20,5 +39,13 @@ mesh = SubResource("SphereMesh_10215")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=275129911]
 shape = SubResource("SphereShape3D_fd25l")
+
+[node name="Smoke_trail" type="Node3D" parent="." unique_id=922096131]
+script = ExtResource("3_0vp37")
+width = 0.25
+point_distance = 0.5
+material = SubResource("ShaderMaterial_gjd6o")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Smoke_trail" unique_id=1562381320]
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

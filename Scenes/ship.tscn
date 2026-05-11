@@ -194,21 +194,12 @@ debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 
 [node name="Wake" parent="." unique_id=391220487 instance=ExtResource("9_v2j2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
+point_distance = 1.0
 
 [node name="lights" type="Node3D" parent="." unique_id=1428190088]
 
 [node name="OmniLight3D" type="OmniLight3D" parent="lights" unique_id=1105497422]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9814739, -0.5132023)
-light_color = Color(1, 0.6166667, 0, 1)
-light_energy = 2.0
-
-[node name="OmniLight3D2" type="OmniLight3D" parent="lights" unique_id=989591676]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9814739, 0.8304757)
-light_color = Color(1, 0.6166667, 0, 1)
-light_energy = 2.0
-
-[node name="OmniLight3D3" type="OmniLight3D" parent="lights" unique_id=345868513]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3841858e-07, 1.5136224, -2.223363)
 light_color = Color(1, 0.6166667, 0, 1)
 light_energy = 2.0
 

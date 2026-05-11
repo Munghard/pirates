@@ -1,20 +1,28 @@
 extends Node
 
+# ideas for chaos faction, attacks everyone, very dangerous
+# faction name:
+# Black Tide, Cult of the black tide
+# The Saltborn, Cult of the Saltborn
+# Church of the Last Tide, Cult of the Last Tide
+
 class_name FactionsData
 
-enum Nation {ENGLAND, SPAIN, FRANCE, NETHERLANDS}
+enum Nation {ENGLAND, SPAIN, FRANCE, NETHERLANDS, NORDIC}
 const NATION_NAMES = {
 	Nation.ENGLAND: "ENGLAND",
 	Nation.SPAIN: "SPAIN",
 	Nation.FRANCE: "FRANCE",
 	Nation.NETHERLANDS: "NETHERLANDS",
+	Nation.NORDIC: "NORDIC",
 }
 
 const NATION_FLAGS = {
 	Nation.ENGLAND: preload("res://Textures/Flag_of_the_United_Kingdom.png"),
 	Nation.SPAIN: preload("res://Textures/Bandera_de_España.png"),
 	Nation.FRANCE: preload("res://Textures/flag_of_France.png"),
-	Nation.NETHERLANDS: preload("res://Textures/Flag_of_the_Netherlands.png")
+	Nation.NETHERLANDS: preload("res://Textures/Flag_of_the_Netherlands.png"),
+	Nation.NORDIC: preload("res://Textures/raven-banner-vikings.jpg")
 }
 static func get_flag(nation: Nation, faction: Faction) -> Texture2D:
 	var flag = NATION_FLAGS.get(nation)
@@ -144,13 +152,21 @@ static func get_faction_color(faction: Faction) -> Color:
 	var color: Color
 	match faction:
 		Faction.PIRATE:
-			color = Color(1, 0.2, 0)
+			color = Color(1.0, 0.2, 0.0)
 		Faction.MERCHANT:
-			color = Color(0, 1, 0.5)
+			color = Color(0.0, 1.0, 0.5)
 		Faction.NAVY:
-			color = Color(0, 0.5, 1)
+			color = Color(0.0, 0.5, 1.0)
 		Faction.SLAVER:
 			color = Color(0.8, 0.5, 0.8)
+		Faction.BOUNTYHUNTER:
+			color = Color(0.8, 0.2, 0.2)
+		Faction.VIKING:
+			color = Color(0.8, 0.8, 0.2)
+		Faction.CARTOGRAPHER:
+			color = Color(0.8, 0.2, 0.8)
+		Faction.FISHERMAN:
+			color = Color(0.2, 0.8, 0.8)
 		_:
 			color = Color(0.5, 0.5, 0.5)
 	return color
@@ -172,6 +188,8 @@ static func get_faction_icon(faction: Faction) -> Texture:
 			texture = preload("res://Textures/wanted-reward.png")
 		Faction.VIKING:
 			texture = preload("res://Textures/viking-helmet.png")
+		Faction.CARTOGRAPHER:
+			texture = preload("res://Textures/globe.png")
 		_:
 			texture = preload("res://Textures/sailboat.png")
 	return texture
@@ -270,6 +288,13 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 				InventoryItem.new(11, randi_range(10, 50)),
 				InventoryItem.new(6, randi_range(10, 50)),
 			]
+		Faction.VIKING:
+			items = [
+				InventoryItem.new(0, randi_range(1, 10)),
+				InventoryItem.new(4, randi_range(5, 50)),
+				InventoryItem.new(5, randi_range(1, 5)),
+				InventoryItem.new(9, randi_range(20, 50)),
+			]
 		Faction.FISHERMAN:
 			items = [
 				InventoryItem.new(0, randi_range(1, 10)),
@@ -280,9 +305,9 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 			]
 		_:
 			items = [
-				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 10)),
-				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 10)),
-				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 10)),
+				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 3)),
+				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 3)),
+				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 3)),
 			]
 
 	return items
@@ -306,19 +331,64 @@ static func roll_nation() -> FactionsData.Nation:
 		FactionsData.Nation.ENGLAND: 20,
 		FactionsData.Nation.SPAIN: 20,
 		FactionsData.Nation.FRANCE: 20,
-		FactionsData.Nation.NETHERLANDS: 20
+		FactionsData.Nation.NETHERLANDS: 20,
+		FactionsData.Nation.NORDIC: 20
 		})
 	return rolled_nation
 
-static func roll_faction() -> FactionsData.Faction:
-	var rolled_faction = FactionsData.roll_weighted({
-		FactionsData.Faction.NAVY: 25,
-		FactionsData.Faction.MERCHANT: 25,
-		FactionsData.Faction.PIRATE: 20,
-		FactionsData.Faction.SLAVER: 10,
-		FactionsData.Faction.CARTOGRAPHER: 10,
-		FactionsData.Faction.BOUNTYHUNTER: 10,
-		FactionsData.Faction.VIKING: 10,
-		FactionsData.Faction.FISHERMAN: 10,
-	})
+static func roll_faction(nation: FactionsData.Nation) -> FactionsData.Faction:
+	var rolled_faction
+	
+	# ENGLAND, SPAIN, FRANCE, NETHERLANDS, NORDIC
+	match nation:
+		FactionsData.Nation.ENGLAND:
+			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NAVY: 35,
+				FactionsData.Faction.MERCHANT: 25,
+				FactionsData.Faction.PIRATE: 15,
+				FactionsData.Faction.BOUNTYHUNTER: 10,
+				FactionsData.Faction.CARTOGRAPHER: 10,
+				FactionsData.Faction.FISHERMAN: 5,
+			})
+
+		FactionsData.Nation.SPAIN:
+			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NAVY: 30,
+				FactionsData.Faction.SLAVER: 25,
+				FactionsData.Faction.MERCHANT: 20,
+				FactionsData.Faction.CARTOGRAPHER: 15,
+				FactionsData.Faction.PIRATE: 5,
+				FactionsData.Faction.BOUNTYHUNTER: 5,
+			})
+
+		FactionsData.Nation.FRANCE:
+			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NAVY: 25,
+				FactionsData.Faction.MERCHANT: 25,
+				FactionsData.Faction.PIRATE: 20,
+				FactionsData.Faction.BOUNTYHUNTER: 15,
+				FactionsData.Faction.CARTOGRAPHER: 10,
+				FactionsData.Faction.FISHERMAN: 5,
+			})
+
+		FactionsData.Nation.NETHERLANDS:
+			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.MERCHANT: 40,
+				FactionsData.Faction.CARTOGRAPHER: 20,
+				FactionsData.Faction.NAVY: 15,
+				FactionsData.Faction.PIRATE: 10,
+				FactionsData.Faction.FISHERMAN: 10,
+				FactionsData.Faction.BOUNTYHUNTER: 5,
+			})
+
+		FactionsData.Nation.NORDIC:
+			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.VIKING: 35,
+				FactionsData.Faction.FISHERMAN: 25,
+				FactionsData.Faction.CARTOGRAPHER: 15,
+				FactionsData.Faction.MERCHANT: 10,
+				FactionsData.Faction.PIRATE: 10,
+				FactionsData.Faction.BOUNTYHUNTER: 5,
+			})
+		
 	return rolled_faction

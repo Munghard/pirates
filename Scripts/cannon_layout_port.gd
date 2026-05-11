@@ -15,7 +15,7 @@ func _ready():
 	create_canons(true)
 
 func create_canons(active: bool):
-	print("creating cannons in port");
+	#print("creating cannons in port");
 	for child in get_children():
 		child.queue_free()
 	cannons.clear()

@@ -227,16 +227,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9814739, -0.5132023)
 light_color = Color(1, 0.6166667, 0, 1)
 light_energy = 2.0
 
-[node name="OmniLight3D2" type="OmniLight3D" parent="lights" unique_id=1040753591]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9814739, 0.8304757)
-light_color = Color(1, 0.6166667, 0, 1)
-light_energy = 2.0
-
-[node name="OmniLight3D3" type="OmniLight3D" parent="lights" unique_id=651731557]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3841858e-07, 1.5136224, -2.223363)
-light_color = Color(1, 0.6166667, 0, 1)
-light_energy = 2.0
-
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_entered" from="Area3D" to="." method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="Area3D" to="." method="_on_boarding_area_body_exited"]

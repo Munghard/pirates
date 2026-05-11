@@ -4,7 +4,7 @@ class_name Camera
 @export var target: Node3D
 @export var secondary_target: Node3D
 @onready var camera := $Camera3D
-var target_position
+var target_position: Vector3
 
 var return_delay := 2.0
 var return_timer := 0.0
@@ -13,6 +13,11 @@ var max_distance := 25.0
 var pan_multiplier := 1.0
 
 var max_camera_size := 200.0
+
+var zoom := 0.0
+
+func _ready():
+	zoom = camera.size
 
 func get_max_distance() -> float:
 	return max_distance * pan_multiplier
@@ -47,8 +52,13 @@ func _process(delta: float) -> void:
 
 	global_position = global_position.lerp(target_position, delta * 5.0)
 
+	var distance_to_target := global_position.distance_to(target_position)
+	var auto_zoom = distance_to_target * 0.5
+
+	camera.size = zoom + auto_zoom
+
 func set_zoom(value: float):
-	camera.size = clamp(camera.size + value, 1, max_camera_size)
+	zoom = clamp(camera.size + value, 1, max_camera_size)
 	# camera.position.z = clamp(camera.position.z + value, -200.0, -1.0)
 
 func add_pitch(value: float):

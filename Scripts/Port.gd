@@ -7,6 +7,9 @@ var allegiance: Allegiance
 var inventory: Inventory
 @export var port_ui: PackedScene
 
+
+var crew_to_recruit := 0
+var crew_to_hire := 0
 var agro_range := 25
 var gold := 500
 var player_ship: PlayerShip
@@ -14,6 +17,7 @@ var docked := false
 var departing := false
 var ui: Control
 
+@onready var dock_sound = preload("res://Audio/ship-bell-two-chimes.mp3")
 
 @export_group("Inventory")
 var inventory_panel
@@ -42,8 +46,8 @@ signal gold_changed(amount: int)
 func _ready():
 	port_name = FactionsData.PORT_NAMES[randi_range(0, FactionsData.PORT_NAMES.size() - 1)]
 	header_label.text = port_name
-	var faction := FactionsData.roll_faction()
 	var nation := FactionsData.roll_nation()
+	var faction := FactionsData.roll_faction(nation)
 	allegiance = Allegiance.new(nation, faction, faction_texture)
 	
 	setup_inventory()
@@ -161,6 +165,8 @@ func setup_inventory():
 
 
 func restock():
+	crew_to_hire = randi_range(1, 20)
+	crew_to_recruit = randi_range(1, 5)
 	inventory.clear()
 	var items := FactionsData.get_faction_inventory(allegiance.faction)
 	for item in items:
@@ -240,6 +246,7 @@ func dock():
 	if not player_ship:
 		print("cant dock, playership null")
 		return
+	gameManager.audioManager.play_sound(dock_sound, 0.0, -10.0)
 	docked = true
 	departing = false
 	
@@ -281,8 +288,26 @@ func _on_gold_changed(_gold: int):
 func left_port():
 	pass
 	
+func set_faction_icon(_faction: FactionsData.Faction):
+	if not ui:
+		return
+	var _faction_texture = FactionsData.get_faction_icon(_faction)
+	var faction_texture_rect: TextureRect = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Allegiance_ui/ColorRect/faction_icon")
+	faction_texture_rect.texture = _faction_texture
+
+func set_flag(_nation: FactionsData.Nation, _faction: FactionsData.Faction):
+	if not ui:
+		return
+	var flag_texture_rect: TextureRect = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Allegiance_ui/texture_flag")
+	var flag_texture = FactionsData.get_flag(_nation, _faction)
+	flag_texture_rect.texture = flag_texture
+
 
 func entered_port():
+	update_port_ui()
+
+
+func update_port_ui():
 	# delete existing ui if any
 	if ui:
 		ui.queue_free()
@@ -297,6 +322,9 @@ func entered_port():
 	var label_gold: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_gold")
 	var label_faction: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_f")
 	
+	set_flag(allegiance.nation, allegiance.faction)
+	set_faction_icon(allegiance.faction)
+	
 	label_header.text = "%s"%port_name
 	label_gold.text = "Gold: %s"%gold
 	label_faction.text = "%s\n%s" % [FactionsData.NATION_NAMES.get(allegiance.nation), FactionsData.FACTION_NAMES.get(allegiance.faction)]
@@ -309,12 +337,27 @@ func entered_port():
 	var ps = player_ship
 
 	var root = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer")
+	
+	var services_label := Label.new()
+	services_label.text = "Services"
+	services_label.theme_type_variation = "HeaderLarge"
+
+	root.add_child(services_label)
 	# create upgrades
-	create_upgrade_ui(root, "SUPPLIES", "Buy supplies", 100, func(): ps.gain_supplies(100))
+	if crew_to_hire > 0:
+		create_upgrade_ui(root, "CREW", "Hire crew: " + str(crew_to_hire) + " left", 100, func():
+			crew_to_hire -= 1
+			ps.gain_crew(1)
+		)
+		
+	if crew_to_recruit > 0:
+		create_upgrade_ui(root, "CREW", "Recruit crew: " + str(crew_to_recruit) + " left", 0, func():
+			crew_to_recruit -= 1
+			ps.gain_crew(1)
+		)
 	create_upgrade_ui(root, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
 	create_upgrade_ui(root, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
-	create_upgrade_ui(root, "CREW", "Hire crew", 100, func(): ps.gain_crew(1))
-	create_upgrade_ui(root, "CREW", "Recruit crew", 0, func(): ps.gain_crew(1))
+	
 	create_upgrade_ui(root, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
 	create_upgrade_ui(root, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
 	create_upgrade_ui(root, "COMBAT", "Upgrade defense", 500, func(): ps.defense += 1.0)
@@ -419,6 +462,7 @@ func create_upgrade_ui(root: Control, category: String, upgrade_name: String, up
 			player_ship.gameManager.hud.new_notification("Acquired %s" % upgrade_name)
 		else:
 			print("Not enough gold for upgrade: ", upgrade_name)
+		update_port_ui()
 	)
 
 	new_upgrade_hbox.add_child(new_upgrade_label)

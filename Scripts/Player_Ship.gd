@@ -2,6 +2,7 @@ extends Ship
 
 class_name PlayerShip
 
+@onready var fanfare = preload("res://Audio/fanfare.mp3")
 
 func _ready() -> void:
 	super._ready()
@@ -11,8 +12,8 @@ func _ready() -> void:
 	
 	max_hit_points = faction_stats.max_hit_points
 	hit_points = max_hit_points
-	attack = faction_stats.attack
-	defense = faction_stats.defense
+	attack = 1 # faction_stats.attack
+	defense = 1 # faction_stats.defense
 	top_speed = faction_stats.speed
 	
 	gold = faction_stats.gold
@@ -27,6 +28,7 @@ func _ready() -> void:
 	connect("crew_lost", Callable(self , "_on_crew_lost"))
 
 	connect("recieved_damage", Callable(self , "_on_recieved_damage"))
+	connect("destroyed_ship", Callable(self , "_on_destroyed_ship"))
 	
 	#active_starboard(true)
 	#active_port(true)
@@ -34,6 +36,8 @@ func _ready() -> void:
 	
 	setup_inventory()
 	setup_cannons()
+
+	setup_ship_model(faction)
 	
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, "Player cargo")
@@ -49,6 +53,7 @@ func setup_inventory():
 	inventory.add_item(InventoryItem.new(3, 50))
 	inventory.add_item(InventoryItem.new(12, 1))
 	inventory.add_item(InventoryItem.new(9, 1))
+	inventory.add_item(InventoryItem.new(13, 5))
 
 	docked_changed.connect(func(_dock): _on_inventory_changed(inventory))
 
@@ -90,8 +95,10 @@ func use_item(item_index: int):
 	item_use = Item_Use.new()
 	add_child(item_use)
 	print("Trying to use " + item_def.item_name);
-	item_use.use_item(item_def.id, self , func finished():
-		inventory.consume_item_at(item_index, 1)
+	item_use.use_item(item_def.id, self , func finished(consume):
+		item_use.queue_free()
+		if consume:
+			inventory.consume_item_at(item_index, 1)
 	)
 	
 
@@ -156,6 +163,10 @@ func sell_item(item_index: int):
 
 func _inventory_changed(_message: String):
 	gameManager.hud.new_notification(_message)
+
+func _on_destroyed_ship(ship: Ship):
+	if FactionsData.is_enemy(ship.faction, faction):
+		gameManager.audioManager.play_sound(fanfare)
 
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
 	gameManager.camerarig.secondary_target = _attacker

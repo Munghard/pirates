@@ -16,6 +16,9 @@ class_name HUD
 @export var boarding_button: Button
 
 @export var notification_label: Label
+
+@export var map: Control
+
 var notification_queue: Array[String] = []
 var showing_notifications = false
 
@@ -53,6 +56,9 @@ func _on_time_changed(time: float):
 
 func _on_boarding_target_changed(ship: Ship):
 	boarding_button.visible = ship != null and ship.can_be_boarded()
+
+func toggle_map():
+	map.visible = !map.visible
 
 func select_ship(ship: Ship):
 	gameManager.select_ship(ship)
