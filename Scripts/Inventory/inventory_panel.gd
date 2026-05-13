@@ -57,7 +57,7 @@ func unhover():
 	if tooltip:
 		tooltip.queue_free()
 
-func hover(pos: Vector2, _id: int):
+func hover(pos: Vector2, _id: String):
 	var viewport_size = get_viewport().get_visible_rect().size
 	var item_def = Item_Database.get_item_definition(_id)
 

@@ -2,13 +2,13 @@ extends Node
 
 class_name Item_Use
 
-func use_item(id: int, ship: Ship, finished: Callable, consume: Callable):
+func use_item(id: String, ship: Ship, finished: Callable, consume: Callable):
 	match id:
-		9:
+		"fishing_gear":
 			start_fishing(ship, finished, consume)
-		13:
+		"repair_kit":
 			start_ship_repair(ship, 10.0, finished, consume)
-		14:
+		"diving_suit":
 			start_dive(ship, finished, consume)
 		_:
 			finished.call()
@@ -55,7 +55,7 @@ func start_fishing(ship: Ship, finished: Callable, consume: Callable):
 	if roll > 0.5:
 		var amount = randi_range(1, 5)
 		ship.gameManager.hud.ddd_label("Got %s fish!" % [amount], ship.global_position, Color.GREEN)
-		ship.gameManager.spawn_item_in_world(InventoryItem.new(0, amount), pos)
+		ship.gameManager.spawn_item_in_world(InventoryItem.new("rations", amount), pos)
 	else:
 		ship.gameManager.hud.ddd_label("Got nothing...", ship.global_position, Color.GRAY)
 	

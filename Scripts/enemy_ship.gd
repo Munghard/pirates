@@ -131,7 +131,7 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		set_state(AIState.SUNK)
 
 func decide_combat_action(ship: Ship) -> CombatState:
-	if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item(2, 1) and inventory.has_item(3, 1):
+	if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item_type(Item_Definition.Type.CANNON, 1) and inventory.has_item("cannon_balls", 1):
 		return CombatState.PURSUE
 	else:
 		return CombatState.FLEE
@@ -297,7 +297,7 @@ func _handle_shooting(target: Vector3):
 	# We check if the PORT side (rotation + 90) is facing the target
 	var diff = wrapf(yaw_deg - 90.0 - angle_to_target, -180, 180)
 
-	if abs(diff) < 15.0 and inventory.has_item(3, 1):
+	if abs(diff) < 15.0 and inventory.has_item_type(Item_Definition.Type.CANNON, 1):
 		set_canon_pitch(dist / 2.0) # Ensure your Ship class handles pitch units correctly
 		shoot_port()
 		

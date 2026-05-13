@@ -136,15 +136,15 @@ albedo_texture = ExtResource("27_r0ikl")
 material = SubResource("StandardMaterial3D_p5wkl")
 flip_faces = true
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_6mm6r"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xcb5n"]
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("29_al5m0")
 shader_parameter/flag_texture = ExtResource("30_6mm6r")
 
-[sub_resource type="QuadMesh" id="QuadMesh_xcb5n"]
+[sub_resource type="QuadMesh" id="QuadMesh_te07t"]
 resource_local_to_scene = true
-material = SubResource("ShaderMaterial_6mm6r")
+material = SubResource("ShaderMaterial_xcb5n")
 size = Vector2(0.75, 0.5)
 subdivide_width = 10
 center_offset = Vector3(0.375, 0, 0)
@@ -369,7 +369,7 @@ ship = NodePath("..")
 ship = NodePath("../..")
 
 [node name="flag" parent="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/flag_pole" parent_id_path=PackedInt32Array(7143519, 37573427) index="0" unique_id=427128270]
-mesh = SubResource("QuadMesh_xcb5n")
+mesh = SubResource("QuadMesh_te07t")
 
 [node name="floater" parent="SubViewportContainer/SubViewport/World/PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
 water = NodePath("../../Water")

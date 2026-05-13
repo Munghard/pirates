@@ -56,16 +56,12 @@ func setup_inventory():
 	add_player_loadout()
 
 func add_player_loadout():
-	inventory.add_item(InventoryItem.new(2, 2))
-	inventory.add_item(InventoryItem.new(15, 2))
-	inventory.add_item(InventoryItem.new(16, 2))
-	inventory.add_item(InventoryItem.new(0, 30))
-	inventory.add_item(InventoryItem.new(1, 30))
-	inventory.add_item(InventoryItem.new(3, 50))
-	inventory.add_item(InventoryItem.new(12, 1))
-	inventory.add_item(InventoryItem.new(9, 10))
-	inventory.add_item(InventoryItem.new(13, 5))
-	inventory.add_item(InventoryItem.new(18, 1))
+	inventory.add_item(InventoryItem.new("six_pounder", 2))
+	inventory.add_item(InventoryItem.new("rations", 30))
+	inventory.add_item(InventoryItem.new("rum", 30))
+	inventory.add_item(InventoryItem.new("cannon_balls", 50))
+	inventory.add_item(InventoryItem.new("fishing_gear", 10))
+	inventory.add_item(InventoryItem.new("repair_kit", 5))
 
 func connect_inventory_listeners(_inventory: Inventory):
 	if not inventory.inventory_changed.is_connected(_on_inventory_changed):
@@ -78,7 +74,7 @@ func _on_inventory_changed(_inventory: Inventory):
 	#super._on_inventory_changed(_inventory) # setup cannons runs in here
 	# spyglass effect
 	var pan_multiplier = 1.0
-	if _inventory.has_item(12, 1):
+	if _inventory.has_item("spyglass", 1):
 		pan_multiplier = 2.0
 	gameManager.camerarig.pan_multiplier = pan_multiplier
 
@@ -86,7 +82,7 @@ func _on_inventory_changed(_inventory: Inventory):
 	for child in get_children():
 		if child is FishingOperation:
 			child.queue_free()
-	if _inventory.has_item(18, 1):
+	if _inventory.has_item("fishing_rig", 1):
 		var fo = FishingOperation.new(gameManager)
 		add_child(fo)
 

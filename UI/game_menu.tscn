@@ -42,10 +42,13 @@ layout_mode = 2
 text = "Pirates"
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=213883082]
+[node name="Button_new_game" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=213883082]
 layout_mode = 2
 text = "New game"
 
-[node name="Button2" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1640470319]
+[node name="Button_delete_save" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1640470319]
 layout_mode = 2
 text = "Delete savefile"
+
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Button_new_game" to="." method="_on_button_new_game_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Button_delete_save" to="." method="_on_button_delete_save_pressed"]

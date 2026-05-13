@@ -132,15 +132,15 @@ func create_line():
 
 	mesh.surface_end()
 
-static func get_cannon_level(id: int):
+static func get_cannon_level(id: String):
 	var level = 0
 	match id:
-		2:
+		"six_pounder":
 			level = 1
-		15:
+		"twelve_pounder":
 			level = 2
-		16:
+		"twentyfour_pounder":
 			level = 3
-		17:
+		"thirtytwo_pounder":
 			level = 4
 	return level

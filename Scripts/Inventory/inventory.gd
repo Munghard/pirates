@@ -50,7 +50,7 @@ func compact():
 	inventory_changed.emit(self )
 	
 
-func has_item(id: int, amount: int) -> bool:
+func has_item(id: String, amount: int) -> bool:
 	var total := 0
 	
 	for item in items:
@@ -61,7 +61,19 @@ func has_item(id: int, amount: int) -> bool:
 	
 	return false
 
-func find_item_index(id: int) -> int:
+func has_item_type(type: Item_Definition.Type, amount: int) -> bool:
+	var total := 0
+	
+	for item in items:
+		var item_def = Item_Database.get_item_definition(item.id)
+		if item != null and item_def.type == type:
+			total += item.stack
+			if total >= amount:
+				return true
+	
+	return false
+
+func find_item_index(id: String) -> int:
 	for i in range(items.size()):
 		var item = items[i]
 		if item != null and item.id == id:
@@ -82,7 +94,7 @@ func get_item_index_from_unique_id(unique_id: int) -> int:
 			return i
 	return -1
 
-func item_amount(id: int) -> int:
+func item_amount(id: String) -> int:
 	var total := 0
 	
 	for item in items:
@@ -121,7 +133,7 @@ func consume_item_at(index: int, amount: int) -> bool:
 	return true
 
 
-func consume_item(id: int, amount: int) -> bool:
+func consume_item(id: String, amount: int) -> bool:
 	if not has_item(id, amount):
 		return false
 
@@ -182,7 +194,7 @@ func drop_item(item: InventoryItem):
 	w_item.global_position = world_owner.global_position + (-world_owner.basis.z * 5.0)
 	w_item.global_rotation_degrees.y = randf() * 360.0
 
-func get_partial_stack_index(id: int) -> int:
+func get_partial_stack_index(id: String) -> int:
 	for i in range(items.size()):
 		var item = items[i]
 		if item == null:

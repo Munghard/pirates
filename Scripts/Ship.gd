@@ -343,8 +343,8 @@ var last_ration := 0.0
 
 func ration_drain():
 	last_ration = Time.get_ticks_msec()
-	if inventory.has_item(0, 1):
-		inventory.consume_item(0, 1)
+	if inventory.has_item("rations", 1):
+		inventory.consume_item("rations", 1)
 	else:
 		kill_crew(1)
 
@@ -357,8 +357,8 @@ var last_morale := 0.0
 
 func morale_drain():
 	last_morale = Time.get_ticks_msec()
-	if inventory.has_item(1, 1):
-		inventory.consume_item(1, 1)
+	if inventory.has_item("rum", 1):
+		inventory.consume_item("rum", 1)
 	else:
 		lose_morale(1.0)
 
@@ -635,7 +635,7 @@ func shoot_bow():
 
 func shoot(canons: Array[Cannon]):
 	# id 3 is cannonball
-	if not inventory.has_item(3, 1):
+	if not inventory.has_item("cannon_balls", 1):
 		gameManager.hud.ddd_label("No cannon balls", global_position, Color.RED)
 		return
 	for canon in canons:
@@ -652,7 +652,7 @@ func shoot(canons: Array[Cannon]):
 				return
 
 			if canon.shoot(attack, self , gameManager.audioManager):
-				inventory.consume_item(3, 1)
+				inventory.consume_item("cannon_balls", 1)
 
 var trajectories := false
 

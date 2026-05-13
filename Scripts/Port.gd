@@ -157,7 +157,7 @@ func _handle_shooting(target: Vector3, delta: float):
 		var pitch = dist / 2.0
 		cannon.pitch = clampf(pitch, -25.0, 25.0)
 		
-		if abs(diff) < 15.0 and inventory.has_item(3, 1):
+		if abs(diff) < 15.0 and inventory.has_item("cannon_balls", 1):
 			cannon.shoot(1.0, self , gameManager.audioManager)
 
 	

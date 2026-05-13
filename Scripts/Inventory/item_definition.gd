@@ -1,7 +1,7 @@
 extends Node
 class_name Item_Definition
 
-var id: int
+var id: String
 var value: int
 var item_name: String
 var description: String
@@ -20,7 +20,7 @@ const TYPENAMES = {
 }
 
 #_id: int = 0 , old prop, i generate ids now from index
-func _init(_id: int, _type: int, _value: int, _max_stack: int, _item_name: String, _description: String, _icon: Texture2D):
+func _init(_id: String, _type: int, _value: int, _max_stack: int, _item_name: String, _description: String, _icon: Texture2D):
 	id = _id
 	type = _type as Type
 	value = _value
