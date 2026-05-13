@@ -20,7 +20,7 @@ const NATION_NAMES = {
 const NATION_FLAGS = {
 	Nation.ENGLAND: preload("res://Textures/Flag_of_the_United_Kingdom.png"),
 	Nation.SPAIN: preload("res://Textures/Bandera_de_España.png"),
-	Nation.FRANCE: preload("res://Textures/flag_of_France.png"),
+	Nation.FRANCE: preload("res://Textures/Flag_of_France.png"),
 	Nation.NETHERLANDS: preload("res://Textures/Flag_of_the_Netherlands.png"),
 	Nation.NORDIC: preload("res://Textures/raven-banner-vikings.jpg")
 }
@@ -183,7 +183,7 @@ static func get_faction_icon(faction: Faction) -> Texture:
 		Faction.SLAVER:
 			texture = preload("res://Textures/handcuffs.png")
 		Faction.FISHERMAN:
-			texture = preload("res://Textures/fishing-net.png")
+			texture = preload("res://Textures/fishing.png")
 		Faction.BOUNTYHUNTER:
 			texture = preload("res://Textures/wanted-reward.png")
 		Faction.VIKING:
@@ -238,80 +238,21 @@ static func get_faction_stats(faction: Faction) -> ShipStats:
 			return ShipStats.new(attack, defense, max_speed, max_hp, gold, max_crew)
 
 static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
-	var items: Array[InventoryItem]
-	match faction:
-		Faction.PIRATE:
-			items = [
-				InventoryItem.new(0, randi_range(5, 50)),
-				InventoryItem.new(1, randi_range(5, 50)),
-				InventoryItem.new(2, randi_range(1, 6)),
-			]
-		Faction.MERCHANT:
-			items = [
-				InventoryItem.new(0, randi_range(5, 50)),
-				InventoryItem.new(1, randi_range(5, 25)),
-				InventoryItem.new(3, randi_range(1, 10)),
-				InventoryItem.new(4, randi_range(1, 10)),
-				InventoryItem.new(6, randi_range(1, 10)),
-				InventoryItem.new(8, randi_range(1, 10)),
-			]
-		Faction.NAVY:
-			items = [
-				InventoryItem.new(0, randi_range(1, 50)),
-				InventoryItem.new(2, randi_range(1, 10)),
-				InventoryItem.new(3, randi_range(50, 200)),
-				InventoryItem.new(4, randi_range(1, 25)),
-				InventoryItem.new(7, randi_range(5, 25)),
-				InventoryItem.new(8, randi_range(25, 50)),
-			]
-		Faction.SLAVER:
-			items = [
-				InventoryItem.new(0, randi_range(1, 10)),
-				InventoryItem.new(2, randi_range(1, 5)),
-				InventoryItem.new(3, randi_range(1, 20)),
-				InventoryItem.new(4, randi_range(1, 25)),
-				InventoryItem.new(7, randi_range(100, 200)),
-				InventoryItem.new(8, randi_range(1, 25)),
-			]
-		Faction.BOUNTYHUNTER:
-			items = [
-				InventoryItem.new(0, randi_range(1, 50)),
-				InventoryItem.new(2, randi_range(1, 5)),
-				InventoryItem.new(3, randi_range(50, 200)),
-				InventoryItem.new(4, randi_range(1, 25)),
-				InventoryItem.new(7, randi_range(100, 200)),
-				InventoryItem.new(8, randi_range(1, 25)),
-			]
-		Faction.CARTOGRAPHER:
-			items = [
-				InventoryItem.new(0, randi_range(0, 20)),
-				InventoryItem.new(11, randi_range(10, 50)),
-				InventoryItem.new(6, randi_range(10, 50)),
-				InventoryItem.new(5, randi_range(1, 5)),
-			]
-		Faction.VIKING:
-			items = [
-				InventoryItem.new(0, randi_range(1, 10)),
-				InventoryItem.new(4, randi_range(5, 50)),
-				InventoryItem.new(5, randi_range(1, 5)),
-				InventoryItem.new(9, randi_range(20, 50)),
-			]
-		Faction.FISHERMAN:
-			items = [
-				InventoryItem.new(0, randi_range(1, 10)),
-				InventoryItem.new(1, randi_range(5, 50)),
-				InventoryItem.new(4, randi_range(5, 50)),
-				InventoryItem.new(5, randi_range(1, 5)),
-				InventoryItem.new(9, randi_range(20, 50)),
-			]
-		_:
-			items = [
-				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 3)),
-				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 3)),
-				InventoryItem.new(randi_range(0, Item_Database.item_database.size() - 1), randi_range(1, 3)),
-			]
+	var result: Array[InventoryItem] = []
+	
+	if not FactionLoot.faction_loot.has(faction):
+		return result
 
-	return items
+	for entry in FactionLoot.faction_loot[faction]:
+		if randf() <= entry.chance:
+			result.append(
+				InventoryItem.new(
+					entry.id,
+					randi_range(entry.min, entry.max)
+				)
+			)
+
+	return result
 
 static func roll_weighted(options: Dictionary):
 	var total = 0.0

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c4w0h65nmvokw"]
 
 [ext_resource type="Script" uid="uid://busan32mauwi4" path="res://Scripts/maelstrom.gd" id="1_8s505"]
-[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_1v7sr"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/floater.gd" id="2_1v7sr"]
 [ext_resource type="Shader" uid="uid://dksp23a48ovos" path="res://Materials/maelstrom.gdshader" id="3_w53vn"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_c5t2i"]

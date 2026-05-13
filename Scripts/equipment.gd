@@ -11,14 +11,17 @@ signal equipment_changed(side: String)
 func get_equipment_slot(side: String, slot_index: int) -> InventoryItem:
 	match side:
 		"bow":
-			return bow[slot_index]
+			if slot_index >= 0 and slot_index < bow.size():
+				return bow[slot_index]
 
 		"port":
-			return port[slot_index]
+			if slot_index >= 0 and slot_index < port.size():
+				return port[slot_index]
 
 		"starboard":
-			return starboard[slot_index]
-	
+			if slot_index >= 0 and slot_index < starboard.size():
+				return starboard[slot_index]
+
 	return null
 
 func set_equipment_slot(side: String, slot_index: int, inventory_item: InventoryItem):

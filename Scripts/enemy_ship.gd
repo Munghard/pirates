@@ -270,7 +270,7 @@ func _process(delta):
 						target_speed = 0.0
 						# BROADSIDE: Rotate 90 degrees offset from the target 
 						# so the side (port/starboard) faces the enemy
-						yaw_deg = look_at_angle + 90.0
+						yaw_deg = look_at_angle - 90.0
 						_handle_shooting(target_point)
 
 func _update_combat_transitions(dist: float, delta: float):

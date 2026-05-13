@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://b4klp5rpp5gsl"]
+
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_svf8u"]
+[ext_resource type="Script" uid="uid://c5a6q0c5je45f" path="res://Scripts/game_menu.gd" id="2_2qedo"]
+
+[node name="game_menu" type="Control" unique_id=1421243510]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_svf8u")
+script = ExtResource("2_2qedo")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=401820627]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=781468929]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1019401360]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=448291005]
+layout_mode = 2
+theme_type_variation = &"panel_secondary"
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PanelContainer" unique_id=913432107]
+layout_mode = 2
+text = "Pirates"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=213883082]
+layout_mode = 2
+text = "New game"
+
+[node name="Button2" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1640470319]
+layout_mode = 2
+text = "Delete savefile"

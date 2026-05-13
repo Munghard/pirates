@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dyuowufq5420f" path="res://Scripts/whale.gd" id="1_neogv"]
 [ext_resource type="PackedScene" uid="uid://dwx2ky6bahhaj" path="res://Models/Shark/Shark.fbx" id="2_neogv"]
-[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="3_lqgej"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/floater.gd" id="3_lqgej"]
 [ext_resource type="Texture2D" uid="uid://ckbe3l704haxa" path="res://Textures/canned-fish.png" id="4_k3iwt"]
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="5_sc22t"]
 [ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="6_pbome"]

@@ -404,11 +404,22 @@ func sink():
 	queue_free()
 	emit_signal("on_sink")
 
-func world_edge_push():
+var last_oob_notification := 0.0
+var oob_interval := 5.0
+
+func out_of_bounds_notification(delta: float):
+	last_oob_notification -= delta
+	if last_oob_notification <= 0.0:
+		last_oob_notification = oob_interval
+		gameManager.hud.ddd_label("Out of bounds\n steering back", global_position, Color.RED)
+
+
+func world_edge_push(delta: float):
 	var world_size := gameManager.world.terrain.world_size * gameManager.world.terrain.tile_size
 	var pos := Vector2(global_position.x, global_position.z)
 	# check if outside bounds
 	if pos.x < 0 or pos.x > world_size.x or pos.y < 0 or pos.y > world_size.y:
+		out_of_bounds_notification(delta)
 		var center := gameManager.world.terrain.terrain_world_size / 2.0
 		var dir_to_center := (center - pos).normalized()
 		
@@ -421,7 +432,7 @@ var previous_h_speed
 func _physics_process(_delta: float) -> void:
 	if not global_basis.x.is_finite() or not global_basis.y.is_finite() or not global_basis.z.is_finite():
 		return
-	world_edge_push()
+	world_edge_push(_delta)
 
 	if destroyed:
 		if floater:

@@ -16,6 +16,8 @@ func init_equipment_panel(player_ship: PlayerShip):
 	setup_slots(player_ship)
 	if not player_ship.equipment.equipment_changed.is_connected(_on_equipment_changed):
 		player_ship.equipment.equipment_changed.connect(_on_equipment_changed)
+	if not player_ship.inventory.inventory_changed.is_connected(func(_inventory): _on_equipment_changed("side")):
+		player_ship.inventory.inventory_changed.connect(func(_inventory): _on_equipment_changed("side"))
 
 func setup_slots(player_ship: PlayerShip):
 	_setup_side(bow_slots, "bow", player_ship)

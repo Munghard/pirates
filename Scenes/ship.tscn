@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="1_8aq7e"]
 [ext_resource type="PackedScene" uid="uid://cr7y5ey7ppmmp" path="res://Models/Sail ship.fbx" id="1_l3rv8"]
-[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="2_4cq66"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/floater.gd" id="2_4cq66"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="2_6ejuo"]
 [ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/cannon_layout.gd" id="4_fwcnm"]
 [ext_resource type="Texture2D" uid="uid://ct57ceuvqy3k8" path="res://Textures/plain-arrow.png" id="5_cmder"]

@@ -39,10 +39,10 @@ func _on_body_entered(body: Node) -> void:
 		return
 	var ship := body as Ship
 	if ship and not recieved:
-		recieved = true
 		if item == null:
 			setup_loot(roll_item(), null)
 		if ship.inventory.add_item(item):
+			recieved = true
 			queue_free()
 
 func roll_item() -> InventoryItem:

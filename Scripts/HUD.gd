@@ -16,8 +16,10 @@ class_name HUD
 @export var boarding_button: Button
 
 @export var notification_label: Label
+@export var fps_label: Label
 
 @export var map: Control
+@export var game_menu: Control
 
 @export var equipment_panel: Control
 
@@ -34,6 +36,7 @@ var buy_panel := preload("res://UI/buy_panel.tscn")
 func _ready():
 	boarding_button.visible = false
 	inventory_panel.visible = false
+	game_menu.visible = false
 
 func init_hud() -> void:
 	# update wind direction gauge
@@ -134,6 +137,8 @@ func _on_update_wind(wind: Wind):
 var depth_check_timer := 0.0
 
 func _process(_delta):
+	var fps = Engine.get_frames_per_second()
+	fps_label.text = "Fps:%s" % [fps]
 	if gameManager.selected_ship:
 		ship_panel_target.update_ship_panel(gameManager.selected_ship)
 	
@@ -151,7 +156,7 @@ func update_depth_label():
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		print("clicking at non ui");
+		#print("clicking at non ui");
 		var mouse_pos = get_viewport().get_mouse_position()
 
 		var from = gameManager.camera.project_ray_origin(mouse_pos)
@@ -233,3 +238,7 @@ func _on_button_pass_time_pressed() -> void:
 
 func _on_button_equipment_pressed() -> void:
 	toggle_equipment_panel()
+
+
+func _on_button_cargo_pressed() -> void:
+	toggle_player_inventory_panel()

@@ -44,6 +44,8 @@ func load_game(gameManager: GameManager):
 
 	player_ship.equipment = load_equipment(player_data.get("equipment", {}))
 	player_ship.equipment.equipment_changed.connect(func(_side): player_ship.setup_cannons())
+	player_ship.gameManager.hud.equipment_panel.init_equipment_panel(player_ship)
+	
 	player_ship.setup_cannons()
 	
 	player_ship.gameManager.hud.equipment_panel.init_equipment_panel(player_ship)

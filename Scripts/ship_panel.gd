@@ -123,6 +123,8 @@ func update_ship_panel(_ship: Ship):
 		# ship_text += "\nTarg.Spd: %.2f/%.2f" % [ship.target_speed, ship.top_speed]
 		# ship_text += "\nAct.Spd: %.2f" % [ship.actual_speed]
 		# ship_text += "\nHeading: %.2f" % [rad_to_deg(ship.rotation.y)]
+		stats_text += "\nLevel: %s" % [_ship.level]
+		stats_text += "\nTop speed: %.1f" % [_ship.top_speed]
 		stats_text += "\nCrew: %s/%s" % [_ship.crew, _ship.max_crew]
 		stats_text += "\nHp: %.2f/%.2f" % [_ship.hit_points, _ship.max_hit_points]
 		stats_text += "\nAgility: %.2f" % [_ship.agility]

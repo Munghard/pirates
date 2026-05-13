@@ -12,7 +12,7 @@ var is_dragging := false
 var max_distance := 25.0
 var pan_multiplier := 1.0
 
-var max_camera_size := 200.0
+var max_camera_size := 50.0
 
 var zoom := 0.0
 
@@ -58,7 +58,7 @@ func _process(delta: float) -> void:
 	camera.size = zoom # + auto_zoom
 
 func set_zoom(value: float):
-	zoom = clamp(camera.size + value, 1, max_camera_size)
+	zoom = clamp(camera.size + value, 10, max_camera_size)
 	# camera.position.z = clamp(camera.position.z + value, -200.0, -1.0)
 
 func add_pitch(value: float):

@@ -77,6 +77,10 @@ func select_ship(ship: Ship):
 func toggle_debug_menu():
 	debugMenu.visible = !debugMenu.visible
 
+func new_game():
+	save_manager.delete_save()
+	get_tree().reload_current_scene()
+
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
@@ -99,6 +103,8 @@ func _input(event: InputEvent) -> void:
 			save_manager.save_game(self )
 		if event.keycode == KEY_F6:
 			save_manager.load_game(self )
+		if event.keycode == KEY_ESCAPE:
+			hud.game_menu.visible = !hud.game_menu.visible
 
 func move_player_to_random_port():
 	var ports = get_tree().get_nodes_in_group("Ports")

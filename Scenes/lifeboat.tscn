@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://ckaa2vwp8oesh"]
 
-[ext_resource type="Script" uid="uid://dtlxahdop0nj" path="res://Scripts/Lifeboat.gd" id="1_xgbxg"]
+[ext_resource type="Script" uid="uid://dtlxahdop0nj" path="res://Scripts/lifeboat.gd" id="1_xgbxg"]
 [ext_resource type="PackedScene" uid="uid://bsfwskoayomyy" path="res://UI/Lifeboat_panel.tscn" id="2_mtjrd"]
 [ext_resource type="PackedScene" uid="uid://0csv1fk2jl65" path="res://Models/BoatWSail.fbx" id="3_1wwl6"]
-[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="4_52p0d"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/floater.gd" id="4_52p0d"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4cq66"]
 size = Vector3(0.77734375, 2.6954365, 1.5878906)

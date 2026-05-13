@@ -36,13 +36,15 @@ func create_items():
 	
 	item_database.append(Item_Definition.new(13, 2, 100, 5, "Repair kit", "Repair kit that allows quickly fixing the ship. Repairs 50.0hp over 25 seconds", preload("res://Textures/barrel.png")))
 	
-	item_database.append(Item_Definition.new(14, 2, 100, 5, "Divingsuit", "Can be used to perform a dive and potentially recover treasure.", preload("res://Textures/diving-helmet.png")))
+	item_database.append(Item_Definition.new(14, 2, 100, 5, "Diving suit", "Can be used to perform a dive and potentially recover treasure.", preload("res://Textures/diving-helmet.png")))
 
 	item_database.append(Item_Definition.new(15, 4, 750, 1, "12 Pounder", "Medium light naval weapon mounted on the ship. Level 2", preload("res://Textures/cannon.png")))
 	
 	item_database.append(Item_Definition.new(16, 4, 1000, 1, "24 Pounder", "Medium naval weapon mounted on the ship. Level 3", preload("res://Textures/cannon.png")))
 	
 	item_database.append(Item_Definition.new(17, 4, 1500, 1, "32 Pounder", "Heavy naval weapon mounted on the ship. Level 4", preload("res://Textures/cannon.png")))
+	
+	item_database.append(Item_Definition.new(18, 3, 1500, 1, "Fishing rig", "Passively catches fish over time to replenish rations.", preload("res://Textures/fishing.png")))
 	# generate ids for items automatically, this is a problem if im looking up items from previously known id
 	# for i in range(item_database.size()):
 	# 	var item = item_database[i] as Item_Definition

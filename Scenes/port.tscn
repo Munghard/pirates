@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c2gmrhcs7xk63"]
 
 [ext_resource type="PackedScene" uid="uid://ss3kpb6gx38y" path="res://Models/Port/Port_SecondAge_Level1.fbx" id="1_s2k7l"]
-[ext_resource type="Script" uid="uid://qgd5q2n4avh1" path="res://Scripts/Port.gd" id="2_pyx3s"]
+[ext_resource type="Script" uid="uid://qgd5q2n4avh1" path="res://Scripts/port.gd" id="2_pyx3s"]
 [ext_resource type="PackedScene" uid="uid://b3nnix6jurcl3" path="res://UI/Port_panel.tscn" id="3_gfjmb"]
 [ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="4_w7ulp"]
 [ext_resource type="Script" uid="uid://s3kjyhbgh674" path="res://Scripts/cannon_layout_port.gd" id="5_4g063"]

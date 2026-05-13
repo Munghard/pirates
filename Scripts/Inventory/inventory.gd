@@ -34,7 +34,7 @@ func sort():
 		return a_item_def.type < b_item_def.type
 	)
 	new_items.resize(size)
-	
+
 	items = new_items
 	inventory_changed.emit(self )
 
@@ -131,7 +131,8 @@ func consume_item(id: int, amount: int) -> bool:
 		var item = items[i]
 		if item == null or item.id != id:
 			continue
-
+		
+		var item_def = Item_Database.get_item_definition(id)
 		var take = min(item.stack, remaining)
 		item.stack -= take
 		remaining -= take
@@ -143,6 +144,7 @@ func consume_item(id: int, amount: int) -> bool:
 			inventory_changed.emit(self )
 
 
+		new_notification("- %s %s" % [amount, item_def.item_name])
 		if remaining <= 0:
 			inventory_changed.emit(self )
 			return true
@@ -230,7 +232,7 @@ func add_item(item: InventoryItem) -> bool:
 
 	# 3. Notify once at the end
 	inventory_changed.emit(self )
-	new_notification("Added %s %s to %s" % [item.stack, item_def.item_name, inventory_name])
+	new_notification("+ %s %s" % [item.stack, item_def.item_name])
 
 	return true
 
@@ -241,11 +243,13 @@ func remove_from_stack(unique_id: int, amount: int) -> bool:
 	for i in range(items.size()):
 		var item = items[i]
 		if item != null and item.unique_id == unique_id:
+			var item_def = Item_Database.get_item_definition(item.id)
 			if item.stack >= amount:
 				item.stack -= amount
 				if item.stack <= 0:
 					items[i] = null
 				inventory_changed.emit(self )
+				new_notification("- %s %s" % [amount, item_def.item_name])
 				return true
 	return false
 
@@ -272,6 +276,6 @@ func remove_item_at(index: int):
 	if item == null:
 		return
 	var item_def = Item_Database.get_item_definition(item.id)
-	new_notification("Removed %s %s from %s " % [item.stack, item_def.item_name, inventory_name])
+	new_notification("Removed %s %s" % [item.stack, item_def.item_name])
 	items[index] = null
 	inventory_changed.emit(self )

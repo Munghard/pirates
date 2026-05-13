@@ -65,6 +65,7 @@ func add_player_loadout():
 	inventory.add_item(InventoryItem.new(12, 1))
 	inventory.add_item(InventoryItem.new(9, 10))
 	inventory.add_item(InventoryItem.new(13, 5))
+	inventory.add_item(InventoryItem.new(18, 1))
 
 func connect_inventory_listeners(_inventory: Inventory):
 	if not inventory.inventory_changed.is_connected(_on_inventory_changed):
@@ -80,6 +81,14 @@ func _on_inventory_changed(_inventory: Inventory):
 	if _inventory.has_item(12, 1):
 		pan_multiplier = 2.0
 	gameManager.camerarig.pan_multiplier = pan_multiplier
+
+	# fishing operation effect
+	for child in get_children():
+		if child is FishingOperation:
+			child.queue_free()
+	if _inventory.has_item(18, 1):
+		var fo = FishingOperation.new(gameManager)
+		add_child(fo)
 
 	# item click behaviour
 	if docked:
@@ -114,7 +123,7 @@ func setup_cannons():
 		if item != null:
 			var cannon_level = Cannon.get_cannon_level(item.id)
 			starboard.append({"level": cannon_level})
-	print("setup cannons %s %s %s" % [port, starboard, bow])
+	#print("setup cannons %s %s %s" % [port, starboard, bow])
 
 	cannons_layout.create_canons(
 		port,
@@ -210,11 +219,11 @@ func sell_item(item_index: int):
 	)
 
 func _inventory_changed(_message: String):
-	gameManager.hud.new_notification(_message)
+	gameManager.hud.ddd_label(_message, global_position, Color.GREEN)
 
 func _on_destroyed_ship(ship: Ship):
 	if FactionsData.is_enemy(ship.faction, faction):
-		gameManager.audioManager.play_sound(fanfare)
+		gameManager.audioManager.play_sound(fanfare, 0.0, -20.0)
 
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
 	gameManager.camerarig.secondary_target = _attacker
@@ -242,9 +251,9 @@ func sink():
 	#gameManager.hud.new_notification("The sea swallows you whole...")
 	gameManager.hud.new_notification("The ocean keeps what it takes...")
 	await get_tree().create_timer(5.0).timeout
-	gameManager.save_manager.delete_save()
-
-	get_tree().reload_current_scene()
+	
+	gameManager.new_game()
+	
 
 func upgrade_guns():
 	print("not implemented")
@@ -278,9 +287,9 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_END:
 			shoot_bow()
 		if event.keycode == KEY_LEFT:
-			shoot_starboard()
-		if event.keycode == KEY_RIGHT:
 			shoot_port()
+		if event.keycode == KEY_RIGHT:
+			shoot_starboard()
 		if event.keycode == KEY_UP:
 			starboard_pitch(5)
 			port_pitch(5)

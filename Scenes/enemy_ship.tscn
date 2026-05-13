@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bwq7hpvxdd4pi"]
 
-[ext_resource type="Script" uid="uid://b7cvn7x63qb54" path="res://Scripts/EnemyShip.gd" id="1_3bg38"]
+[ext_resource type="Script" uid="uid://b7cvn7x63qb54" path="res://Scripts/enemy_ship.gd" id="1_3bg38"]
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="2_6mpvb"]
 [ext_resource type="PackedScene" uid="uid://cr7y5ey7ppmmp" path="res://Models/Sail ship.fbx" id="3_c6fo0"]
 [ext_resource type="PackedScene" uid="uid://8npumfs46s5j" path="res://Scenes/loot.tscn" id="4_a0oot"]
 [ext_resource type="PackedScene" uid="uid://5u1uqatga6r7" path="res://UI/arrow.tscn" id="4_b21is"]
-[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/Floater.gd" id="5_a0oot"]
+[ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/floater.gd" id="5_a0oot"]
 [ext_resource type="Script" uid="uid://5cayjwljfeda" path="res://Scripts/ship_pivot.gd" id="5_ovko2"]
 [ext_resource type="Texture2D" uid="uid://db8pxvo6me5t1" path="res://Textures/compass.png" id="6_c6fo0"]
 [ext_resource type="Script" uid="uid://bfvlh3gnetryo" path="res://Scripts/cannon_layout.gd" id="7_0h3yk"]
