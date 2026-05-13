@@ -1,0 +1,149 @@
+[gd_scene format=3 uid="uid://kt4nc6536x0r"]
+
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_s1nn0"]
+[ext_resource type="Texture2D" uid="uid://br3vm6tkgh8e2" path="res://Textures/Gemini_Generated_Image_10rub010rub010ru.png" id="2_g841r"]
+[ext_resource type="Script" uid="uid://cjl501dckfll" path="res://Scripts/equipment_panel.gd" id="2_sa5vh"]
+
+[node name="Equipment_panel" type="PanelContainer" unique_id=972815911 node_paths=PackedStringArray("bow_slots", "port_slots", "starboard_slots")]
+custom_minimum_size = Vector2(300, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -162.0
+offset_top = -302.5
+offset_right = 162.0
+offset_bottom = 302.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource("1_s1nn0")
+script = ExtResource("2_sa5vh")
+bow_slots = [NodePath("MarginContainer/VBoxContainer/TextureRect/bow/OptionButton"), NodePath("MarginContainer/VBoxContainer/TextureRect/bow/OptionButton2"), NodePath("MarginContainer/VBoxContainer/TextureRect/bow/OptionButton3")]
+port_slots = [NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton"), NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton2"), NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton3"), NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton4")]
+starboard_slots = [NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton"), NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton2"), NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton3"), NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton4")]
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=727620205]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=950351799]
+layout_mode = 2
+
+[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/VBoxContainer" unique_id=1074082895]
+layout_mode = 2
+theme_type_variation = &"panel_secondary"
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer2" unique_id=1080834480]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Equipment"
+horizontal_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer" unique_id=1142878920]
+self_modulate = Color(1, 1, 1, 0.38039216)
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 2
+texture = ExtResource("2_g841r")
+expand_mode = 5
+
+[node name="bow" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TextureRect" unique_id=218623509]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -37.0
+offset_top = 78.5
+offset_right = 37.0
+offset_bottom = 179.5
+grow_horizontal = 2
+alignment = 1
+
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/bow" unique_id=2085401237]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton2" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/bow" unique_id=1957219417]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton3" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/bow" unique_id=800930844]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="port" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TextureRect" unique_id=311127039]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -133.0
+offset_top = 225.5
+offset_right = -47.0
+offset_bottom = 491.5
+grow_horizontal = 2
+
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/port" unique_id=2023495804]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton2" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/port" unique_id=1291893223]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton3" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/port" unique_id=223013271]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton4" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/port" unique_id=801070067]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="starboard" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TextureRect" unique_id=1649803071]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 46.0
+offset_top = 225.5
+offset_right = 132.0
+offset_bottom = 491.5
+grow_horizontal = 2
+
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/starboard" unique_id=1814058444]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton2" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/starboard" unique_id=2100540123]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton3" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/starboard" unique_id=1297347197]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton4" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/starboard" unique_id=1546301474]
+layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0

@@ -7,6 +7,8 @@
 [ext_resource type="Script" uid="uid://s3kjyhbgh674" path="res://Scripts/cannon_layout_port.gd" id="5_4g063"]
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="5_31lm0"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="6_w7ulp"]
+[ext_resource type="Shader" uid="uid://cv7b3ai4owx81" path="res://Materials/flag.gdshader" id="8_wkjrd"]
+[ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="9_ri7tc"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gfjmb"]
 height = 4.0
@@ -60,9 +62,31 @@ material = SubResource("StandardMaterial3D_4g063")
 size = Vector2(40, 40)
 orientation = 1
 
-[node name="Port" type="Area3D" unique_id=699995195 groups=["Ports"]]
+[sub_resource type="CylinderMesh" id="CylinderMesh_rxq8t"]
+top_radius = 0.1
+bottom_radius = 0.1
+height = 5.0
+radial_segments = 4
+rings = 1
+cap_bottom = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_odhhf"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("8_wkjrd")
+shader_parameter/flag_texture = ExtResource("9_ri7tc")
+
+[sub_resource type="QuadMesh" id="QuadMesh_ix0p7"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_odhhf")
+size = Vector2(3, 2)
+subdivide_width = 10
+center_offset = Vector3(1.5, 0, 0)
+
+[node name="Port" type="Area3D" unique_id=699995195 node_paths=PackedStringArray("flag_mesh") groups=["Ports"]]
 script = ExtResource("2_pyx3s")
 port_ui = ExtResource("3_gfjmb")
+flag_mesh = NodePath("flag_pole/flag")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1028552808]
 shape = SubResource("CylinderShape3D_gfjmb")
@@ -218,6 +242,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.572884, -4.7683716e-07, 3.1
 
 [node name="cannon_point4" type="Node3D" parent="Cannons" unique_id=727286117]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2834148, -4.7683716e-07, 5.5756054)
+
+[node name="flag_pole" type="MeshInstance3D" parent="." unique_id=1439100323]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5124329, 4.44343, -2.9394057)
+mesh = SubResource("CylinderMesh_rxq8t")
+
+[node name="flag" type="MeshInstance3D" parent="flag_pole" unique_id=1619916160]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4027667, 0)
+mesh = SubResource("QuadMesh_ix0p7")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

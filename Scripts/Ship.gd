@@ -23,8 +23,9 @@ var agility := 1.0
 var attack := 1.0
 var defense := 1.0
 var gold := 0
-var sunk := false
 var morale := 100.0
+
+var sunk := false
 
 var actual_speed := 0.0
 
@@ -86,7 +87,9 @@ signal morale_gained(current: float)
 signal morale_lost(current: float)
 
 signal hit_points_changed(amount: float)
+
 signal recovery_changed(time: float)
+
 signal recieved_damage(amount: float, attacker: Node3D)
 signal on_sink
 signal on_destroyed(destroyer: Node3D)
@@ -237,8 +240,8 @@ func set_faction_texture():
 var previous_cannons = 0
 
 func setup_cannons():
-	var total = inventory.item_amount(2)
-
+	var total = inventory.item_amount_of_type(Item_Definition.Type.CANNON)
+	
 	if total == previous_cannons:
 		return
 
@@ -248,10 +251,19 @@ func setup_cannons():
 	var bow_weight = 0.15
 	var side_weight = 0.35
 	#var stern_weight = 0.15
+	var bow = []
+	var port = []
+	var starboard = []
 
-	var bow = roundi(total * bow_weight)
-	var port = roundi(total * side_weight)
-	var starboard = roundi(total * side_weight)
+	for i in range(roundi(total * bow_weight)):
+		bow.append({"level": 1})
+
+	for i in range(roundi(total * side_weight)):
+		port.append({"level": 1})
+
+	for i in range(roundi(total * side_weight)):
+		starboard.append({"level": 1})
+
 
 	# give remaining to stern
 	#var stern = total - bow - port - starboard
@@ -306,8 +318,9 @@ func kill_crew(amount: int):
 	crew = max(crew, 0)
 	emit_signal("crew_lost", amount)
 	emit_signal("crew_changed", crew)
-	#if crew <= 0:
-		#destroy_ship(attacker)
+	if gameManager.player_ship == self and crew <= 0:
+		gameManager.hud.ddd_label("Ghost ship", global_position)
+		destroy_ship(attacker)
 
 
 func destroy_ship(destroyer: Node3D):

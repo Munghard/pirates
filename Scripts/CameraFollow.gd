@@ -52,10 +52,10 @@ func _process(delta: float) -> void:
 
 	global_position = global_position.lerp(target_position, delta * 5.0)
 
-	var distance_to_target := global_position.distance_to(target_position)
-	var auto_zoom = distance_to_target * 0.5
+	#var distance_to_target := global_position.distance_to(target_position)
+	#var auto_zoom = distance_to_target * 0.5
 
-	camera.size = zoom + auto_zoom
+	camera.size = zoom # + auto_zoom
 
 func set_zoom(value: float):
 	zoom = clamp(camera.size + value, 1, max_camera_size)

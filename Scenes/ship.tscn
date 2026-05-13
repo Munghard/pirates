@@ -22,11 +22,13 @@ cap_top = false
 cap_bottom = false
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_odhhf"]
+resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("5_ssryt")
 shader_parameter/flag_texture = ExtResource("6_sk2ms")
 
 [sub_resource type="QuadMesh" id="QuadMesh_v2j2m"]
+resource_local_to_scene = true
 material = SubResource("ShaderMaterial_odhhf")
 size = Vector2(0.75, 0.5)
 subdivide_width = 10

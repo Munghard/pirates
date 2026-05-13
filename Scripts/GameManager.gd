@@ -10,12 +10,19 @@ var camera: Camera3D
 var camerarig: Camera
 var audioManager: AudioManager
 var debugMenu: DebugMenu
+var save_manager: SaveManager
 
 var selected_ship: Ship
 
 var world_item: PackedScene = preload("res://Scenes/loot.tscn")
 
+func _enter_tree() -> void:
+	# set world seed
+	seed(1)
+
 func _ready() -> void:
+	print(randi())
+
 	world = $SubViewportContainer/SubViewport/World
 	player_ship = $SubViewportContainer/SubViewport/World/PlayerShip
 	hud = $MarginContainer/HUD
@@ -23,6 +30,7 @@ func _ready() -> void:
 	camera = $SubViewportContainer/SubViewport/camera_rig/Camera3D
 	camerarig = $SubViewportContainer/SubViewport/camera_rig
 	audioManager = $SubViewportContainer/SubViewport/AudioManager
+	save_manager = $SaveManager
 
 	assert(world != null, "world is null in gamemanager start")
 	assert(player_ship != null, "player_ship is null in gamemanager start")
@@ -31,11 +39,24 @@ func _ready() -> void:
 	assert(camera != null, "camera is null in gamemanager start")
 	assert(camerarig != null, "camerarig is null in gamemanager start")
 	assert(audioManager != null, "audioManager is null in gamemanager start")
+	assert(save_manager != null, "save_manager is null in gamemanager start")
 	
 	hud.init_hud()
 	debugMenu.init_debugMenu()
 	hud.toggle_map()
+	
+	start_auto_save_game()
+	
+	# autoload last game
+	
+	await get_tree().process_frame
+	save_manager.load_game(self )
 
+func start_auto_save_game():
+	while true:
+		await get_tree().create_timer(180.0).timeout
+		save_manager.save_game(self )
+		
 
 func spawn_item_in_world(item: InventoryItem, _position: Vector3):
 	var w_item = world_item.instantiate() as Loot
@@ -72,6 +93,12 @@ func _input(event: InputEvent) -> void:
 			hud.toggle_player_inventory_panel()
 		if event.keycode == KEY_M:
 			hud.toggle_map()
+		if event.keycode == KEY_CAPSLOCK:
+			hud.toggle_equipment_panel()
+		if event.keycode == KEY_F5:
+			save_manager.save_game(self )
+		if event.keycode == KEY_F6:
+			save_manager.load_game(self )
 
 func move_player_to_random_port():
 	var ports = get_tree().get_nodes_in_group("Ports")
@@ -122,6 +149,18 @@ static func get_closest_ship(ships: Array[Ship], _ship: Node3D) -> Ship:
 
 	return closest_ship
 
+static func get_closest_port(ports: Array[Port], node: Node3D) -> Port:
+	var closest_port: Port
+	var closest_dist := INF
+
+	for port in ports:
+		var dist := node.global_position.distance_squared_to(port.global_position)
+
+		if dist < closest_dist:
+			closest_dist = dist
+			closest_port = port
+
+	return closest_port
 #IDEAS
 #figure out how to do terrain in a good way that can be plugged into water sim and shader
 # minimap showing other ships and ports

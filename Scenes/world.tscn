@@ -37,11 +37,15 @@
 [ext_resource type="Shader" uid="uid://6an42f6pkuwg" path="res://Materials/clouds.gdshader" id="22_dt0r1"]
 [ext_resource type="Shader" uid="uid://bug7bbfblq2pu" path="res://Materials/toon_shader_pp.gdshader" id="25_i4fjy"]
 [ext_resource type="Texture2D" uid="uid://vv17m6wwh6ht" path="res://Textures/bird.png" id="27_r0ikl"]
+[ext_resource type="Shader" uid="uid://cv7b3ai4owx81" path="res://Materials/flag.gdshader" id="29_al5m0"]
+[ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="30_6mm6r"]
 [ext_resource type="Shader" uid="uid://xe1idcnl8y4i" path="res://Materials/tilt_shift.gdshader" id="33_coyub"]
 [ext_resource type="Script" uid="uid://bcmyufc0xuoqc" path="res://Scripts/Inventory/item_database.gd" id="35_coyub"]
-[ext_resource type="Script" uid="uid://cttiahx2sleji" path="res://Scenes/map.gd" id="36_atqvy"]
+[ext_resource type="Script" uid="uid://cttiahx2sleji" path="res://Scripts/map.gd" id="36_atqvy"]
 [ext_resource type="Texture2D" uid="uid://n28bcoiuwkeb" path="res://Textures/ancient-parchment.png" id="37_w5giw"]
 [ext_resource type="Script" uid="uid://cqvdwut1w32af" path="res://Scripts/factions_data.gd" id="38_r74th"]
+[ext_resource type="PackedScene" uid="uid://kt4nc6536x0r" path="res://UI/equipment_panel.tscn" id="41_jwdyn"]
+[ext_resource type="Script" uid="uid://chwiih1pumcge" path="res://Scripts/save_manager.gd" id="46_6mm6r"]
 
 [sub_resource type="Gradient" id="Gradient_r0ikl"]
 offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
@@ -130,6 +134,19 @@ albedo_texture = ExtResource("27_r0ikl")
 [sub_resource type="QuadMesh" id="QuadMesh_r74th"]
 material = SubResource("StandardMaterial3D_p5wkl")
 flip_faces = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6mm6r"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("29_al5m0")
+shader_parameter/flag_texture = ExtResource("30_6mm6r")
+
+[sub_resource type="QuadMesh" id="QuadMesh_xcb5n"]
+resource_local_to_scene = true
+material = SubResource("ShaderMaterial_6mm6r")
+size = Vector2(0.75, 0.5)
+subdivide_width = 10
+center_offset = Vector3(0.375, 0, 0)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pt3ps"]
 shader = ExtResource("33_coyub")
@@ -345,6 +362,9 @@ ship = NodePath("..")
 [node name="Cannons" parent="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot" index="1" unique_id=1435490113 node_paths=PackedStringArray("ship")]
 ship = NodePath("../..")
 
+[node name="flag" parent="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/flag_pole" parent_id_path=PackedInt32Array(7143519, 37573427) index="0" unique_id=427128270]
+mesh = SubResource("QuadMesh_xcb5n")
+
 [node name="floater" parent="SubViewportContainer/SubViewport/World/PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
 water = NodePath("../../Water")
 
@@ -405,7 +425,7 @@ theme_override_constants/margin_bottom = 20
 visible = false
 layout_mode = 2
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "depth_panel", "wind_control", "button_dock", "boarding_button", "notification_label", "map")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "depth_panel", "wind_control", "button_dock", "boarding_button", "notification_label", "map", "equipment_panel")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
@@ -419,7 +439,8 @@ wind_control = NodePath("wind_gauge")
 button_dock = NodePath("HBoxContainer/Button_dock")
 boarding_button = NodePath("HBoxContainer/Button")
 notification_label = NodePath("notification_Label")
-map = NodePath("Map/Control")
+map = NodePath("Map")
+equipment_panel = NodePath("Equipment_panel")
 
 [node name="Minimap" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1823764123 node_paths=PackedStringArray("minimap", "minimap_terrain_texture", "minimap_scale_slider")]
 layout_mode = 1
@@ -485,41 +506,33 @@ grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 
-[node name="Map" type="Control" parent="MarginContainer/HUD" unique_id=462231806]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("36_atqvy")
-
-[node name="Button_map" type="Button" parent="MarginContainer/HUD/Map" unique_id=1939787194]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -31.0
-offset_top = -31.0
-grow_horizontal = 0
-grow_vertical = 0
-size_flags_vertical = 8
-text = "Map"
-
-[node name="Control" type="Control" parent="MarginContainer/HUD/Map" unique_id=978702583]
+[node name="Map" type="PanelContainer" parent="MarginContainer/HUD" unique_id=63050356]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
+offset_left = -262.0
+offset_top = -262.0
+offset_right = 262.0
+offset_bottom = 262.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("36_atqvy")
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/HUD/Map/Control" unique_id=1527875662]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HUD/Map" unique_id=1880377617]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="MarginContainer/HUD/Map/MarginContainer" unique_id=978702583]
+clip_contents = true
+custom_minimum_size = Vector2(500, 500)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=1527875662]
 self_modulate = Color(0.9, 0.76124996, 0.67499995, 1)
 custom_minimum_size = Vector2(500, 500)
 layout_mode = 1
@@ -529,8 +542,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("37_w5giw")
+stretch_mode = 3
 
-[node name="TextureRect2" type="TextureRect" parent="MarginContainer/HUD/Map/Control" unique_id=349148954]
+[node name="TextureRect2" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=349148954]
 self_modulate = Color(0.69, 0.40434003, 0.2139, 0.7058824)
 custom_minimum_size = Vector2(500, 500)
 layout_mode = 1
@@ -541,6 +555,7 @@ grow_horizontal = 2
 grow_vertical = 2
 rotation = 3.1415927
 pivot_offset_ratio = Vector2(0.5, 0.5)
+stretch_mode = 3
 
 [node name="wind_gauge" type="TextureRect" parent="MarginContainer/HUD" unique_id=1041010364]
 layout_mode = 1
@@ -661,6 +676,34 @@ text = "Depth"
 layout_mode = 2
 text = "10m"
 
+[node name="Button_map" type="Button" parent="MarginContainer/HUD" unique_id=1939787194]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -50.0
+offset_top = -31.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_vertical = 8
+text = "Map"
+
+[node name="Button_equipment" type="Button" parent="MarginContainer/HUD" unique_id=803483777]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -157.0
+offset_top = -31.0
+offset_right = -56.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Equipment"
+
 [node name="Inventory_panel" parent="MarginContainer/HUD" unique_id=1043611700 instance=ExtResource("3_3ua1v")]
 layout_mode = 1
 anchors_preset = 6
@@ -694,12 +737,24 @@ offset_top = 0.0
 offset_bottom = 451.0
 grow_vertical = 1
 
+[node name="Equipment_panel" parent="MarginContainer/HUD" unique_id=972815911 instance=ExtResource("41_jwdyn")]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -705.0
+offset_right = -381.0
+grow_horizontal = 0
+
 [node name="Faction_data" type="Node" parent="." unique_id=1574932247]
 script = ExtResource("38_r74th")
 
 [node name="Item_Database" type="Node" parent="." unique_id=2120478333]
 script = ExtResource("35_coyub")
 metadata/_custom_type_script = "uid://bcmyufc0xuoqc"
+
+[node name="SaveManager" type="Node" parent="." unique_id=2122465451]
+script = ExtResource("46_6mm6r")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1801650937]
 environment = SubResource("Environment_p5wkl")
@@ -708,11 +763,12 @@ environment = SubResource("Environment_p5wkl")
 [connection signal="body_entered" from="SubViewportContainer/SubViewport/World/PlayerShip/Boarding_Area" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_boarding_area_body_entered"]
 [connection signal="body_exited" from="SubViewportContainer/SubViewport/World/PlayerShip/Boarding_Area" to="SubViewportContainer/SubViewport/World/PlayerShip" method="_on_boarding_area_body_exited"]
 [connection signal="value_changed" from="MarginContainer/HUD/Minimap/VSlider" to="MarginContainer/HUD/Minimap" method="_on_v_slider_value_changed"]
-[connection signal="pressed" from="MarginContainer/HUD/Map/Button_map" to="MarginContainer/HUD/Map" method="_on_button_map_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/HUD/wind_gauge" to="MarginContainer/HUD" method="_on_wind_gauge_mouse_entered"]
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button" to="MarginContainer/HUD" method="_on_board_button_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/HBoxContainer/Button_dock" to="MarginContainer/HUD" method="_on_button_dock_pressed"]
 [connection signal="pressed" from="MarginContainer/HUD/Time_panel/MarginContainer/VBoxContainer/Button2" to="MarginContainer/HUD" method="_on_button_pass_time_pressed"]
+[connection signal="pressed" from="MarginContainer/HUD/Button_map" to="MarginContainer/HUD/Map" method="_on_button_map_pressed"]
+[connection signal="pressed" from="MarginContainer/HUD/Button_equipment" to="MarginContainer/HUD" method="_on_button_equipment_pressed"]
 
 [editable path="SubViewportContainer/SubViewport/World/PlayerShip"]
 [editable path="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/Sail ship"]

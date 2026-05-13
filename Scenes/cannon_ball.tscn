@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://de126hsuavfvs" path="res://Scripts/cannon_ball.gd" id="1_fd25l"]
 [ext_resource type="PackedScene" uid="uid://dq1j8nemeakaq" path="res://Effects/smoke_plume.tscn" id="2_qobvt"]
-[ext_resource type="Script" uid="uid://buhd37ejbogfu" path="res://Scenes/smoke_trail.gd" id="3_0vp37"]
+[ext_resource type="Script" uid="uid://buhd37ejbogfu" path="res://Scripts/smoke_trail.gd" id="3_0vp37"]
 [ext_resource type="Shader" uid="uid://dfyv7sk7nc8ku" path="res://Materials/wake.gdshader" id="4_gjd6o"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_10215"]

@@ -63,6 +63,10 @@ text = "Gold:"
 layout_mode = 2
 text = "Depart"
 
+[node name="Button_market" type="Button" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1165275940]
+layout_mode = 2
+text = "Market"
+
 [node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1559354531]
 layout_mode = 2
 theme = ExtResource("2_fsihh")

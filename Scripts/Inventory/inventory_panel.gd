@@ -5,9 +5,16 @@ extends Control
 @onready var tooltip_scene: PackedScene = preload("res://UI/item_tooltip.tscn")
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 @onready var label: Label = $MarginContainer/HBoxContainer/Control/PanelContainer/Label
+@onready var button_compact: Button = $MarginContainer/HBoxContainer/Control/HBoxContainer/Button_compact
+@onready var button_sort: Button = $MarginContainer/HBoxContainer/Control/HBoxContainer/Button_sort
 
 
 func update_inventory_ui(inventory: Inventory, left_click: Callable, right_click: Callable):
+	if not button_compact.pressed.is_connected(inventory.compact):
+		button_compact.pressed.connect(inventory.compact)
+	if not button_sort.pressed.is_connected(inventory.sort):
+		button_sort.pressed.connect(inventory.sort)
+		
 	label.text = inventory.inventory_name
 	#clear
 	for child in grid.get_children():
@@ -82,6 +89,7 @@ func hover(pos: Vector2, _id: int):
 	icon_tr.texture = item_def.icon
 	var desc_text = ""
 	desc_text += "Type: %s" % [Item_Definition.TYPENAMES.get(item_def.type)]
+	desc_text += "\nValue: %s" % [item_def.value]
 	desc_text += "\nDescription: %s" % [item_def.description]
 	label_desc.text = desc_text
 	label_stack.text = "Max stack: " + str(item_def.max_stack)

@@ -70,7 +70,7 @@ func _ready():
 func ship_spawner():
 	var radius := 75.0
 	while true:
-		await get_tree().create_timer(10.0).timeout
+		await get_tree().create_timer(100.0).timeout
 		var all_ships = get_tree().get_nodes_in_group("Ships")
 		if all_ships.size() < nominal_ship_count:
 			var _new_ships = gameManager.spawn_ships_around_player(1, radius)

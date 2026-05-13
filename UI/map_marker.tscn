@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://bralv6jlk7sgg"]
+
+[ext_resource type="PackedScene" uid="uid://gdpbesjrlip7" path="res://UI/blip.tscn" id="1_la33h"]
+[ext_resource type="Texture2D" uid="uid://dvk7w3ee3d7fy" path="res://Textures/pirate-flag.png" id="2_olej4"]
+
+[node name="MapMarker" type="Control" unique_id=1038114304]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1832980453]
+layout_mode = 0
+offset_left = -64.0
+offset_top = -61.0
+offset_right = 65.0
+offset_bottom = 4.0
+pivot_offset_ratio = Vector2(0.5, 1)
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=1849011438]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.273, 0, 1)
+text = "Hangmans benis"
+horizontal_alignment = 1
+
+[node name="faction_icon" type="TextureRect" parent="VBoxContainer" unique_id=486291637]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("2_olej4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="blip" parent="VBoxContainer" unique_id=1210765341 instance=ExtResource("1_la33h")]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5

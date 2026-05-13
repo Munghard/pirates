@@ -4,9 +4,11 @@ class_name DebugMenu
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 @export var vbox: VBoxContainer
 @export var wind_label: Label
+@export var console: LineEdit
 
 
 func init_debugMenu():
+	console.text_submitted.connect(evaluate_console)
 	gameManager.world.wind.wind_changed.connect(_on_update_wind)
 
 	create_debug_button("Give Gold", func():
@@ -38,6 +40,18 @@ func init_debugMenu():
 	# turn off initally
 	visible = false
 
+
+func evaluate_console(text: String):
+	var parts = text.split(" ")
+	match parts[0]:
+		"give":
+			if parts.size() == 3:
+				var item_id = int(parts[1])
+				var amount = int(parts[2])
+				gameManager.player_ship.inventory.add_item(InventoryItem.new(item_id, amount))
+
+	print(text)
+	console.clear()
 
 func _on_update_wind(wind: Wind):
 	wind_label.text = "Speed: %.2f\nDegrees: %.2f\nEnabled: %s\nNext change: %.2f" % [wind.strength, rad_to_deg(atan2(wind.direction.x, wind.direction.z)), str(wind.timer_enable), wind.next_change - wind.timer]

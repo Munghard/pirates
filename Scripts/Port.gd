@@ -19,8 +19,10 @@ var ui: Control
 
 @onready var dock_sound = preload("res://Audio/ship-bell-two-chimes.mp3")
 
+@export var flag_mesh: MeshInstance3D
+
 @export_group("Inventory")
-var inventory_panel
+var inventory_panel: Control
 var restock_time_left := 0.0
 var restock_interval := 600.0
 
@@ -50,6 +52,8 @@ func _ready():
 	var faction := FactionsData.roll_faction(nation)
 	allegiance = Allegiance.new(nation, faction, faction_texture)
 	
+	set_world_flag()
+
 	setup_inventory()
 	await get_tree().process_frame
 
@@ -66,6 +70,15 @@ func _ready():
 	restock()
 	restock_time_left = restock_interval
 	restock_loop()
+
+func toggle_inventory():
+	inventory_panel.visible = !inventory_panel.visible
+
+func set_world_flag():
+	#setup flag
+	var mat = flag_mesh.get_active_material(0) as ShaderMaterial
+	var flag_texture = FactionsData.get_flag(allegiance.nation, allegiance.faction)
+	mat.set_shader_parameter("flag_texture", flag_texture)
 
 func restock_loop():
 	while is_inside_tree():
@@ -165,6 +178,7 @@ func setup_inventory():
 
 
 func restock():
+	gain_gold(randi_range(100, 500))
 	crew_to_hire = randi_range(1, 20)
 	crew_to_recruit = randi_range(1, 5)
 	inventory.clear()
@@ -199,6 +213,8 @@ func _on_body_entered(body: Node3D) -> void:
 		player_ship = body as PlayerShip
 		in_docking_radius.emit(true)
 		body.set_dockable_port(self )
+	elif body is LifeBoat:
+		body.queue_free()
 
 	# auto sell items that drop near a port
 	# if body is Loot:
@@ -318,6 +334,7 @@ func update_port_ui():
 	player_ship.gameManager.hud.set_player_inventory_panel_visible(true)
 	# connect depart button
 	ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/DepartButton").pressed.connect(func(): depart())
+	ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_market").pressed.connect(func(): toggle_inventory())
 	var label_header: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer2/Label_h")
 	var label_gold: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_gold")
 	var label_faction: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_f")
@@ -414,7 +431,7 @@ func buy_item(item_index: int):
 			else:
 				inventory.drop_item(item_to_buy)
 			#if not faction_has_item: ## dont consume item if its a faction item
-			inventory.consume_item(item_to_buy.id, item_to_buy.stack)
+			inventory.remove_from_stack(item.unique_id, buy_amount)
 			print("player bought item in index: " + str(item_index))
 		else:
 			print("player doesn't have enough money for item in index: " + str(item_index))

@@ -19,6 +19,8 @@ class_name HUD
 
 @export var map: Control
 
+@export var equipment_panel: Control
+
 var notification_queue: Array[String] = []
 var showing_notifications = false
 
@@ -59,6 +61,9 @@ func _on_boarding_target_changed(ship: Ship):
 
 func toggle_map():
 	map.visible = !map.visible
+
+func toggle_equipment_panel():
+	equipment_panel.visible = !equipment_panel.visible
 
 func select_ship(ship: Ship):
 	gameManager.select_ship(ship)
@@ -224,3 +229,7 @@ func _on_board_button_pressed() -> void:
 func _on_button_pass_time_pressed() -> void:
 	var slider = time_panel.get_node("MarginContainer/VBoxContainer/HSlider") as HSlider
 	gameManager.world.pass_time(slider.value)
+
+
+func _on_button_equipment_pressed() -> void:
+	toggle_equipment_panel()

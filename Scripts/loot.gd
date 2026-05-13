@@ -6,7 +6,22 @@ var item: InventoryItem
 var dropped_by: Node3D
 var recieved := false
 var water: Water
+var lifetime: float = 300.0
+
 @export var loot_icon: TextureRect
+@export var label_timer: Label
+
+func _ready():
+	$floater.water = water
+
+func _process(delta):
+	var t = int(lifetime)
+	var minutes = t / 60.0
+	var seconds = t % 60
+	label_timer.text = "%02d:%02d" % [minutes, seconds]
+	lifetime -= delta
+	if lifetime <= 0.0:
+		queue_free()
 
 func setup_loot(_item: InventoryItem, _dropped_by: Node3D):
 	item = _item if _item != null else roll_item()
@@ -18,8 +33,6 @@ func setup_loot(_item: InventoryItem, _dropped_by: Node3D):
 
 	loot_icon.texture = item_def.icon
 
-func _ready():
-	$floater.water = water
 
 func _on_body_entered(body: Node) -> void:
 	if body is not Ship:

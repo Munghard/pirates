@@ -75,7 +75,7 @@ func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: N
 
 func death():
 	for i in range(level):
-		gameManager.spawn_item_in_world(InventoryItem.new(0, 50), global_position + Vector3(randf(), 0, randf()))
+		gameManager.spawn_item_in_world(InventoryItem.new(0, randi_range(1, 50)), global_position + Vector3(randf(), 0, randf()))
 	queue_free()
 
 var sink_speed := 0.5

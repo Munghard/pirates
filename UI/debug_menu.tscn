@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://brsub3ifnum4w" path="res://Scripts/debug_menu.gd" id="1_kfbtq"]
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_ornpd"]
 
-[node name="DebugMenu" type="Control" unique_id=188675057 node_paths=PackedStringArray("vbox", "wind_label")]
+[node name="DebugMenu" type="Control" unique_id=188675057 node_paths=PackedStringArray("vbox", "wind_label", "console")]
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -16,6 +16,7 @@ theme = ExtResource("1_ornpd")
 script = ExtResource("1_kfbtq")
 vbox = NodePath("PanelContainer/MarginContainer/VBoxContainer/VBoxContainer")
 wind_label = NodePath("PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2/Label")
+console = NodePath("PanelContainer/MarginContainer/VBoxContainer/VBoxContainer3/Console")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1896834282]
 layout_mode = 1
@@ -61,5 +62,18 @@ text = "Toggle wind"
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2" unique_id=868636188]
 layout_mode = 2
 text = "Wind"
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=814443366]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer3" unique_id=429991418]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Console"
+
+[node name="Console" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer3" unique_id=1766816589]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "Console"
 
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2/Button" to="." method="_on_button_toggle_wind_pressed"]

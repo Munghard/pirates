@@ -31,6 +31,7 @@ billboard_mode = 1
 [sub_resource type="QuadMesh" id="QuadMesh_50uj4"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_h4ol7")
+size = Vector2(5, 5)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_h4ol7"]
 render_priority = 0
@@ -44,13 +45,14 @@ radial_segments = 16
 cap_top = false
 cap_bottom = false
 
-[node name="loot" type="RigidBody3D" unique_id=1134582906 node_paths=PackedStringArray("loot_icon") groups=["Floaters"]]
+[node name="loot" type="RigidBody3D" unique_id=1134582906 node_paths=PackedStringArray("loot_icon", "label_timer") groups=["Floaters"]]
 gravity_scale = 0.0
 contact_monitor = true
 max_contacts_reported = 1
 angular_damp = 10.0
 script = ExtResource("1_rg653")
 loot_icon = NodePath("world_bars/SubViewport/Control/loot_icon")
+label_timer = NodePath("world_bars/SubViewport/Control/Label")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=2022293595]
 transform = Transform3D(1, 0, 0, 0, 0.94879335, -0.31589743, 0, 0.31589743, 0.94879335, -0.04595852, 0, 0.14721233)
@@ -82,29 +84,38 @@ transparent_bg = true
 size = Vector2i(256, 256)
 
 [node name="Control" type="VBoxContainer" parent="world_bars/SubViewport" unique_id=27787931]
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(100, 100)
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -256.0
-offset_top = -256.0
-offset_right = 256.0
-offset_bottom = 256.0
+offset_left = -64.0
+offset_top = -85.5
+offset_right = 64.0
+offset_bottom = 85.5
 grow_horizontal = 2
 grow_vertical = 2
 scale = Vector2(0.5, 0.5)
 pivot_offset_ratio = Vector2(0.5, 0.5)
 size_flags_horizontal = 4
 size_flags_vertical = 4
+alignment = 1
+
+[node name="Label" type="Label" parent="world_bars/SubViewport/Control" unique_id=1081501422]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "99:99"
+horizontal_alignment = 1
 
 [node name="loot_icon" type="TextureRect" parent="world_bars/SubViewport/Control" unique_id=708740894]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 texture = ExtResource("3_dvcho")
-stretch_mode = 3
+expand_mode = 1
+stretch_mode = 5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="world_bars" unique_id=1565056926]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.750824, 0)

@@ -22,7 +22,6 @@ func setup_sails():
 		if c.name.to_lower().contains("sail"):
 			sails.append(c)
 
-
 func _process(delta):
 	var wind_dir = ship.gameManager.world.wind.direction
 

@@ -62,7 +62,6 @@ func _enter_tree() -> void:
 	floater.water = water
 
 func _ready() -> void:
-	super._ready()
 	#create debug line
 	line_agro = ImmediateMesh.new()
 	line_route = ImmediateMesh.new()
@@ -103,6 +102,8 @@ func _ready() -> void:
 	setup_inventory()
 	setup_cannons()
 	setup_ship_model(faction)
+
+	super._ready()
 
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")

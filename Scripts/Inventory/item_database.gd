@@ -12,7 +12,7 @@ func create_items():
 
 	item_database.append(Item_Definition.new(1, 3, 10, 50, "Rum", "Consumed by the crew to maintain morale and discipline.", preload("res://Textures/brandy-bottle.png")))
 
-	item_database.append(Item_Definition.new(2, 1, 500, 1, "Cannon", "Heavy naval weapon mounted on the ship.", preload("res://Textures/cannon.png")))
+	item_database.append(Item_Definition.new(2, 4, 500, 1, "6 Pounder", "Light naval weapon mounted on the ship. Level 1", preload("res://Textures/cannon.png")))
 
 	item_database.append(Item_Definition.new(3, 3, 5, 50, "Cannon balls", "Ammunition used by cannons.", preload("res://Textures/ball-pyramid.png")))
 
@@ -35,6 +35,14 @@ func create_items():
 	item_database.append(Item_Definition.new(12, 1, 200, 1, "Spyglass", "Optical tool that greatly increases viewing distance at sea.", preload("res://Textures/spyglass.png")))
 	
 	item_database.append(Item_Definition.new(13, 2, 100, 5, "Repair kit", "Repair kit that allows quickly fixing the ship. Repairs 50.0hp over 25 seconds", preload("res://Textures/barrel.png")))
+	
+	item_database.append(Item_Definition.new(14, 2, 100, 5, "Divingsuit", "Can be used to perform a dive and potentially recover treasure.", preload("res://Textures/diving-helmet.png")))
+
+	item_database.append(Item_Definition.new(15, 4, 750, 1, "12 Pounder", "Medium light naval weapon mounted on the ship. Level 2", preload("res://Textures/cannon.png")))
+	
+	item_database.append(Item_Definition.new(16, 4, 1000, 1, "24 Pounder", "Medium naval weapon mounted on the ship. Level 3", preload("res://Textures/cannon.png")))
+	
+	item_database.append(Item_Definition.new(17, 4, 1500, 1, "32 Pounder", "Heavy naval weapon mounted on the ship. Level 4", preload("res://Textures/cannon.png")))
 	# generate ids for items automatically, this is a problem if im looking up items from previously known id
 	# for i in range(item_database.size()):
 	# 	var item = item_database[i] as Item_Definition
@@ -52,6 +60,8 @@ static func get_item_type_color(type: Item_Definition.Type) -> Color:
 			return Color.GREEN
 		Item_Definition.Type.PASSIVE:
 			return Color.CYAN
+		Item_Definition.Type.CANNON:
+			return Color.RED
 		_:
 			return Color.WHITE
 	

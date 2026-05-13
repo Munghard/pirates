@@ -9,13 +9,14 @@ var max_stack: int
 var icon: Texture2D
 var type: Type
 
-enum Type {GOODS, EQUIPMENT, CONSUMABLE, PASSIVE}
+enum Type {GOODS, EQUIPMENT, CONSUMABLE, PASSIVE, CANNON}
 
 const TYPENAMES = {
 	Type.GOODS: "GOODS",
 	Type.EQUIPMENT: "EQUIPMENT",
 	Type.CONSUMABLE: "CONSUMABLE",
 	Type.PASSIVE: "PASSIVE",
+	Type.CANNON: "CANNON",
 }
 
 #_id: int = 0 , old prop, i generate ids now from index

@@ -1,12 +1,43 @@
 extends RigidBody3D
 
+class_name LifeBoat
+
 @onready var prompt_scene: PackedScene = preload("res://UI/prompt.tscn")
 @export var lifeboat_ui: PackedScene
 var crew := 5
 var gold_per_crew := 20
-var chance := 0.2
+var recruit_chance := 0.8
+var kill_chance := 0.8
 var lbu
 var entered: bool = false
+
+var speed = 5.0
+
+var closest_port: Port = null
+
+func _ready() -> void:
+	#ports are probably not in yet
+	await get_tree().process_frame
+	var ports: Array[Port] = []
+	for p in get_tree().get_nodes_in_group("Ports"):
+		ports.append(p as Port)
+
+	closest_port = GameManager.get_closest_port(ports, self )
+	#print(closest_port.port_name);
+
+func _physics_process(delta: float) -> void:
+	if not closest_port:
+		return
+
+	var dir = (closest_port.global_position - global_position).normalized()
+	var target_angle = atan2(dir.x, dir.z)
+
+	global_rotation.y = rotate_toward(
+		global_rotation.y,
+		target_angle,
+		delta
+	)
+	apply_central_force(global_basis.z * speed)
 
 func _on_body_entered(body: Node) -> void:
 	if body is PlayerShip and not entered:
@@ -23,7 +54,7 @@ func _on_body_entered(body: Node) -> void:
 
 func _on_kill_pressed(player_ship: PlayerShip):
 	var message := ""
-	if randf() < chance:
+	if randf() < kill_chance:
 		if randf() > 0.5:
 			var _gold = crew * gold_per_crew
 			player_ship.gain_gold(_gold)
@@ -50,7 +81,7 @@ func _on_kill_pressed(player_ship: PlayerShip):
 
 func _on_recruit_pressed(player_ship: PlayerShip):
 	var message := ""
-	if randf() < chance:
+	if randf() < recruit_chance:
 		player_ship.gain_crew(crew)
 		message += "Successfully recruited " + str(crew) + " crew"
 	else:

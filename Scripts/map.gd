@@ -2,9 +2,11 @@ extends Control
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
-@onready var map: TextureRect = $Control/TextureRect
-@onready var map_terrain: TextureRect = $Control/TextureRect2
+@onready var map_control: Control = $MarginContainer/Control
+@onready var map: TextureRect = $MarginContainer/Control/TextureRect
+@onready var map_terrain: TextureRect = $MarginContainer/Control/TextureRect2
 
+@onready var marker_scene: PackedScene = preload("res://UI/map_marker.tscn")
 @onready var blip_scene: PackedScene = preload("res://UI/blip.tscn")
 @onready var blip_a_scene: PackedScene = preload("res://UI/blip_a.tscn")
 
@@ -15,7 +17,7 @@ func _ready():
 	map_terrain.texture = create_map_terrain_texture()
 	
 	update_map(gameManager.player_ship.faction, blip_scene)
-	player_blip = add_blip_to_map(gameManager.player_ship, "Player", Color.WHITE, 2.0, blip_a_scene)
+	player_blip = add_blip_to_map(gameManager.player_ship, Color.WHITE, 2.0, blip_a_scene)
 
 func create_map_terrain_texture():
 	var src: Texture2D = gameManager.world.terrain.heightmap_texture
@@ -55,18 +57,45 @@ func update_map(_player_faction, _blip_scene):
 		if enemy:
 			color = Color.RED
 		#var color = FactionsData.get_faction_color(port.allegiance.faction)
-		add_blip_to_map(port, port.port_name, color, 1.25, _blip_scene)
+		add_marker_to_map(port, FactionsData.get_faction_icon(port.allegiance.faction), port.port_name, color, marker_scene)
 
 func toggle_map():
-	map.visible = !map.visible
+	visible = !visible
+	
+func add_marker_to_map(node: Node3D, icon: Texture2D, marker_name: String, color: Color, _marker_scene: PackedScene) -> Control:
+	var pos = node.global_position
+	var marker: Control = _marker_scene.instantiate()
+	var icon_texturerect: TextureRect = marker.get_node("VBoxContainer/faction_icon")
+	var label: Label = marker.get_node("VBoxContainer/Label")
+	var blip: TextureRect = marker.get_node("VBoxContainer/blip")
 
+	blip.modulate = color
+	icon_texturerect.texture = icon
+	label.text = marker_name
 
-func add_blip_to_map(node: Node3D, blip_name: String, color: Color, _scale: float, _blip_scene: PackedScene) -> Control:
+	map_control.add_child(marker)
+
+	var center_pos = map.size / 2
+
+	var relative = Vector2(
+		pos.x - center_pos.x,
+		pos.z - center_pos.y
+	)
+
+	# scale world → minimap space
+	var p = relative
+	var relative_pos = map.size * 0.5 + -p - marker.size * 0.5
+
+	marker.position = relative_pos
+	
+	return marker
+
+func add_blip_to_map(node: Node3D, color: Color, _scale: float, _blip_scene: PackedScene) -> Control:
 	var pos = node.global_position
 	var rot = - node.global_rotation.y
 	var blip: TextureRect = _blip_scene.instantiate()
 	blip.modulate = color
-	map.add_child(blip)
+	map_control.add_child(blip)
 
 	var center_pos = map.size / 2
 
@@ -82,12 +111,6 @@ func add_blip_to_map(node: Node3D, blip_name: String, color: Color, _scale: floa
 	blip.scale = Vector2.ONE * _scale
 	blip.position = relative_pos
 	blip.rotation = rot
-
-	var label = Label.new()
-	map.add_child(label)
-	label.text = blip_name
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.position = relative_pos - Vector2(0, 25)
 
 
 	return blip
@@ -106,6 +129,7 @@ func update_blip_position(node: Node3D, blip: Control):
 
 	blip.position = map.size * 0.5 + -p - blip.size * 0.5
 	blip.rotation = rot
+
 
 func _on_button_map_pressed() -> void:
 	toggle_map()

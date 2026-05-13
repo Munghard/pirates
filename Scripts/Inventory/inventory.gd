@@ -21,6 +21,35 @@ func _init(_world_owner: Node3D, _world: Node3D, _size: int, _inventory_name: St
 	world_owner.add_child(self )
 	world = _world
 
+func sort():
+	var new_items: Array[InventoryItem] = []
+
+	for item in items:
+		if item != null:
+			new_items.append(item)
+
+	new_items.sort_custom(func(a, b):
+		var a_item_def = Item_Database.get_item_definition(a.id)
+		var b_item_def = Item_Database.get_item_definition(b.id)
+		return a_item_def.type < b_item_def.type
+	)
+	new_items.resize(size)
+	
+	items = new_items
+	inventory_changed.emit(self )
+
+func compact():
+	var filtered: Array[InventoryItem] = []
+
+	for item in items:
+		if item != null:
+			filtered.append(item)
+
+	filtered.resize(size)
+	items = filtered
+	inventory_changed.emit(self )
+	
+
 func has_item(id: int, amount: int) -> bool:
 	var total := 0
 	
@@ -32,12 +61,43 @@ func has_item(id: int, amount: int) -> bool:
 	
 	return false
 
+func find_item_index(id: int) -> int:
+	for i in range(items.size()):
+		var item = items[i]
+		if item != null and item.id == id:
+			return i
+	return -1
+
+func get_item_from_unique_id(unique_id: int) -> InventoryItem:
+	for i in range(items.size()):
+		var item: InventoryItem = items[i]
+		if item != null and item.unique_id == unique_id:
+			return item
+	return null
+
+func get_item_index_from_unique_id(unique_id: int) -> int:
+	for i in range(items.size()):
+		var item: InventoryItem = items[i]
+		if item != null and item.unique_id == unique_id:
+			return i
+	return -1
+
 func item_amount(id: int) -> int:
 	var total := 0
 	
 	for item in items:
 		if item != null and item.id == id:
 			total += item.stack
+	return total
+
+func item_amount_of_type(type: Item_Definition.Type) -> int:
+	var total := 0
+	
+	for item in items:
+		if item != null:
+			var item_def = Item_Database.get_item_definition(item.id)
+			if item_def.type == type:
+				total += item.stack
 	return total
 
 func consume_item_at(index: int, amount: int) -> bool:
@@ -174,10 +234,38 @@ func add_item(item: InventoryItem) -> bool:
 
 	return true
 
+
+func remove_from_stack(unique_id: int, amount: int) -> bool:
+	if unique_id == -1:
+		return false
+	for i in range(items.size()):
+		var item = items[i]
+		if item != null and item.unique_id == unique_id:
+			if item.stack >= amount:
+				item.stack -= amount
+				if item.stack <= 0:
+					items[i] = null
+				inventory_changed.emit(self )
+				return true
+	return false
+
+func remove_item_stack(unique_id: int):
+	for i in range(items.size()):
+		var item = items[i]
+
+		if item != null and item.unique_id == unique_id:
+			items[i] = null
+			inventory_changed.emit(self )
+			return
+
+
 func remove_item(item: InventoryItem):
-	var index = items.find(item)
-	if index != -1:
-		remove_item_at(index)
+	if item == null:
+		return
+	for i in range(items.size()):
+		if items[i] != null and items[i].unique_id == item.unique_id:
+			remove_item_at(i)
+			return
 
 func remove_item_at(index: int):
 	var item = items[index]

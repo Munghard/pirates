@@ -26,10 +26,12 @@ cap_top = false
 cap_bottom = false
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jn6qf"]
+resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("9_xtkqg")
 
 [sub_resource type="QuadMesh" id="QuadMesh_tboui"]
+resource_local_to_scene = true
 material = SubResource("ShaderMaterial_jn6qf")
 size = Vector2(0.75, 0.5)
 subdivide_width = 10

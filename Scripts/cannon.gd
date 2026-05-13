@@ -5,7 +5,7 @@ class_name Cannon
 @export var canon: Node3D
 @export var particle: GPUParticles3D
 @export var particle1: GPUParticles3D
-@onready var cannon_mesh: Node3D = canon.get_node("mesh")
+@export var barrel: Node3D
 @export var light: OmniLight3D
 
 
@@ -20,6 +20,7 @@ var line: Node3D
 var fire_rate = 5.0
 var fire_timer = 0.0
 var active := false
+var damage_multiplier = 1.0
 
 signal _fire_timer_changed(value: float)
 
@@ -36,9 +37,9 @@ func shoot(attack: float, shooter: Node3D, audioManager: AudioManager) -> bool:
 	light.light_energy = 2.0
 	fire_timer = fire_rate
 
-	var dir: Vector3 = canon.global_basis.z
-	var b: RigidBody3D = cannon_ball.instantiate()
-	b.damage = damage * attack
+	var dir: Vector3 = barrel.global_basis.z
+	var b: CannonBall = cannon_ball.instantiate()
+	b.damage = damage * attack * damage_multiplier
 	b.shooter = shooter
 	b.audioManager = audioManager
 	
@@ -78,7 +79,7 @@ func _process(delta):
 		pb.max_value = fire_rate
 		emit_signal("_fire_timer_changed", fire_timer)
 	#visual
-	cannon_mesh.rotation_degrees.x = - pitch + 90
+	barrel.rotation_degrees.x = - pitch
 	if active:
 		create_line()
 	elif line:
@@ -109,7 +110,7 @@ func create_line():
 
 	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 
-	var dir = canon.basis.z # or whatever direction you want
+	var dir = barrel.basis.z # or whatever direction you want
 	var velocity = (dir + (Vector3.UP * deg_to_rad(pitch))).normalized() * force
 
 	var pos = global_position
@@ -130,3 +131,16 @@ func create_line():
 		prev = pos
 
 	mesh.surface_end()
+
+static func get_cannon_level(id: int):
+	var level = 0
+	match id:
+		2:
+			level = 1
+		15:
+			level = 2
+		16:
+			level = 3
+		17:
+			level = 4
+	return level

@@ -287,6 +287,7 @@ static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 				InventoryItem.new(0, randi_range(0, 20)),
 				InventoryItem.new(11, randi_range(10, 50)),
 				InventoryItem.new(6, randi_range(10, 50)),
+				InventoryItem.new(5, randi_range(1, 5)),
 			]
 		Faction.VIKING:
 			items = [
@@ -346,6 +347,7 @@ static func roll_faction(nation: FactionsData.Nation) -> FactionsData.Faction:
 				FactionsData.Faction.NAVY: 35,
 				FactionsData.Faction.MERCHANT: 25,
 				FactionsData.Faction.PIRATE: 15,
+				FactionsData.Faction.SLAVER: 10,
 				FactionsData.Faction.BOUNTYHUNTER: 10,
 				FactionsData.Faction.CARTOGRAPHER: 10,
 				FactionsData.Faction.FISHERMAN: 5,
