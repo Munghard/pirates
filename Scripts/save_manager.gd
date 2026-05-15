@@ -3,7 +3,7 @@ extends Node
 class_name SaveManager
 
 const SAVE_PATH := "user://savegame.json"
-
+signal loaded
 
 func _write(data: Dictionary) -> void:
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -54,11 +54,27 @@ func load_game(gameManager: GameManager):
 
 	load_player_transform(gameManager.player_ship, player_data)
 	load_ship_stats(gameManager.player_ship, player_data)
+
+	var ports_data := Port_Data.from_dict_array(data.get("ports", []))
+	gameManager.world.spawn_ports_from_data(ports_data)
 	
+	gameManager.territory_draw.rebuild_visual_cache()
+
 	print("loaded game")
+	loaded.emit()
 
 func load_inventory(player_ship: PlayerShip, _world, data: Array) -> Inventory:
 	var inventory := Inventory.new(player_ship, _world, 16, "Player")
+
+	inventory.items.clear()
+	for item_data in data:
+		var item = _load_item(item_data)
+		inventory.items.append(item)
+
+	return inventory
+
+static func create_inventory_from_data(_owner: Node3D, owner_name: String, _world, data: Array) -> Inventory:
+	var inventory := Inventory.new(_owner, _world, 16, owner_name)
 
 	inventory.items.clear()
 	for item_data in data:
@@ -84,7 +100,7 @@ func _load_item_list(data: Array) -> Array[InventoryItem]:
 
 	return items
 
-func _load_item(data: Dictionary) -> InventoryItem:
+static func _load_item(data: Dictionary) -> InventoryItem:
 	if data.is_empty():
 		return null
 
@@ -139,7 +155,8 @@ func load_ship_stats(player_ship: PlayerShip, data: Dictionary):
 	player_ship.emit_signal("crew_changed", player_ship.crew)
 	player_ship.emit_signal("gold_changed", player_ship.gold)
 	player_ship.emit_signal("morale_changed", player_ship.morale)
-	
+
+
 ## ================================================================================================================
 ## SAVE 
 ## ================================================================================================================
@@ -151,7 +168,8 @@ func save_game(gameManager: GameManager):
 			"equipment": save_equipment(gameManager.player_ship.equipment),
 			"transform": save_player_transform(gameManager.player_ship),
 			"stats": save_ship_stats(gameManager.player_ship)
-		}
+		},
+		"ports": save_ports(gameManager.world.ports)
 	}
 
 	_write(data)
@@ -171,7 +189,7 @@ func save_player_transform(player_ship: PlayerShip) -> Dictionary:
 		},
 		"yaw_deg": player_ship.yaw_deg
 	}
-func save_inventory(inventory: Inventory) -> Array:
+static func save_inventory(inventory: Inventory) -> Array:
 	var items = []
 
 	for item in inventory.items:
@@ -215,7 +233,7 @@ func _save_item_list(items: Array) -> Array:
 
 	return result
 
-func _save_item(item: InventoryItem) -> Dictionary:
+static func _save_item(item: InventoryItem) -> Dictionary:
 	if item == null:
 		return {}
 
@@ -224,3 +242,21 @@ func _save_item(item: InventoryItem) -> Dictionary:
 		"id": item.id,
 		"amount": item.stack
 	}
+
+func save_ports(ports: Array[Port]) -> Array:
+	var result = []
+
+	for port in ports:
+		result.append({
+			"name": port.port_name,
+			"faction": port.allegiance.faction,
+			"nation": port.allegiance.nation,
+			"position": {
+				"x": port.global_position.x,
+				"y": port.global_position.y,
+				"z": port.global_position.z
+			},
+			"inventory": save_inventory(port.inventory)
+		})
+
+	return result

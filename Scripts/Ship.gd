@@ -176,8 +176,7 @@ func setup_ship_model(_faction: FactionsData.Faction):
 			ship_pivot.add_child(m)
 
 		_:
-			ship_model = load("res://Models/Sail ship.fbx")
-			model = ship_model.instantiate()
+			model = ships.get_node("Cutter")
 			var m = model.duplicate()
 			ship_pivot.add_child(m)
 
@@ -342,6 +341,8 @@ var ration_interval := 30000 # 30 seconds
 var last_ration := 0.0
 
 func ration_drain():
+	if dockable_port:
+		return
 	last_ration = Time.get_ticks_msec()
 	if inventory.has_item("rations", 1):
 		inventory.consume_item("rations", 1)
@@ -352,10 +353,12 @@ func ration_drain():
 # MORALE
 # ================================================================================================================
 
-var morale_interval := 10000 # 30 seconds
+var morale_interval := 60000 # 60 seconds
 var last_morale := 0.0
 
 func morale_drain():
+	if dockable_port:
+		return
 	last_morale = Time.get_ticks_msec()
 	if inventory.has_item("rum", 1):
 		inventory.consume_item("rum", 1)
@@ -433,6 +436,9 @@ func _physics_process(_delta: float) -> void:
 	if not global_basis.x.is_finite() or not global_basis.y.is_finite() or not global_basis.z.is_finite():
 		return
 	world_edge_push(_delta)
+	
+	if crew <= 0:
+		return
 
 	if destroyed:
 		if floater:

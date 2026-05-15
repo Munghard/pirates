@@ -1,6 +1,8 @@
 extends Node3D
 
 class_name GameManager
+@export_group("Settings")
+@export var _seed = 3
 
 @export_group("Nodes")
 var world: World
@@ -11,6 +13,8 @@ var camerarig: Camera
 var audioManager: AudioManager
 var debugMenu: DebugMenu
 var save_manager: SaveManager
+var territory: Territory
+var territory_draw: Control
 
 var selected_ship: Ship
 
@@ -18,7 +22,7 @@ var world_item: PackedScene = preload("res://Scenes/loot.tscn")
 
 func _enter_tree() -> void:
 	# set world seed
-	seed(1)
+	seed(_seed)
 
 func _ready() -> void:
 	print(randi())
@@ -31,6 +35,8 @@ func _ready() -> void:
 	camerarig = $SubViewportContainer/SubViewport/camera_rig
 	audioManager = $SubViewportContainer/SubViewport/AudioManager
 	save_manager = $SaveManager
+	territory = $Territory
+	territory_draw = hud.map.territory_draw
 
 	assert(world != null, "world is null in gamemanager start")
 	assert(player_ship != null, "player_ship is null in gamemanager start")
@@ -40,7 +46,8 @@ func _ready() -> void:
 	assert(camerarig != null, "camerarig is null in gamemanager start")
 	assert(audioManager != null, "audioManager is null in gamemanager start")
 	assert(save_manager != null, "save_manager is null in gamemanager start")
-	
+	assert(territory != null, "territory is null in gamemanager start")
+	assert(territory_draw != null, "territory_draw is null in gamemanager start")
 	hud.init_hud()
 	debugMenu.init_debugMenu()
 	hud.toggle_map()
@@ -49,6 +56,7 @@ func _ready() -> void:
 	
 	# autoload last game
 	
+	await get_tree().process_frame
 	await get_tree().process_frame
 	save_manager.load_game(self )
 
@@ -107,7 +115,7 @@ func _input(event: InputEvent) -> void:
 			hud.game_menu.visible = !hud.game_menu.visible
 
 func move_player_to_random_port():
-	var ports = get_tree().get_nodes_in_group("Ports")
+	var ports = world.ports
 	var port: Port = ports[randi_range(0, ports.size() - 1)]
 	var water_pos = port.get_valid_water_position()
 	var dir = (water_pos - port.global_position).normalized()
@@ -116,6 +124,15 @@ func move_player_to_random_port():
 	player_ship.global_position = water_pos
 	player_ship.rotation.y = angle_rad
 	player_ship.yaw_deg = angle_deg
+
+
+func spawn_ship(_position: Vector3, nation: FactionsData.Nation, faction: FactionsData.Faction) -> Ship:
+	var enemy_ship_scene = preload("res://Scenes/enemy_ship.tscn")
+	var enemy_ship: EnemyShip = enemy_ship_scene.instantiate() as EnemyShip
+	add_child(enemy_ship)
+	enemy_ship.global_position = _position
+	enemy_ship.setup_identity(nation, faction)
+	return enemy_ship
 
 func spawn_ships_around_player(count: int, radius: float) -> Array[Ship]:
 	var enemy_ship = preload("res://Scenes/enemy_ship.tscn")
@@ -132,6 +149,12 @@ func spawn_ships_around_player(count: int, radius: float) -> Array[Ship]:
 		ships.append(ship)
 	
 	return ships
+
+func get_position_around_point(pos: Vector3, radius: float) -> Vector3:
+	var angle = randf() * TAU
+	var _offset = Vector3(cos(angle), 0, sin(angle)) * radius
+	
+	return pos + _offset
 		
 
 static func get_ships_by_faction(ships: Array[Ship], target_factions: Array[FactionsData.Faction]) -> Array[Ship]:

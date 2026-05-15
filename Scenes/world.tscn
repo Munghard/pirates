@@ -44,9 +44,11 @@
 [ext_resource type="Script" uid="uid://cttiahx2sleji" path="res://Scripts/map.gd" id="36_atqvy"]
 [ext_resource type="Texture2D" uid="uid://n28bcoiuwkeb" path="res://Textures/ancient-parchment.png" id="37_w5giw"]
 [ext_resource type="Script" uid="uid://cqvdwut1w32af" path="res://Scripts/Factions/factions_data.gd" id="38_r74th"]
+[ext_resource type="Script" uid="uid://bdy8aaapdamad" path="res://Scripts/draw_territory.gd" id="40_b4e6k"]
 [ext_resource type="PackedScene" uid="uid://kt4nc6536x0r" path="res://UI/equipment_panel.tscn" id="41_jwdyn"]
 [ext_resource type="PackedScene" uid="uid://b4klp5rpp5gsl" path="res://UI/game_menu.tscn" id="44_xcb5n"]
 [ext_resource type="Script" uid="uid://chwiih1pumcge" path="res://Scripts/save_manager.gd" id="46_6mm6r"]
+[ext_resource type="Script" uid="uid://ccadfi1dq6umf" path="res://Scripts/Factions/territory.gd" id="46_te07t"]
 
 [sub_resource type="Gradient" id="Gradient_r0ikl"]
 offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
@@ -136,15 +138,15 @@ albedo_texture = ExtResource("27_r0ikl")
 material = SubResource("StandardMaterial3D_p5wkl")
 flip_faces = true
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_xcb5n"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_b4e6k"]
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("29_al5m0")
 shader_parameter/flag_texture = ExtResource("30_6mm6r")
 
-[sub_resource type="QuadMesh" id="QuadMesh_te07t"]
+[sub_resource type="QuadMesh" id="QuadMesh_0sgyr"]
 resource_local_to_scene = true
-material = SubResource("ShaderMaterial_xcb5n")
+material = SubResource("ShaderMaterial_b4e6k")
 size = Vector2(0.75, 0.5)
 subdivide_width = 10
 center_offset = Vector3(0.375, 0, 0)
@@ -222,6 +224,7 @@ script = ExtResource("2_o2rbt")
 script = ExtResource("5_axeuq")
 scatterers = NodePath("Scatterers")
 ports_amount = 30
+min_distance_between_ports = 30.0
 sun_gradient = SubResource("Gradient_r0ikl")
 port_scene = ExtResource("16_hgpy0")
 
@@ -254,6 +257,7 @@ script = ExtResource("5_kn0ld")
 [node name="Scatterers" type="Node3D" parent="SubViewportContainer/SubViewport/World" unique_id=1614039376]
 
 [node name="ships" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=130823351 node_paths=PackedStringArray("water")]
+visible = false
 script = ExtResource("3_o06y3")
 prefab = ExtResource("4_k7acu")
 rotation_range_min = Vector3(0, -180, 0)
@@ -369,7 +373,7 @@ ship = NodePath("..")
 ship = NodePath("../..")
 
 [node name="flag" parent="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/flag_pole" parent_id_path=PackedInt32Array(7143519, 37573427) index="0" unique_id=427128270]
-mesh = SubResource("QuadMesh_te07t")
+mesh = SubResource("QuadMesh_0sgyr")
 
 [node name="floater" parent="SubViewportContainer/SubViewport/World/PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
 water = NodePath("../../Water")
@@ -431,7 +435,7 @@ theme_override_constants/margin_bottom = 20
 visible = false
 layout_mode = 2
 
-[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "depth_panel", "wind_control", "button_dock", "boarding_button", "notification_label", "fps_label", "map", "game_menu", "equipment_panel")]
+[node name="HUD" type="Control" parent="MarginContainer" unique_id=907800867 node_paths=PackedStringArray("ship_panel_target", "ship_panel_player", "inventory_panel", "time_panel", "depth_panel", "influence_panel", "wind_control", "button_dock", "boarding_button", "notification_label", "fps_label", "map", "game_menu", "equipment_panel")]
 layout_mode = 2
 mouse_filter = 2
 theme = ExtResource("2_0fj1v")
@@ -441,6 +445,7 @@ ship_panel_player = NodePath("Player_ship_panel")
 inventory_panel = NodePath("Inventory_panel")
 time_panel = NodePath("Time_panel")
 depth_panel = NodePath("Depth_panel")
+influence_panel = NodePath("Influence_panel")
 wind_control = NodePath("wind_gauge")
 button_dock = NodePath("HBoxContainer/Button_dock")
 boarding_button = NodePath("HBoxContainer/Button")
@@ -559,11 +564,24 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 0.00079345703
+offset_bottom = 9.1552734e-05
 grow_horizontal = 2
 grow_vertical = 2
 rotation = 3.1415927
 pivot_offset_ratio = Vector2(0.5, 0.5)
 stretch_mode = 3
+
+[node name="Territory" type="Control" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=1826651216 node_paths=PackedStringArray("territory")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -0.0002746582
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("40_b4e6k")
+territory = NodePath("../../../../../../Territory")
 
 [node name="wind_gauge" type="TextureRect" parent="MarginContainer/HUD" unique_id=1041010364]
 layout_mode = 1
@@ -684,6 +702,33 @@ text = "Depth"
 layout_mode = 2
 text = "10m"
 
+[node name="Influence_panel" type="PanelContainer" parent="MarginContainer/HUD" unique_id=922652120]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 416.0
+offset_top = -85.0
+offset_right = 511.0
+grow_vertical = 0
+pivot_offset_ratio = Vector2(0, 1)
+theme = ExtResource("2_0fj1v")
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HUD/Influence_panel" unique_id=1364914670]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/Influence_panel/MarginContainer" unique_id=1808806157]
+layout_mode = 2
+
+[node name="Label_h" type="Label" parent="MarginContainer/HUD/Influence_panel/MarginContainer/VBoxContainer" unique_id=453593428]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Influence"
+
+[node name="Label_m" type="Label" parent="MarginContainer/HUD/Influence_panel/MarginContainer/VBoxContainer" unique_id=572360741]
+layout_mode = 2
+text = "10m"
+
 [node name="Button_map" type="Button" parent="MarginContainer/HUD" unique_id=1939787194]
 layout_mode = 1
 anchors_preset = 3
@@ -780,6 +825,9 @@ layout_mode = 1
 
 [node name="Faction_data" type="Node" parent="." unique_id=1574932247]
 script = ExtResource("38_r74th")
+
+[node name="Territory" type="Node" parent="." unique_id=840843967]
+script = ExtResource("46_te07t")
 
 [node name="Item_Database" type="Node" parent="." unique_id=2120478333]
 script = ExtResource("35_coyub")

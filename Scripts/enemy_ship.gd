@@ -66,12 +66,28 @@ func _ready() -> void:
 	line_agro = ImmediateMesh.new()
 	line_route = ImmediateMesh.new()
 	line_avoidance = ImmediateMesh.new()
-	# later have ship names per faction, for now just random
-	ship_name = FactionsData.get_random_name()
+	
+	hit_points = max_hit_points
+	
+	connect("recieved_damage", Callable(self , "_on_damage_recieved"))
+	connect("on_sink", Callable(self , "_on_ship_sunk"))
+	connect("boarded_changed", Callable(self , "_on_boarded_changed"))
+	
+	set_state(AIState.ENROUTE)
+
+	navigation_markers.visible = false
+	world_bars.visible = false
+
+	setup_identity(FactionsData.roll_nation(), FactionsData.roll_faction(FactionsData.roll_nation()))
+
+	super._ready()
+
+func setup_identity(_nation: FactionsData.Nation, _faction: FactionsData.Faction):
+	ship_name = FactionsData.get_unique_ship_name()
 
 	level = randi_range(1, 5)
-	nation = FactionsData.roll_nation()
-	faction = FactionsData.roll_faction(nation)
+	nation = _nation
+	faction = _faction
 
 	var faction_stats = FactionsData.get_faction_stats(faction)
 
@@ -87,23 +103,9 @@ func _ready() -> void:
 	set_stars(level)
 	ship_pivot.set_flag()
 	
-	hit_points = max_hit_points
-	
-	connect("recieved_damage", Callable(self , "_on_damage_recieved"))
-	connect("on_sink", Callable(self , "_on_ship_sunk"))
-	connect("boarded_changed", Callable(self , "_on_boarded_changed"))
-	
-	set_state(AIState.ENROUTE)
-
-	navigation_markers.visible = false
-	world_bars.visible = false
-
-
 	setup_inventory()
 	setup_cannons()
 	setup_ship_model(faction)
-
-	super._ready()
 
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
@@ -183,7 +185,7 @@ func _physics_process(_delta: float) -> void:
 	active = dist_sq < active_range * active_range
 	if not active:
 		return
-
+	
 	super._physics_process(_delta)
 
 func _process(delta):

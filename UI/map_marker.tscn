@@ -1,7 +1,18 @@
 [gd_scene format=3 uid="uid://bralv6jlk7sgg"]
 
-[ext_resource type="PackedScene" uid="uid://gdpbesjrlip7" path="res://UI/blip.tscn" id="1_la33h"]
 [ext_resource type="Texture2D" uid="uid://dvk7w3ee3d7fy" path="res://Textures/pirate-flag.png" id="2_olej4"]
+
+[sub_resource type="Gradient" id="Gradient_no8kt"]
+offsets = PackedFloat32Array(0, 0.50541514, 0.9350649, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_d6m5i"]
+gradient = SubResource("Gradient_no8kt")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.84615386, 0.14957266)
 
 [node name="MapMarker" type="Control" unique_id=1038114304]
 layout_mode = 3
@@ -9,27 +20,31 @@ anchors_preset = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1832980453]
 layout_mode = 0
-offset_left = -64.0
-offset_top = -61.0
-offset_right = 65.0
-offset_bottom = 4.0
+offset_left = -30.0
+offset_top = -32.0
+offset_right = 30.0
+offset_bottom = 15.0
 pivot_offset_ratio = Vector2(0.5, 1)
 
 [node name="Label" type="Label" parent="VBoxContainer" unique_id=1849011438]
+texture_filter = 1
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.273, 0, 1)
-text = "Hangmans benis"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "benis"
 horizontal_alignment = 1
 
 [node name="faction_icon" type="TextureRect" parent="VBoxContainer" unique_id=486291637]
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 texture = ExtResource("2_olej4")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="blip" parent="VBoxContainer" unique_id=1210765341 instance=ExtResource("1_la33h")]
+[node name="blip" type="TextureRect" parent="VBoxContainer" unique_id=1210765341]
+texture_filter = 1
 custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
+texture = SubResource("GradientTexture2D_d6m5i")
 expand_mode = 1
 stretch_mode = 5

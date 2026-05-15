@@ -1,5 +1,11 @@
--[] make a simple main menu that lets you delete your save file and restart game
+-[] add prompt to port buy upgrades
+-[] add a sea serpent (valheim style)
 -[] morale runs out > mutiny. ship becomes an npc ship, player goes to port to acquire new ship?
+-[] name your ship
+-[] 
+-[] end goal
+
+-x[] make a simple main menu that lets you delete your save file and restart game
 -[x] rum consume to regen morale
 -[x]make a fishing mechanic
 -[x]work on selling items at ports
@@ -20,7 +26,7 @@ TRY WEB BUILD TO SEE HOW IT WORKS
 RESEARCH WEB MULTIPLAYER
 
 
-SHIP TYPES
+SHIP TYPES MODELS
 
 -[x] Pirate → Brigantine
 Fast, aggressive, versatile. Classic pirate silhouette with mixed sails and lots of rigging.

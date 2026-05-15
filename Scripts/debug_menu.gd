@@ -46,7 +46,7 @@ func evaluate_console(text: String):
 	match parts[0]:
 		"give":
 			if parts.size() == 3:
-				var item_id = int(parts[1])
+				var item_id = parts[1]
 				var amount = int(parts[2])
 				gameManager.player_ship.inventory.add_item(InventoryItem.new(item_id, amount))
 

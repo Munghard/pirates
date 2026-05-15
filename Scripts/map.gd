@@ -1,15 +1,18 @@
 extends Control
 
+class_name Map
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 @onready var map_control: Control = $MarginContainer/Control
 @onready var map: TextureRect = $MarginContainer/Control/TextureRect
 @onready var map_terrain: TextureRect = $MarginContainer/Control/TextureRect2
+@onready var territory_draw: Control = $MarginContainer/Control/Territory
 
 @onready var marker_scene: PackedScene = preload("res://UI/map_marker.tscn")
 @onready var blip_scene: PackedScene = preload("res://UI/blip.tscn")
 @onready var blip_a_scene: PackedScene = preload("res://UI/blip_a.tscn")
 
+var map_scale = 1.0
 var player_blip: Control
 
 func _ready():
@@ -17,7 +20,39 @@ func _ready():
 	map_terrain.texture = create_map_terrain_texture()
 	
 	update_map(gameManager.player_ship.faction, blip_scene)
+	
+	var port_nodes = gameManager.world.ports
+	var ports: Array[Port]
+	for port in port_nodes:
+		if port is Port:
+			ports.append(port)
+	
+	for port in ports:
+		port.port_faction_changed.connect(func(_faction): update_map(gameManager.player_ship.faction, blip_scene))
+	
+	gameManager.save_manager.loaded.connect(func(): update_map(gameManager.player_ship.faction, blip_scene))
+
 	player_blip = add_blip_to_map(gameManager.player_ship, Color.WHITE, 2.0, blip_a_scene)
+	pivot_offset_ratio = Vector2(0.5, 0.5)
+	territory_draw.gameManager = gameManager
+	territory_draw.map = self
+	#gameManager.territory.territories_changed.connect(update_territory_drawings)
+
+
+func set_zoom(value: float):
+	map_scale += value
+	scale = Vector2.ONE * clamp(map_scale + value, 0.1, 5.0)
+	# camera.position.
+
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event is InputEventMouseButton and event.pressed:
+		match event.button_index:
+			MOUSE_BUTTON_WHEEL_UP:
+				set_zoom(0.1)
+			MOUSE_BUTTON_WHEEL_DOWN:
+				set_zoom(-0.1)
 
 func create_map_terrain_texture():
 	var src: Texture2D = gameManager.world.terrain.heightmap_texture
@@ -43,25 +78,55 @@ func create_map_terrain_texture():
 
 	return ImageTexture.create_from_image(out)
 
+var is_dragging = false
+var last_mouse_position
+
 func _process(_delta):
 	if gameManager.player_ship and player_blip:
 		update_blip_position(gameManager.player_ship, player_blip)
 
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		var mouse_pos = get_viewport().get_mouse_position()
+		var offset = mouse_pos - last_mouse_position
+
+		position += offset
+
+		last_mouse_position = mouse_pos
+	else:
+		last_mouse_position = get_viewport().get_mouse_position()
+
 
 func update_map(_player_faction, _blip_scene):
-	for child in map.get_children():
+	for child in territory_draw.get_children():
 		child.queue_free()
-	for port: Port in get_tree().get_nodes_in_group("Ports"):
+	
+	for port: Port in gameManager.world.ports:
+		if not port.allegiance:
+			continue
 		var enemy = FactionsData.is_enemy(_player_faction, port.allegiance.faction)
-		var color = Color.GREEN
+		var color = Color.GRAY
 		if enemy:
 			color = Color.RED
-		#var color = FactionsData.get_faction_color(port.allegiance.faction)
+		else:
+			color = Color.GREEN
+		if port.allegiance.faction == FactionsData.Faction.NONE:
+			color = Color.GRAY
+		color = FactionsData.get_faction_color(port.allegiance.faction)
 		add_marker_to_map(port, FactionsData.get_faction_icon(port.allegiance.faction), port.port_name, color, marker_scene)
 
 func toggle_map():
 	visible = !visible
-	
+
+func world_to_map(world_pos: Vector3) -> Vector2:
+	var center_pos = territory_draw.size / 2
+
+	var relative = Vector2(
+		world_pos.x - center_pos.x,
+		world_pos.z - center_pos.y
+	)
+
+	return territory_draw.size * 0.5 + -relative
+
 func add_marker_to_map(node: Node3D, icon: Texture2D, marker_name: String, color: Color, _marker_scene: PackedScene) -> Control:
 	var pos = node.global_position
 	var marker: Control = _marker_scene.instantiate()
@@ -69,24 +134,14 @@ func add_marker_to_map(node: Node3D, icon: Texture2D, marker_name: String, color
 	var label: Label = marker.get_node("VBoxContainer/Label")
 	var blip: TextureRect = marker.get_node("VBoxContainer/blip")
 
+	#icon_texturerect.modulate = color
 	blip.modulate = color
 	icon_texturerect.texture = icon
 	label.text = marker_name
 
-	map_control.add_child(marker)
+	territory_draw.add_child(marker)
 
-	var center_pos = map.size / 2
-
-	var relative = Vector2(
-		pos.x - center_pos.x,
-		pos.z - center_pos.y
-	)
-
-	# scale world → minimap space
-	var p = relative
-	var relative_pos = map.size * 0.5 + -p - marker.size * 0.5
-
-	marker.position = relative_pos
+	marker.position = world_to_map(pos) - Vector2(32, 24)
 	
 	return marker
 
@@ -95,21 +150,11 @@ func add_blip_to_map(node: Node3D, color: Color, _scale: float, _blip_scene: Pac
 	var rot = - node.global_rotation.y
 	var blip: TextureRect = _blip_scene.instantiate()
 	blip.modulate = color
-	map_control.add_child(blip)
+	territory_draw.add_child(blip)
 
-	var center_pos = map.size / 2
-
-	var relative = Vector2(
-		pos.x - center_pos.x,
-		pos.z - center_pos.y
-	)
-
-	# scale world → minimap space
-	var p = relative
-	var relative_pos = map.size * 0.5 + -p - blip.size * 0.5
+	blip.position = world_to_map(pos) - Vector2(16, 16)
 
 	blip.scale = Vector2.ONE * _scale
-	blip.position = relative_pos
 	blip.rotation = rot
 
 
@@ -118,16 +163,8 @@ func add_blip_to_map(node: Node3D, color: Color, _scale: float, _blip_scene: Pac
 func update_blip_position(node: Node3D, blip: Control):
 	var pos = node.global_position
 	var rot = - node.global_rotation.y
-	var center_pos = map.size / 2
 
-	var relative = Vector2(
-		pos.x - center_pos.x,
-		pos.z - center_pos.y
-	)
-
-	var p = relative
-
-	blip.position = map.size * 0.5 + -p - blip.size * 0.5
+	blip.position = world_to_map(pos) - Vector2(16, 16)
 	blip.rotation = rot
 
 

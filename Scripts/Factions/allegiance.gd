@@ -18,4 +18,5 @@ func set_faction(_faction: FactionsData.Faction):
 	set_faction_texture()
 
 func set_faction_texture():
-	faction_texture_rect.texture = FactionsData.get_faction_icon(faction)
+	if faction_texture_rect:
+		faction_texture_rect.texture = FactionsData.get_faction_icon(faction)

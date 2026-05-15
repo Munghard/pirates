@@ -29,6 +29,7 @@ var restock_interval := 600.0
 signal docking_changed(ship: Ship)
 signal in_docking_radius(value: bool)
 signal gold_changed(amount: int)
+signal port_faction_changed(new_faction: FactionsData.Faction)
 
 @onready var cannon_layout_port: Cannons_port = $Cannons
 
@@ -38,7 +39,7 @@ signal gold_changed(amount: int)
 @onready var crew_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
 @onready var recovery_healthbar: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_recovery
 @onready var restock_timer_label: Label = $world_bars/SubViewport/Control/VBoxContainer/Label_restock
-@onready var faction_texture: TextureRect = $world_bars/SubViewport/Control/faction_icon
+@onready var faction_texture_rect: TextureRect = $world_bars/SubViewport/Control/faction_icon
 @onready var star_container: Control = $world_bars/SubViewport/Control/star_container
 @onready var header_label: Label = $world_bars/SubViewport/Control/VBoxContainer/Label_h
 
@@ -46,30 +47,45 @@ signal gold_changed(amount: int)
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 func _ready():
-	port_name = FactionsData.PORT_NAMES[randi_range(0, FactionsData.PORT_NAMES.size() - 1)]
-	header_label.text = port_name
-	var nation := FactionsData.roll_nation()
-	var faction := FactionsData.roll_faction(nation)
-	allegiance = Allegiance.new(nation, faction, faction_texture)
-	
-	set_world_flag()
-
-	setup_inventory()
-	await get_tree().process_frame
-
-	var faction_data = FactionsData.get_faction_stats(faction)
-	gold = faction_data.gold
-	
+	setup_nodes()
+	#setup_inventory()
+	#await get_tree().process_frame
 	# just mocking the bars for now
 	ship_healthbar.value = 100.0
 	crew_healthbar.value = 100.0
 	recovery_healthbar.value = 100.0
 
+func setup_nodes():
+	world_bars = $world_bars
+	ship_healthbar = $world_bars/SubViewport/Control/VBoxContainer/pb_ship
+	crew_healthbar = $world_bars/SubViewport/Control/VBoxContainer/pb_crew
+	recovery_healthbar = $world_bars/SubViewport/Control/VBoxContainer/pb_recovery
+	restock_timer_label = $world_bars/SubViewport/Control/VBoxContainer/Label_restock
+	faction_texture_rect = $world_bars/SubViewport/Control/faction_icon
+	star_container = $world_bars/SubViewport/Control/star_container
+	header_label = $world_bars/SubViewport/Control/VBoxContainer/Label_h
+	
+func setup_identity(world, port_data: Port_Data):
+	setup_nodes()
+	port_name = port_data.port_name
+	allegiance = Allegiance.new(port_data.nation, port_data.faction, faction_texture_rect)
+	inventory = SaveManager.create_inventory_from_data(
+			self ,
+			port_data.port_name,
+			world,
+			port_data.inventory
+		)
+	var faction_data = FactionsData.get_faction_stats(allegiance.faction)
+	gold = faction_data.gold
 	gold_changed.connect(_on_gold_changed)
 	
+	header_label.text = port_name
+	
+	set_world_flag()
 	restock()
 	restock_time_left = restock_interval
 	restock_loop()
+
 
 func toggle_inventory():
 	inventory_panel.visible = !inventory_panel.visible
@@ -173,8 +189,9 @@ func remove_gold(_gold: int):
 	gold -= _gold
 	emit_signal("gold_changed", _gold)
 
-func setup_inventory():
+func setup_inventory() -> Inventory:
 	inventory = Inventory.new(self , gameManager, 16, port_name + " market")
+	return inventory
 
 
 func restock():
@@ -270,7 +287,21 @@ func dock():
 	player_ship.side_to_side_speed = 0
 	docking_changed.emit(player_ship)
 	player_ship.set_docked(self )
+
+	if allegiance.faction != player_ship.faction:
+		capture_port()
+
 	entered_port()
+
+func capture_port():
+	allegiance.faction = player_ship.faction
+	set_faction_icon(allegiance.faction)
+	allegiance.nation = player_ship.nation
+	set_flag(allegiance.nation, allegiance.faction)
+	set_world_flag()
+	port_faction_changed.emit(allegiance.faction)
+	faction_texture_rect.texture = FactionsData.get_faction_icon(allegiance.faction)
+	gameManager.hud.new_notification("Captured %s" % port_name)
 
 func depart():
 	if ui:
@@ -308,7 +339,6 @@ func set_faction_icon(_faction: FactionsData.Faction):
 	if not ui:
 		return
 	var _faction_texture = FactionsData.get_faction_icon(_faction)
-	var faction_texture_rect: TextureRect = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Allegiance_ui/ColorRect/faction_icon")
 	faction_texture_rect.texture = _faction_texture
 
 func set_flag(_nation: FactionsData.Nation, _faction: FactionsData.Faction):
@@ -374,6 +404,7 @@ func update_port_ui():
 		)
 	create_upgrade_ui(root, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
 	create_upgrade_ui(root, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
+	create_upgrade_ui(root, "SHIP", "Upgrade hull", 200, func(): ps.hitpoints += 10.0)
 	
 	create_upgrade_ui(root, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
 	create_upgrade_ui(root, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
@@ -471,15 +502,30 @@ func create_upgrade_ui(root: Control, category: String, upgrade_name: String, up
 	var new_upgrade_button = Button.new()
 	new_upgrade_button.text = "Buy"
 	new_upgrade_button.pressed.connect(func():
-		if not player_ship:
-			return
-		if player_ship.gold >= upgrade_cost:
-			player_ship.gold -= upgrade_cost
-			function.call()
-			player_ship.gameManager.hud.new_notification("Acquired %s" % upgrade_name)
-		else:
-			print("Not enough gold for upgrade: ", upgrade_name)
-		update_port_ui()
+		var prompt = gameManager.hud.prompt.instantiate()
+		gameManager.hud.add_child(prompt)
+		prompt.label_h.text = "Confirm"
+		prompt.label_message.text = "%s: %s$" % [upgrade_name, upgrade_cost]
+		prompt.icon.visible = false
+		
+		prompt.confirm.connect(func():
+			if not player_ship:
+				return
+			if player_ship.gold >= upgrade_cost:
+				player_ship.gold -= upgrade_cost
+				function.call()
+				player_ship.gameManager.hud.new_notification("Acquired %s" % upgrade_name)
+			else:
+				print("Not enough gold for upgrade: ", upgrade_name)
+			update_port_ui()
+			prompt.queue_free()
+		)
+
+		prompt.cancel.connect(func():
+			prompt.queue_free()
+		)
+
+		
 	)
 
 	new_upgrade_hbox.add_child(new_upgrade_label)

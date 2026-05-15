@@ -56,6 +56,7 @@ func setup_inventory():
 	add_player_loadout()
 
 func add_player_loadout():
+	inventory.add_item(InventoryItem.new("gold", 50))
 	inventory.add_item(InventoryItem.new("six_pounder", 2))
 	inventory.add_item(InventoryItem.new("rations", 30))
 	inventory.add_item(InventoryItem.new("rum", 30))
@@ -260,10 +261,26 @@ func emergency_brake():
 	target_speed = 0.0
 	yaw_deg = rotation_degrees.y
 
+var last_territory_faction := FactionsData.Faction.NONE
+var last_territory_check := 0.0
+var territory_check_interval := 2.0
+
+func check_territory(delta: float):
+	last_territory_check -= delta
+	if last_territory_check > 0.0:
+		return
+	last_territory_check = territory_check_interval
+	var territory_faction = gameManager.territory.get_territory_at(Vector2(global_position.x, global_position.z))
+	if territory_faction == FactionsData.Faction.NONE:
+		return
+	if last_territory_faction != territory_faction:
+		last_territory_faction = territory_faction
+		gameManager.hud.new_notification("Entered %s territory." % [FactionsData.FACTION_NAMES.get(territory_faction)])
+
 func _process(_delta: float) -> void:
 	super._process(_delta)
 	# Continuous steering logic
-	pass
+	check_territory(_delta)
 
 	
 func _input(event: InputEvent) -> void:

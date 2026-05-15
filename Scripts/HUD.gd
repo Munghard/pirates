@@ -8,6 +8,7 @@ class_name HUD
 
 @export var time_panel: Control
 @export var depth_panel: Control
+@export var influence_panel: Control
 
 @export var wind_control: Control
 
@@ -30,6 +31,7 @@ var label_stacks := {}
 
 
 var buy_panel := preload("res://UI/buy_panel.tscn")
+var prompt := preload("res://UI/prompt.tscn")
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
@@ -37,6 +39,14 @@ func _ready():
 	boarding_button.visible = false
 	inventory_panel.visible = false
 	game_menu.visible = false
+
+func update_influence_panel():
+	var player_faction = gameManager.player_ship.faction
+	var influence = gameManager.territory.get_faction_influence(player_faction)
+	var label_m: Label = influence_panel.get_node("MarginContainer/VBoxContainer/Label_m")
+	var label_h: Label = influence_panel.get_node("MarginContainer/VBoxContainer/Label_h")
+	label_m.text = "Influence: %.1f%%" % [influence * 100]
+	label_h.text = FactionsData.FACTION_NAMES.get(player_faction)
 
 func init_hud() -> void:
 	# update wind direction gauge
@@ -208,7 +218,7 @@ func show_dock_button(port: Port):
 	
 
 func _on_button_dock_pressed() -> void:
-	var ports = get_tree().get_nodes_in_group("Ports")
+	var ports = gameManager.world.ports
 	for port: Port in ports:
 		if port.player_ship:
 			if port.docked:

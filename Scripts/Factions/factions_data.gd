@@ -30,9 +30,10 @@ static func get_flag(nation: Nation, faction: Faction) -> Texture2D:
 		flag = preload("res://Textures/Pirate_Flag_of_Jack_Rackham.png")
 	return flag
 
-enum Faction {PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING, FISHERMAN}
+enum Faction {NONE, PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING, FISHERMAN}
 
 const FACTION_NAMES = {
+	Faction.NONE: "None",
 	Faction.PIRATE: "Pirate",
 	Faction.MERCHANT: "Merchant",
 	Faction.NAVY: "Navy",
@@ -124,8 +125,43 @@ const PORT_NAMES = [
 	"Crowscar Dock",
 ]
 
+static var available_port_names = []
+
+static func reset_port_names():
+	available_port_names = PORT_NAMES.duplicate()
+
+static func get_unique_port_name() -> String:
+	if available_port_names.is_empty():
+		reset_port_names()
+
+	var index = randi_range(0, available_port_names.size() - 1)
+	var port_name = available_port_names[index]
+
+	available_port_names.remove_at(index)
+
+	return port_name
+
+
+static var available_ship_names = []
+
+static func reset_ship_names():
+	available_ship_names = NAMES.duplicate()
+
+static func get_unique_ship_name() -> String:
+	if available_ship_names.is_empty():
+		reset_ship_names()
+
+	var index = randi_range(0, available_ship_names.size() - 1)
+	var ship_name = available_ship_names[index]
+
+	available_ship_names.remove_at(index)
+
+	return ship_name
+
 static func get_enemy_factions(f1: FactionsData.Faction) -> Array[FactionsData.Faction]:
 	match f1:
+		FactionsData.Faction.NONE:
+			return []
 		FactionsData.Faction.NAVY:
 			return [FactionsData.Faction.PIRATE, FactionsData.Faction.SLAVER, FactionsData.Faction.VIKING]
 		FactionsData.Faction.PIRATE:
@@ -143,33 +179,41 @@ static func get_enemy_factions(f1: FactionsData.Faction) -> Array[FactionsData.F
 
 
 static func is_enemy(f1, f2) -> bool:
+	if f1 == FactionsData.Faction.NONE or f2 == FactionsData.Faction.NONE:
+		return false
 	return get_enemy_factions(f1).has(f2)
 
 static func get_random_name() -> String:
 	return NAMES[randi() % NAMES.size()]
 
 static func get_faction_color(faction: Faction) -> Color:
-	var color: Color
 	match faction:
 		Faction.PIRATE:
-			color = Color(1.0, 0.2, 0.0)
+			return Color("#c0392b") # deep pirate red
+		
 		Faction.MERCHANT:
-			color = Color(0.0, 1.0, 0.5)
+			return Color("#2ecc71") # wealthy trade green
+		
 		Faction.NAVY:
-			color = Color(0.0, 0.5, 1.0)
+			return Color("#2980b9") # naval blue
+		
 		Faction.SLAVER:
-			color = Color(0.8, 0.5, 0.8)
+			return Color("#8e44ad") # oppressive purple
+		
 		Faction.BOUNTYHUNTER:
-			color = Color(0.8, 0.2, 0.2)
+			return Color("#d35400") # rugged orange
+		
 		Faction.VIKING:
-			color = Color(0.8, 0.8, 0.2)
+			return Color("#95a5a6") # cold steel gray
+		
 		Faction.CARTOGRAPHER:
-			color = Color(0.8, 0.2, 0.8)
+			return Color("#f1c40f") # parchment gold
+		
 		Faction.FISHERMAN:
-			color = Color(0.2, 0.8, 0.8)
+			return Color("#16a085") # seafoam teal
+		
 		_:
-			color = Color(0.5, 0.5, 0.5)
-	return color
+			return Color("#7f8c8d") # neutral graya
 
 static func get_faction_icon(faction: Faction) -> Texture:
 	var texture: Texture
@@ -285,6 +329,7 @@ static func roll_faction(nation: FactionsData.Nation) -> FactionsData.Faction:
 	match nation:
 		FactionsData.Nation.ENGLAND:
 			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NONE: 50,
 				FactionsData.Faction.NAVY: 35,
 				FactionsData.Faction.MERCHANT: 25,
 				FactionsData.Faction.PIRATE: 15,
@@ -296,6 +341,7 @@ static func roll_faction(nation: FactionsData.Nation) -> FactionsData.Faction:
 
 		FactionsData.Nation.SPAIN:
 			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NONE: 50,
 				FactionsData.Faction.NAVY: 30,
 				FactionsData.Faction.SLAVER: 25,
 				FactionsData.Faction.MERCHANT: 20,
@@ -306,6 +352,7 @@ static func roll_faction(nation: FactionsData.Nation) -> FactionsData.Faction:
 
 		FactionsData.Nation.FRANCE:
 			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NONE: 50,
 				FactionsData.Faction.NAVY: 25,
 				FactionsData.Faction.MERCHANT: 25,
 				FactionsData.Faction.PIRATE: 20,
@@ -316,6 +363,7 @@ static func roll_faction(nation: FactionsData.Nation) -> FactionsData.Faction:
 
 		FactionsData.Nation.NETHERLANDS:
 			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NONE: 50,
 				FactionsData.Faction.MERCHANT: 40,
 				FactionsData.Faction.CARTOGRAPHER: 20,
 				FactionsData.Faction.NAVY: 15,
@@ -326,6 +374,7 @@ static func roll_faction(nation: FactionsData.Nation) -> FactionsData.Faction:
 
 		FactionsData.Nation.NORDIC:
 			rolled_faction = FactionsData.roll_weighted({
+				FactionsData.Faction.NONE: 50,
 				FactionsData.Faction.VIKING: 35,
 				FactionsData.Faction.FISHERMAN: 25,
 				FactionsData.Faction.CARTOGRAPHER: 15,

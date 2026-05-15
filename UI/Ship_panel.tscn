@@ -52,6 +52,7 @@ text = "Ship name"
 [node name="Label_f" type="Label" parent="MarginContainer/VBoxContainer2" unique_id=1605319951]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 text = "Faction"
 
 [node name="TabBar" type="TabBar" parent="MarginContainer/VBoxContainer2" unique_id=1459388618]

@@ -72,12 +72,12 @@ static func get_item_definition(_id: String) -> Item_Definition:
 	for item in item_database:
 		if item.id == _id:
 			return item
-	print("Item not found in database")
+	print("Item not found in database: ", _id)
 	return null
 
 static func get_item_definition_from_name(_item_name: String) -> Item_Definition:
 	for item in item_database:
 		if item.item_name == _item_name:
 			return item
-	print("Item not found in database")
+	print("Item not found in database: ", _item_name)
 	return null

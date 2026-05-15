@@ -65,11 +65,12 @@ func has_item_type(type: Item_Definition.Type, amount: int) -> bool:
 	var total := 0
 	
 	for item in items:
-		var item_def = Item_Database.get_item_definition(item.id)
-		if item != null and item_def.type == type:
-			total += item.stack
-			if total >= amount:
-				return true
+		if item != null:
+			var item_def = Item_Database.get_item_definition(item.id)
+			if item_def.type == type:
+				total += item.stack
+				if total >= amount:
+					return true
 	
 	return false
 
