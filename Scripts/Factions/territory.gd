@@ -9,6 +9,7 @@ var grouped := {}
 var territory_radius = 128.0
 var cell_size = 2
 var ownership = {}
+var faction_cells := {}
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 func _ready():
@@ -29,15 +30,32 @@ func _ready():
 	ownership_changed.connect(func(): gameManager.hud.update_influence_panel())
 
 func create_grid_territories(ports: Array[Port]):
+	ownership.clear()
+	faction_cells.clear()
 	for x in range(0, gameManager.world.terrain.terrain_world_size.x, cell_size):
 		for y in range(0, gameManager.world.terrain.terrain_world_size.y, cell_size):
 			var pos = Vector2(x, y)
 
 			var faction = get_strongest_faction(pos, ports)
 
-			ownership[Vector2i(x, y)] = faction
+			var cell = Vector2i(x, y)
+
+			ownership[cell] = faction
+			
+			if not faction_cells.has(faction):
+				faction_cells[faction] = []
+
+			faction_cells[faction].append(cell)
+
 	ownership_changed.emit()
 
+func get_random_point_in_territory(faction: FactionsData.Faction) -> Vector2:
+	var cells = faction_cells.get(faction, [])
+
+	if cells.is_empty():
+		return Vector2.ZERO
+
+	return cells.pick_random()
 
 func create_territories_old_method():
 	var ports = gameManager.world.ports
@@ -139,14 +157,14 @@ func get_closest_port(pos: Vector2, ports: Array[Port]) -> Port:
 
 func get_faction_influence(faction: FactionsData.Faction) -> float:
 	var total_cells = 0
-	var faction_cells = 0
+	var _faction_cells = 0
 
 	for cell in ownership.keys():
 		total_cells += 1
 		if ownership[cell] == faction:
-			faction_cells += 1
+			_faction_cells += 1
 
 	if total_cells == 0:
 		return 0.0
 
-	return float(faction_cells) / float(total_cells)
+	return float(_faction_cells) / float(total_cells)

@@ -15,11 +15,14 @@ var pan_multiplier := 1.0
 var max_camera_size := 50.0
 
 var zoom := 0.0
+var debug_mode = false
 
 func _ready():
 	zoom = camera.size
 
 func get_max_distance() -> float:
+	if debug_mode:
+		return INF
 	return max_distance * pan_multiplier
 
 func _process(delta: float) -> void:
@@ -44,7 +47,7 @@ func _process(delta: float) -> void:
 		
 		if return_timer > 0.0:
 			return_timer -= delta
-		else:
+		elif not debug_mode:
 			if secondary_target:
 				target_position = target.global_position.lerp(secondary_target.global_position, 0.5)
 			else:

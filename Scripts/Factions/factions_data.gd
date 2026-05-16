@@ -8,6 +8,16 @@ extends Node
 
 class_name FactionsData
 
+
+func ready():
+	init_portraits()
+
+static func init_portraits():
+	for i in range(1, 52):
+		var path = "res://Textures/male-peasants/portrait_%d.jpg" % i
+		if ResourceLoader.exists(path):
+			portraits.append(load(path))
+
 enum Nation {ENGLAND, SPAIN, FRANCE, NETHERLANDS, NORDIC}
 const NATION_NAMES = {
 	Nation.ENGLAND: "ENGLAND",
@@ -24,10 +34,10 @@ const NATION_FLAGS = {
 	Nation.NETHERLANDS: preload("res://Textures/Flag_of_the_Netherlands.png"),
 	Nation.NORDIC: preload("res://Textures/raven-banner-vikings.jpg")
 }
-static func get_flag(nation: Nation, faction: Faction) -> Texture2D:
+static func get_flag(nation: Nation, _faction: Faction) -> Texture2D:
 	var flag = NATION_FLAGS.get(nation)
-	if faction == Faction.PIRATE:
-		flag = preload("res://Textures/Pirate_Flag_of_Jack_Rackham.png")
+	#if faction == Faction.PIRATE:
+		#flag = preload("res://Textures/Pirate_Flag_of_Jack_Rackham.png")
 	return flag
 
 enum Faction {NONE, PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING, FISHERMAN}
@@ -124,6 +134,25 @@ const PORT_NAMES = [
 	"Grimwater Port",
 	"Crowscar Dock",
 ]
+static var portraits = []
+
+static var available_portraits = []
+
+static func get_unique_portrait() -> Texture2D:
+	if portraits.is_empty():
+		init_portraits()
+	if available_portraits.is_empty():
+		available_portraits = portraits.duplicate()
+
+	var index = randi_range(0, available_portraits.size() - 1)
+	var portrait = available_portraits[index]
+
+	available_portraits.remove_at(index)
+
+	return portrait
+
+static func reset_portraits():
+	available_portraits = portraits.duplicate()
 
 static var available_port_names = []
 

@@ -16,13 +16,15 @@ class_name World
 
 @export var scatterers: Node3D
 
+var ships: Array[Ship] = []
+
 var ports: Array[Port] = []
 var ports_container: Node3D
 
 @export_group("Spawn data")
 @export var ports_amount: int
 @export var min_distance_between_ports: float = 100.0
-@export var nominal_ship_count: int = 20
+@export var nominal_ship_count: int = 5
 
 @export_group("Sun")
 @export var sun_gradient: Gradient
@@ -72,14 +74,14 @@ func _ready():
 
 	terrain.create_terrain()
 
-	ship_spawner()
+	ship_spawner(nominal_ship_count)
 
-func ship_spawner():
+func ship_spawner(_nominal_ship_count: int): # spawn a ship every 10 seconds if there is less than nominal ships
 	var radius := 75.0
 	while true:
 		await get_tree().create_timer(10.0).timeout
 		var all_ships = get_tree().get_nodes_in_group("Ships")
-		if all_ships.size() < nominal_ship_count:
+		if all_ships.size() < _nominal_ship_count:
 				var nation = FactionsData.roll_nation()
 				#var faction = FactionsData.roll_faction(nation)
 				var _position = gameManager.get_position_around_point(gameManager.player_ship.global_position, radius)

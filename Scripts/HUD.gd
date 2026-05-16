@@ -67,7 +67,9 @@ func init_hud() -> void:
 
 func _on_time_changed(time: float):
 	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
-	label_time.text = gameManager.world.time.get_time_string()
+	var day = gameManager.world.time.day_count
+	var _time = gameManager.world.time.get_time_string()
+	label_time.text = " Day %d" % [day] + " \n " + _time
 
 func _on_boarding_target_changed(ship: Ship):
 	boarding_button.visible = ship != null and ship.can_be_boarded()

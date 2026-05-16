@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="6_w7ulp"]
 [ext_resource type="Shader" uid="uid://cv7b3ai4owx81" path="res://Materials/flag.gdshader" id="8_wkjrd"]
 [ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="9_ri7tc"]
+[ext_resource type="Script" uid="uid://boacqukindhfy" path="res://Scenes/patrol_trigger.gd" id="10_ri7tc"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gfjmb"]
 height = 4.0
@@ -82,6 +83,9 @@ material = SubResource("ShaderMaterial_odhhf")
 size = Vector2(3, 2)
 subdivide_width = 10
 center_offset = Vector3(1.5, 0, 0)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_rxq8t"]
+radius = 50.0
 
 [node name="Port" type="Area3D" unique_id=699995195 node_paths=PackedStringArray("flag_mesh") groups=["Ports"]]
 script = ExtResource("2_pyx3s")
@@ -251,5 +255,12 @@ mesh = SubResource("CylinderMesh_rxq8t")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4027667, 0)
 mesh = SubResource("QuadMesh_ix0p7")
 
+[node name="patrol_trigger" type="Area3D" parent="." unique_id=1342242681]
+script = ExtResource("10_ri7tc")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="patrol_trigger" unique_id=668570551]
+shape = SubResource("SphereShape3D_rxq8t")
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]
+[connection signal="body_entered" from="patrol_trigger" to="patrol_trigger" method="_on_body_entered"]

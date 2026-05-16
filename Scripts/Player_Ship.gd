@@ -45,6 +45,8 @@ func _ready() -> void:
 	setup_ship_model(faction)
 
 	super._ready()
+	await get_tree().process_frame
+	portrait = FactionsData.portraits[6]
 	
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, "Player cargo")

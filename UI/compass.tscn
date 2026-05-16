@@ -1,0 +1,122 @@
+[gd_scene format=3 uid="uid://cgph7akdfqtyi"]
+
+[ext_resource type="Script" uid="uid://d34gysdg6n386" path="res://Scripts/compass.gd" id="1_8fe57"]
+
+[sub_resource type="Gradient" id="Gradient_8fe57"]
+offsets = PackedFloat32Array(0, 0.84837544, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uee5c"]
+gradient = SubResource("Gradient_8fe57")
+fill = 2
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_0bx3s"]
+offsets = PackedFloat32Array(0.36101082, 0.5, 0.6534296)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_8fe57"]
+gradient = SubResource("Gradient_0bx3s")
+width = 10
+repeat = 1
+
+[node name="Compass" type="Control" unique_id=1451414793 node_paths=PackedStringArray("strip")]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -175.0
+offset_right = 175.0
+offset_bottom = 48.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("1_8fe57")
+strip = NodePath("Control")
+pixels_per_rotation = 450.0
+
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=89432739]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset_ratio = Vector2(0.5, 0)
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_uee5c")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Control" type="VBoxContainer" parent="." unique_id=2095024708]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 370.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="Control" unique_id=2144331830]
+custom_minimum_size = Vector2(500, 5)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_8fe57")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control" unique_id=1113713226]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="Control/HBoxContainer" unique_id=1868850506]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="N2" type="Label" parent="Control/HBoxContainer" unique_id=389506297]
+layout_mode = 2
+text = "N"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Control/HBoxContainer" unique_id=1582184182]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="E" type="Label" parent="Control/HBoxContainer" unique_id=895457449]
+layout_mode = 2
+text = "E"
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="Control/HBoxContainer" unique_id=1648140241]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="S" type="Label" parent="Control/HBoxContainer" unique_id=635645798]
+layout_mode = 2
+text = "S"
+
+[node name="HBoxContainer7" type="HBoxContainer" parent="Control/HBoxContainer" unique_id=1171136088]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="W" type="Label" parent="Control/HBoxContainer" unique_id=2089761393]
+layout_mode = 2
+text = "W"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Control/HBoxContainer" unique_id=687801043]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="N" type="Label" parent="Control/HBoxContainer" unique_id=1583841901]
+layout_mode = 2
+text = "N"

@@ -1,11 +1,12 @@
--[] add prompt to port buy upgrades
--[] add a sea serpent (valheim style)
--[] morale runs out > mutiny. ship becomes an npc ship, player goes to port to acquire new ship?
+-[] more interesting and engaging capture port mechanic
 -[] name your ship
--[] 
--[] end goal
+-[] morale runs out > mutiny. ship becomes an npc ship, player goes to port to acquire new ship?
+-[] end goal (get 100% influence over region)
+-[] add a sea serpent (valheim style)
+-[] save and load enemy ships (maybe not needed)
 
--x[] make a simple main menu that lets you delete your save file and restart game
+-[x] add prompt to port buy upgrades
+-[x] make a simple main menu that lets you delete your save file and restart game
 -[x] rum consume to regen morale
 -[x]make a fishing mechanic
 -[x]work on selling items at ports
@@ -46,8 +47,8 @@ Exploration ship. Compact, elegant, long-range, discovery-focused.
 -[] Bounty Hunter → Sloop-of-War
 Small military pursuit vessel. Fast enough to chase targets, armed enough to win fights.
 
--[] Viking → Longship
+-[x] Viking → Longship
 Obvious choice, but for good reason. Distinct silhouette and iconic identity.
 
--x] Fisherman → Cutter
+-[x] Fisherman → Cutter
 Small practical working vessel. Functional and believable for coastal survival.

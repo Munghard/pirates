@@ -10,6 +10,7 @@ class_name Ship
 @onready var rot_arrow: Sprite3D = $Navigation_markers/rotation_arrow/arrow
 
 var ship_name := "Ship"
+var portrait: Texture2D
 var faction: FactionsData.Faction = FactionsData.Faction.NAVY
 var nation: FactionsData.Nation = FactionsData.Nation.ENGLAND
 var inventory: Inventory

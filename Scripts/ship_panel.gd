@@ -7,6 +7,7 @@ var _release_callable: Callable
 var ship: Ship
 
 @export_group("Nodes")
+@export var portrait_texture_rect: TextureRect
 @export var flag_texture_rect: TextureRect
 @export var faction_texture_rect: TextureRect
 @export var label_h: Label
@@ -75,6 +76,8 @@ func update_ship_panel(_ship: Ship):
 		morale_pb.visible = false
 		release_button.visible = false
 		flag_texture_rect.visible = false
+		portrait_texture_rect.visible = false
+		faction_texture_rect.visible = false
 		return
 	else:
 		label_f.visible = true
@@ -84,6 +87,8 @@ func update_ship_panel(_ship: Ship):
 		morale_pb.visible = true
 		release_button.visible = true
 		flag_texture_rect.visible = true
+		portrait_texture_rect.visible = true
+		faction_texture_rect.visible = true
 
 	if _ship != _ship.gameManager.player_ship:
 		_release_callable = Callable(_on_release_pressed).bind(_ship)
@@ -91,7 +96,7 @@ func update_ship_panel(_ship: Ship):
 			release_button.pressed.connect(_release_callable)
 
 	release_button.visible = _ship.boarded_by != null
-	
+	portrait_texture_rect.texture = _ship.portrait
 	var flag_texture = FactionsData.get_flag(_ship.nation, _ship.faction)
 	flag_texture_rect.texture = flag_texture
 
@@ -131,6 +136,7 @@ func update_ship_panel(_ship: Ship):
 		stats_text += "\nAttack: %.2f" % [_ship.attack]
 		stats_text += "\nDefense: %.2f" % [_ship.defense]
 		stats_text += "\nGold: %.2f" % [_ship.gold]
+		stats_text += "\nDistance: %.2f" % [_ship.global_position.distance_to(_ship.gameManager.player_ship.global_position)]
 		
 		crew_pb.max_value = _ship.max_crew
 		crew_pb.value = _ship.crew

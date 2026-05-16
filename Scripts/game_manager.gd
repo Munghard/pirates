@@ -111,6 +111,9 @@ func _input(event: InputEvent) -> void:
 			save_manager.save_game(self )
 		if event.keycode == KEY_F6:
 			save_manager.load_game(self )
+		if event.keycode == KEY_F4:
+			camerarig.debug_mode = !camerarig.debug_mode
+			hud.new_notification("Camera debug mode: %s" % [camerarig.debug_mode])
 		if event.keycode == KEY_ESCAPE:
 			hud.game_menu.visible = !hud.game_menu.visible
 
@@ -126,7 +129,7 @@ func move_player_to_random_port():
 	player_ship.yaw_deg = angle_deg
 
 
-func spawn_ship(_position: Vector3, nation: FactionsData.Nation, faction: FactionsData.Faction) -> Ship:
+func spawn_ship(_position: Vector3, nation: FactionsData.Nation, faction: FactionsData.Faction) -> EnemyShip:
 	var enemy_ship_scene = preload("res://Scenes/enemy_ship.tscn")
 	var enemy_ship: EnemyShip = enemy_ship_scene.instantiate() as EnemyShip
 	add_child(enemy_ship)
@@ -142,10 +145,9 @@ func spawn_ships_around_player(count: int, radius: float) -> Array[Ship]:
 		var ship: Ship = enemy_ship.instantiate() as Ship
 		add_child(ship)
 		
-		var angle = randf() * TAU
-		var _offset = Vector3(cos(angle), 0, sin(angle)) * radius
+		var pos = get_position_around_point(player_ship.global_position, radius)
 		
-		ship.global_position = player_ship.global_position + _offset
+		ship.global_position = pos
 		ships.append(ship)
 	
 	return ships

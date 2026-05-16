@@ -42,6 +42,7 @@
 [ext_resource type="Shader" uid="uid://xe1idcnl8y4i" path="res://Materials/tilt_shift.gdshader" id="33_coyub"]
 [ext_resource type="Script" uid="uid://bcmyufc0xuoqc" path="res://Scripts/Inventory/item_database.gd" id="35_coyub"]
 [ext_resource type="Script" uid="uid://cttiahx2sleji" path="res://Scripts/map.gd" id="36_atqvy"]
+[ext_resource type="PackedScene" uid="uid://cgph7akdfqtyi" path="res://UI/compass.tscn" id="37_0sgyr"]
 [ext_resource type="Texture2D" uid="uid://n28bcoiuwkeb" path="res://Textures/ancient-parchment.png" id="37_w5giw"]
 [ext_resource type="Script" uid="uid://cqvdwut1w32af" path="res://Scripts/Factions/factions_data.gd" id="38_r74th"]
 [ext_resource type="Script" uid="uid://bdy8aaapdamad" path="res://Scripts/draw_territory.gd" id="40_b4e6k"]
@@ -138,15 +139,15 @@ albedo_texture = ExtResource("27_r0ikl")
 material = SubResource("StandardMaterial3D_p5wkl")
 flip_faces = true
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_b4e6k"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0sgyr"]
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("29_al5m0")
 shader_parameter/flag_texture = ExtResource("30_6mm6r")
 
-[sub_resource type="QuadMesh" id="QuadMesh_0sgyr"]
+[sub_resource type="QuadMesh" id="QuadMesh_l33cg"]
 resource_local_to_scene = true
-material = SubResource("ShaderMaterial_b4e6k")
+material = SubResource("ShaderMaterial_0sgyr")
 size = Vector2(0.75, 0.5)
 subdivide_width = 10
 center_offset = Vector3(0.375, 0, 0)
@@ -373,7 +374,7 @@ ship = NodePath("..")
 ship = NodePath("../..")
 
 [node name="flag" parent="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/flag_pole" parent_id_path=PackedInt32Array(7143519, 37573427) index="0" unique_id=427128270]
-mesh = SubResource("QuadMesh_0sgyr")
+mesh = SubResource("QuadMesh_l33cg")
 
 [node name="floater" parent="SubViewportContainer/SubViewport/World/PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
 water = NodePath("../../Water")
@@ -454,6 +455,11 @@ fps_label = NodePath("Label_fps")
 map = NodePath("Map")
 game_menu = NodePath("game_menu")
 equipment_panel = NodePath("Equipment_panel")
+
+[node name="Compass" parent="MarginContainer/HUD" unique_id=1451414793 instance=ExtResource("37_0sgyr")]
+layout_mode = 1
+offset_left = -84.0
+offset_right = 84.0
 
 [node name="Minimap" type="HBoxContainer" parent="MarginContainer/HUD" unique_id=1823764123 node_paths=PackedStringArray("minimap", "minimap_terrain_texture", "minimap_scale_slider")]
 layout_mode = 1

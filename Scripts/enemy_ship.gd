@@ -19,7 +19,8 @@ var target_point: Vector3
 var water: Water
 
 var requesting_waypoint := false
-var active_range := 500.0 # range from player
+var active_range := 100.0 # range from player
+var remove_range := 150.0 # range from player
 var active := true # active status for process
 
 @export_group("Perception")
@@ -33,6 +34,7 @@ var agro_dist := 50.0
 var pursue_dist := 100.0
 var height_buffer = 2.0
 
+var patrol_point: Vector3
 
 @export_group("Debug")
 var line_agro: ImmediateMesh
@@ -40,7 +42,7 @@ var line_route: ImmediateMesh
 var line_avoidance: ImmediateMesh
 
 signal state_changed(_ai_State: AIState)
-enum AIState {IDLE, ENROUTE, COMBAT, CAPTURED, SUNK}
+enum AIState {IDLE, ENROUTE, COMBAT, CAPTURED, SUNK, PATROL}
 
 signal combat_state_changed(_combat_State: CombatState)
 enum CombatState {AGRO, PURSUE, FLEE}
@@ -51,6 +53,7 @@ var AIStateNames = {
 	AIState.COMBAT: "COMBAT",
 	AIState.CAPTURED: "CAPTURED",
 	AIState.SUNK: "SUNK",
+	AIState.PATROL: "PATROL",
 }
 var CombatStateNames = {
 	CombatState.AGRO: "AGRO",
@@ -84,7 +87,7 @@ func _ready() -> void:
 
 func setup_identity(_nation: FactionsData.Nation, _faction: FactionsData.Faction):
 	ship_name = FactionsData.get_unique_ship_name()
-
+	portrait = FactionsData.get_unique_portrait()
 	level = randi_range(1, 5)
 	nation = _nation
 	faction = _faction
@@ -119,16 +122,22 @@ func setup_inventory():
 
 func _on_damage_recieved(_damage: float, _attacker: Node3D):
 	attacker = _attacker
-	target_point = attacker.global_position
-	
+
+	if _attacker == null:
+		return
+
 	if _attacker is Ship:
+		target_point = attacker.global_position
+
 		var ship = _attacker as Ship
+
 		if ai_state == AIState.CAPTURED:
 			return
+
 		if ship and FactionsData.is_enemy(faction, ship.faction):
-			#compare ship stats and decide what to do
 			set_state(AIState.COMBAT)
 			set_combat_state(decide_combat_action(ship))
+
 	if hit_points <= 0:
 		set_state(AIState.SUNK)
 
@@ -183,6 +192,9 @@ func _physics_process(_delta: float) -> void:
 	# deactivate process
 	var dist_sq = global_position.distance_squared_to(gameManager.player_ship.global_position)
 	active = dist_sq < active_range * active_range
+	if dist_sq > remove_range * remove_range:
+		queue_free()
+		return
 	if not active:
 		return
 	
@@ -194,7 +206,7 @@ func _process(delta):
 		return
 	
 	super._process(delta)
-	var debug_draw_path = false
+	var debug_draw_path = true
 	if debug_draw_path:
 		if attacker != null:
 			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
@@ -230,6 +242,8 @@ func _process(delta):
 				is_moving_state = true
 			AIState.CAPTURED:
 				is_moving_state = false
+			AIState.PATROL:
+				is_moving_state = false
 			AIState.COMBAT:
 				if combat_state == CombatState.PURSUE or combat_state == CombatState.FLEE:
 					is_moving_state = true
@@ -245,6 +259,10 @@ func _process(delta):
 			last_perception_time = time
 			perception()
 		match ai_state:
+			AIState.PATROL:
+				patrol_behaviour(delta)
+				yaw_deg = look_at_angle # Face the waypoint
+
 			AIState.ENROUTE:
 				en_route_behaviour(delta)
 				yaw_deg = look_at_angle # Face the waypoint
@@ -303,6 +321,15 @@ func _handle_shooting(target: Vector3):
 		set_canon_pitch(dist / 2.0) # Ensure your Ship class handles pitch units correctly
 		shoot_port()
 		
+func patrol_behaviour(_delta: float):
+	var patrol_radius = 20.0
+	if target_point == Vector3.ZERO:
+		target_point = gameManager.get_position_around_point(patrol_point, patrol_radius)
+	target_speed = 1 # slower speed for patrol
+	if (global_position - target_point).length() < 20.0:
+		target_point = gameManager.get_position_around_point(patrol_point, patrol_radius)
+		print("New patrol point: ", target_point)
+	
 func en_route_behaviour(delta: float):
 	route_timer += delta
 
@@ -320,6 +347,12 @@ var pending_waypoint: Vector3
 
 func _request_waypoint(_delta: float) -> void:
 	var wp = get_new_waypoint()
+
+	# Ignore tiny changes
+	if wp.distance_to(target_point) < 10.0:
+		requesting_waypoint = false
+		return
+
 	pending_waypoint = wp
 
 	target_point = pending_waypoint
@@ -356,15 +389,18 @@ func get_new_waypoint() -> Vector3:
 	var max_attempts := 20
 
 	for i in max_attempts:
-		var point = get_target_point_in_radius(100.0)
+		#var point = get_target_point_in_radius(100.0)
+		var p2 = gameManager.territory.get_random_point_in_territory(faction)
+		var point = Vector3(p2.x, 0, p2.y)
 		var height = gameManager.world.terrain.get_height_world(point.x, point.z)
 
 		if height <= gameManager.world.water.water_level_world_space - height_buffer and is_path_clear(global_position, point):
 			gameManager.hud.ddd_label("New waypoint acquired", global_position)
 			return point
 
-	# fallback (VERY important)
+	# fallback (VERY important) but not sure why its important
 	return global_position
+
 
 func get_target_point_in_radius(radius: float) -> Vector3:
 	# random point in circle

@@ -52,13 +52,18 @@ func load_game(gameManager: GameManager):
 
 	gameManager.player_ship = player_ship
 
-	load_player_transform(gameManager.player_ship, player_data)
 	load_ship_stats(gameManager.player_ship, player_data)
 
 	var ports_data := Port_Data.from_dict_array(data.get("ports", []))
 	gameManager.world.spawn_ports_from_data(ports_data)
 	
+	load_player_transform(gameManager.player_ship, player_data)
+	
 	gameManager.territory_draw.rebuild_visual_cache()
+
+	var time_data = data.get("time", {})
+	gameManager.world.time.time_of_day = time_data.get("time_of_day", 0.0)
+	gameManager.world.time.day_count = time_data.get("day", 0)
 
 	print("loaded game")
 	loaded.emit()
@@ -169,7 +174,11 @@ func save_game(gameManager: GameManager):
 			"transform": save_player_transform(gameManager.player_ship),
 			"stats": save_ship_stats(gameManager.player_ship)
 		},
-		"ports": save_ports(gameManager.world.ports)
+		"ports": save_ports(gameManager.world.ports),
+		"time": {
+			"time_of_day": gameManager.world.time.time_of_day,
+			"day": gameManager.world.time.day_count
+		}
 	}
 
 	_write(data)

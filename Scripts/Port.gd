@@ -15,6 +15,8 @@ var gold := 500
 var player_ship: PlayerShip
 var docked := false
 var departing := false
+
+
 var ui: Control
 
 @onready var dock_sound = preload("res://Audio/ship-bell-two-chimes.mp3")
@@ -43,17 +45,22 @@ signal port_faction_changed(new_faction: FactionsData.Faction)
 @onready var star_container: Control = $world_bars/SubViewport/Control/star_container
 @onready var header_label: Label = $world_bars/SubViewport/Control/VBoxContainer/Label_h
 
+@export_group("Patrol")
+@onready var patrol_trigger: Area3D = $patrol_trigger
+var spawned_patrol_ships = 0
+var max_patrol_ships := 3
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 func _ready():
+	patrol_trigger.entered_patrol_area.connect(_entered_patrol_area)
 	setup_nodes()
 	#setup_inventory()
-	#await get_tree().process_frame
 	# just mocking the bars for now
 	ship_healthbar.value = 100.0
 	crew_healthbar.value = 100.0
 	recovery_healthbar.value = 100.0
+
 
 func setup_nodes():
 	world_bars = $world_bars
@@ -86,6 +93,25 @@ func setup_identity(world, port_data: Port_Data):
 	restock_time_left = restock_interval
 	restock_loop()
 
+func _entered_patrol_area(ship: Ship):
+	if FactionsData.is_enemy(ship.faction, allegiance.faction):
+		spawn_patrol_ships(ship)
+
+
+func spawn_patrol_ships(target: Node3D):
+	if spawned_patrol_ships >= max_patrol_ships:
+		return
+	for i in range(max_patrol_ships):
+		spawned_patrol_ships += 1
+		var pos := gameManager.get_position_around_point(global_position, 20.0)
+		var ship := gameManager.spawn_ship(pos, allegiance.nation, allegiance.faction)
+		ship.set_state(EnemyShip.AIState.PATROL)
+		#ship.attacker = target
+		ship.patrol_point = global_position
+		ship.on_sink.connect(func():
+			spawned_patrol_ships -= 1
+		)
+		await get_tree().create_timer(5.0).timeout
 
 func toggle_inventory():
 	inventory_panel.visible = !inventory_panel.visible
@@ -302,6 +328,7 @@ func capture_port():
 	port_faction_changed.emit(allegiance.faction)
 	faction_texture_rect.texture = FactionsData.get_faction_icon(allegiance.faction)
 	gameManager.hud.new_notification("Captured %s" % port_name)
+	gameManager.territory.create_grid_territories(gameManager.world.ports)
 
 func depart():
 	if ui:
