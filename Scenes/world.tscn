@@ -55,6 +55,15 @@
 offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
 colors = PackedColorArray(0.25, 0.4375, 1, 1, 1, 0.36666667, 0, 1, 1, 0.8923333, 0.62, 1, 1, 0.36862746, 0, 1, 0.2509804, 0.4392157, 1, 1)
 
+[sub_resource type="NavigationMesh" id="NavigationMesh_0sgyr"]
+vertices = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, 499.5, 499.5, 0.5, 499.5, 499.5, 0.5, 0.5)
+polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
+agent_radius = 5.0
+filter_baking_aabb = AABB(0, 0, 0, 500, 2, 500)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_0sgyr"]
+size = Vector2(500, 500)
+
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_coyub"]
 frequency = 0.0136
 
@@ -229,7 +238,15 @@ min_distance_between_ports = 30.0
 sun_gradient = SubResource("Gradient_r0ikl")
 port_scene = ExtResource("16_hgpy0")
 
-[node name="Terrain" type="Node3D" parent="SubViewportContainer/SubViewport/World" unique_id=476364891]
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="SubViewportContainer/SubViewport/World" unique_id=1512160434]
+navigation_mesh = SubResource("NavigationMesh_0sgyr")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/World/NavigationRegion3D" unique_id=201882200]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250, 0, 250)
+visible = false
+mesh = SubResource("PlaneMesh_0sgyr")
+
+[node name="Terrain" type="Node3D" parent="SubViewportContainer/SubViewport/World/NavigationRegion3D" unique_id=476364891]
 script = ExtResource("17_0pcbe")
 rock = ExtResource("6_p5wkl")
 palm = ExtResource("18_axeuq")
@@ -247,7 +264,7 @@ cast_shadow = 0
 mesh = SubResource("PlaneMesh_7yui6")
 script = ExtResource("8_7yui6")
 target = NodePath("../../camera_rig")
-terrain = NodePath("../Terrain")
+terrain = NodePath("../NavigationRegion3D/Terrain")
 freq = 2.0
 amp = 3.0
 max_depth = -20.0
@@ -315,7 +332,7 @@ water = NodePath("../../Water")
 [node name="sharks" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1524624786 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("20_lkcvt")
-amount = 5
+amount = 20
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
@@ -343,7 +360,7 @@ shadow_enabled = true
 script = ExtResource("21_hmc15")
 
 [node name="Clouds" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/World" unique_id=874647956]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0021018982, 23.10048, 0.13433075)
 mesh = SubResource("QuadMesh_3ua1v")
 
 [node name="wind_effect" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/World" unique_id=360221891]

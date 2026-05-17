@@ -233,7 +233,7 @@ static func get_faction_color(faction: Faction) -> Color:
 			return Color("#d35400") # rugged orange
 		
 		Faction.VIKING:
-			return Color("#95a5a6") # cold steel gray
+			return Color("#dd8eb5") # cold steel gray
 		
 		Faction.CARTOGRAPHER:
 			return Color("#f1c40f") # parchment gold
@@ -309,6 +309,31 @@ static func get_faction_stats(faction: Faction) -> ShipStats:
 			var gold = randi_range(0, 50)
 			var max_crew = randi_range(10, 20)
 			return ShipStats.new(attack, defense, max_speed, max_hp, gold, max_crew)
+
+static func get_port_stats(faction: Faction) -> ShipStats:
+	var port_stats = FactionsData.get_faction_stats(faction)
+	return port_stats
+
+static func get_faction_starting_cannons(faction: Faction) -> int:
+	match faction:
+		Faction.PIRATE:
+			return 4
+		Faction.MERCHANT:
+			return 2
+		Faction.NAVY:
+			return 6
+		Faction.SLAVER:
+			return 3
+		Faction.BOUNTYHUNTER:
+			return 4
+		Faction.VIKING:
+			return 3
+		Faction.CARTOGRAPHER:
+			return 1
+		Faction.FISHERMAN:
+			return 1
+		_:
+			return 0
 
 static func get_faction_inventory(faction: Faction) -> Array[InventoryItem]:
 	var result: Array[InventoryItem] = []

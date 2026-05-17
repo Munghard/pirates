@@ -7,21 +7,28 @@ var allegiance: Allegiance
 var inventory: Inventory
 @export var port_ui: PackedScene
 
+var level := 1
 
+var max_crew := 0
+var crew := 0
 var crew_to_recruit := 0
-var crew_to_hire := 0
-var agro_range := 25
-var gold := 500
+
+var agro_range := 50.0
+var gold := 0
 var player_ship: PlayerShip
 var docked := false
 var departing := false
+var shooting_range := 25.0
 
+var market_opened := false
+var can_capture := false
 
 var ui: Control
 
 @onready var dock_sound = preload("res://Audio/ship-bell-two-chimes.mp3")
 
 @export var flag_mesh: MeshInstance3D
+
 
 @export_group("Inventory")
 var inventory_panel: Control
@@ -50,16 +57,48 @@ signal port_faction_changed(new_faction: FactionsData.Faction)
 var spawned_patrol_ships = 0
 var max_patrol_ships := 3
 
+@export_group("Health")
+@export var max_hit_points := .0
+var hit_points := max_hit_points
+var in_combat: bool = false
+var last_damage_time: int = 0
+var out_of_combat_time: int = 20000 # milli seconds without taking damage to be considered out of combat
+var recovery_progress := 1.0
+var damage_sustained := 0.0
+var crew_health := 20.0
+
+var accumulated_damage := 0.0
+var damage_threshold := 20.0
+var alive := true
+
+var defense := 1.0
+
+var attacker: Node3D
+
+signal recovery_changed(time: float)
+signal hit_points_changed(amount: float)
+signal recieved_damage(amount: float, attacker: Node3D)
+signal destroyed(attacker: Node3D)
+signal crew_changed(amount: int)
+
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 func _ready():
 	patrol_trigger.entered_patrol_area.connect(_entered_patrol_area)
 	setup_nodes()
-	#setup_inventory()
-	# just mocking the bars for now
-	ship_healthbar.value = 100.0
-	crew_healthbar.value = 100.0
-	recovery_healthbar.value = 100.0
+	#setup_inventory() # handled elsewhere
+
+	
+	crew_healthbar.value = crew
+	crew_healthbar.max_value = max_crew
+	ship_healthbar.value = hit_points
+	ship_healthbar.max_value = max_hit_points
+	recovery_healthbar.value = 1.0
+	recovery_healthbar.max_value = 1.0
+	
+	connect("crew_changed", Callable(self , "_on_crew_changed"))
+	connect("hit_points_changed", Callable(self , "_on_hit_points_changed"))
+	connect("recovery_changed", Callable(self , "_on_recovery_changed"))
 
 
 func setup_nodes():
@@ -71,7 +110,8 @@ func setup_nodes():
 	faction_texture_rect = $world_bars/SubViewport/Control/faction_icon
 	star_container = $world_bars/SubViewport/Control/star_container
 	header_label = $world_bars/SubViewport/Control/VBoxContainer/Label_h
-	
+	cannon_layout_port = $Cannons
+
 func setup_identity(world, port_data: Port_Data):
 	setup_nodes()
 	port_name = port_data.port_name
@@ -85,25 +125,115 @@ func setup_identity(world, port_data: Port_Data):
 	var faction_data = FactionsData.get_faction_stats(allegiance.faction)
 	gold = faction_data.gold
 	gold_changed.connect(_on_gold_changed)
+
+	
+	max_crew = port_data.max_crew
+	crew = port_data.crew
+	max_hit_points = port_data.max_hit_points
+	hit_points = port_data.hit_points
+	
+	hit_points_changed.emit(hit_points)
+	crew_changed.emit(crew)
 	
 	header_label.text = port_name
 	
 	set_world_flag()
+
+	cannon_layout_port.cannons_unlocked = port_data.cannons_unlocked
+	cannon_layout_port.create_canons(true)
+	print("Port %s setup with %s cannons unlocked" % [port_name, cannon_layout_port.cannons_unlocked])
+
+	market_opened = port_data.market_opened
+
 	restock()
 	restock_time_left = restock_interval
 	restock_loop()
 
+func repair(_delta):
+	if not in_combat and hit_points < max_hit_points:
+		gain_hitpoints(_delta * 1.0 * (float(crew) / float(max_crew)))
+
+func gain_hitpoints(hp: float):
+	hit_points = clamp(hit_points + hp, 0, max_hit_points)
+	emit_signal("hit_points_changed", hit_points)
+
+
+func _on_hit_points_changed(_hp: float):
+	if not ship_healthbar:
+		return
+	ship_healthbar.max_value = max_hit_points
+	ship_healthbar.value = hit_points
+
+func _on_recovery_changed(_progress: float):
+	if not recovery_healthbar:
+		return
+	recovery_healthbar.value = _progress
+
+func _on_crew_changed(_crew: int):
+	if not crew_healthbar:
+		return
+	crew_healthbar.max_value = max_crew
+	crew_healthbar.value = crew
+
+
+func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: Node3D):
+	# gameManager.hud.selected_ship = self
+	attacker = _attacker
+	in_combat = true
+	last_damage_time = Time.get_ticks_msec()
+	
+	var multiplied_damage = _damage * _multiplier
+	
+	var color = Color.WHITE
+	if _multiplier < 0.5:
+		color = Color.GRAY
+	elif _multiplier > 1.0:
+		color = Color.YELLOW
+	
+	accumulated_damage += multiplied_damage
+
+	if accumulated_damage >= damage_threshold:
+		var s = "%.1f" % accumulated_damage
+		gameManager.hud.ddd_label(s, _position, color)
+		accumulated_damage = 0
+
+	hit_points = clamp(hit_points - (multiplied_damage / defense), 0, max_hit_points)
+	emit_signal("recieved_damage", (multiplied_damage / defense), _attacker)
+	emit_signal("hit_points_changed", hit_points)
+
+	if hit_points <= 0.0 and alive:
+		alive = false
+		emit_signal("destroyed", _attacker)
+	
+	if hit_points <= 0:
+		can_capture = true
+
+	damage_sustained += multiplied_damage
+	while damage_sustained >= crew_health:
+		damage_sustained -= crew_health
+		kill_crew(1)
+
+func kill_crew(amount: int):
+	if crew <= 0:
+		return
+	
+	crew -= amount
+	crew = max(crew, 0)
+	emit_signal("crew_changed", crew)
+	if crew <= 0:
+		can_capture = true
+
 func _entered_patrol_area(ship: Ship):
 	if FactionsData.is_enemy(ship.faction, allegiance.faction):
-		spawn_patrol_ships(ship)
+		spawn_patrol_ships()
 
 
-func spawn_patrol_ships(target: Node3D):
+func spawn_patrol_ships():
 	if spawned_patrol_ships >= max_patrol_ships:
 		return
 	for i in range(max_patrol_ships):
 		spawned_patrol_ships += 1
-		var pos := gameManager.get_position_around_point(global_position, 20.0)
+		var pos := gameManager.get_position_around_point(global_position, 50.0)
 		var ship := gameManager.spawn_ship(pos, allegiance.nation, allegiance.faction)
 		ship.set_state(EnemyShip.AIState.PATROL)
 		#ship.attacker = target
@@ -196,10 +326,10 @@ func _handle_shooting(target: Vector3, delta: float):
 		var target_degrees = lerp(current, target_angle, delta)
 		cannon.global_rotation_degrees.y = target_degrees
 
-		var pitch = dist / 2.0
+		var pitch = dist / 3.2
 		cannon.pitch = clampf(pitch, -25.0, 25.0)
 		
-		if abs(diff) < 15.0 and inventory.has_item("cannon_balls", 1):
+		if abs(diff) < shooting_range and inventory.has_item("cannon_balls", 1):
 			cannon.shoot(1.0, self , gameManager.audioManager)
 
 	
@@ -221,14 +351,19 @@ func setup_inventory() -> Inventory:
 
 
 func restock():
+	spawned_patrol_ships = 0
 	gain_gold(randi_range(100, 500))
-	crew_to_hire = randi_range(1, 20)
+	crew = max_crew
 	crew_to_recruit = randi_range(1, 5)
+	if market_opened:
+		restock_inventory()
+
+
+func restock_inventory():
 	inventory.clear()
 	var items := FactionsData.get_faction_inventory(allegiance.faction)
 	for item in items:
 		inventory.add_item(item)
-	
 
 func _input(event):
 	if docked and event is InputEventKey and event.pressed:
@@ -237,6 +372,7 @@ func _input(event):
 				depart()
 
 func _process(delta):
+	var elapsed_since_damage := Time.get_ticks_msec() - last_damage_time
 	handle_targeting(delta)
 
 	if departing and player_ship:
@@ -250,6 +386,14 @@ func _process(delta):
 			player_ship.hit_points += delta * 10.0
 			player_ship.hit_points = min(player_ship.hit_points, player_ship.max_hit_points)
 
+	if crew > 0:
+		recovery_progress = clamp(elapsed_since_damage / float(out_of_combat_time), 0.0, 1.0)
+		repair(delta)
+
+	# check if in combat
+	emit_signal("recovery_changed", recovery_progress)
+	if in_combat and elapsed_since_damage > out_of_combat_time:
+		in_combat = false
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is PlayerShip:
@@ -314,7 +458,7 @@ func dock():
 	docking_changed.emit(player_ship)
 	player_ship.set_docked(self )
 
-	if allegiance.faction != player_ship.faction:
+	if allegiance.faction == FactionsData.Faction.NONE or allegiance.faction != player_ship.faction and can_capture:
 		capture_port()
 
 	entered_port()
@@ -329,6 +473,9 @@ func capture_port():
 	faction_texture_rect.texture = FactionsData.get_faction_icon(allegiance.faction)
 	gameManager.hud.new_notification("Captured %s" % port_name)
 	gameManager.territory.create_grid_territories(gameManager.world.ports)
+	# reset cannons on capture
+	cannon_layout_port.cannons_unlocked = 0
+	cannon_layout_port.create_canons(true)
 
 func depart():
 	if ui:
@@ -380,6 +527,14 @@ func entered_port():
 	update_port_ui()
 
 
+func open_market():
+	inventory = setup_inventory()
+	restock_inventory()
+	market_opened = true
+	if ui:
+		var market_button: Button = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_market")
+		market_button.visible = true
+
 func update_port_ui():
 	# delete existing ui if any
 	if ui:
@@ -391,7 +546,14 @@ func update_port_ui():
 	player_ship.gameManager.hud.set_player_inventory_panel_visible(true)
 	# connect depart button
 	ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/DepartButton").pressed.connect(func(): depart())
-	ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_market").pressed.connect(func(): toggle_inventory())
+	
+	var market_button: Button = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_market")
+	market_button.pressed.connect(func(): toggle_inventory())
+	if market_opened:
+		market_button.visible = true
+	else:
+		market_button.visible = false
+	
 	var label_header: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer2/Label_h")
 	var label_gold: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_gold")
 	var label_faction: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_f")
@@ -408,19 +570,31 @@ func update_port_ui():
 		inventory.inventory_changed.connect(_on_inventory_changed)
 	inventory_panel.update_inventory_ui(inventory, buy_item, func(_index): pass )
 
+	inventory_panel.visible = market_opened
+
 	var ps = player_ship
 
 	var root = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer")
+	var label_stats: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_stats")
 	
+	label_stats.text = "Port stats:\nLevel: %s\nCrew: %s/%s\nHitpoints: %s/%s\nCannons: %s" % [level, crew, max_crew, hit_points, max_hit_points, cannon_layout_port.cannons_unlocked]
+
 	var services_label := Label.new()
 	services_label.text = "Services"
 	services_label.theme_type_variation = "HeaderLarge"
 
 	root.add_child(services_label)
 	# create upgrades
-	if crew_to_hire > 0:
-		create_upgrade_ui(root, "CREW", "Hire crew: " + str(crew_to_hire) + " left", 100, func():
-			crew_to_hire -= 1
+	
+	if cannon_layout_port.cannons_unlocked < 4:
+		create_upgrade_ui(root, "PORT", "Install cannon", 200, func(): cannon_layout_port.add_cannon())
+	if not market_opened:
+		create_upgrade_ui(root, "PORT", "Open market", 500, func(): open_market())
+	
+	
+	if crew > 0:
+		create_upgrade_ui(root, "CREW", "Hire crew: " + str(crew) + " left", 100, func():
+			crew -= 1
 			ps.gain_crew(1)
 		)
 		
@@ -429,6 +603,7 @@ func update_port_ui():
 			crew_to_recruit -= 1
 			ps.gain_crew(1)
 		)
+	
 	create_upgrade_ui(root, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
 	create_upgrade_ui(root, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
 	create_upgrade_ui(root, "SHIP", "Upgrade hull", 200, func(): ps.hitpoints += 10.0)

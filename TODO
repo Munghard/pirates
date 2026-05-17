@@ -1,19 +1,33 @@
+TASKS
+
+ONGOING
 -[] more interesting and engaging capture port mechanic
+-[] end goal (get 100% influence over region)
+
+CURRENT
+-[] give health and hitboxes to port cannons, maybe you can purchase cannons to defend your ports
+
+TODO
+-[] some items should maybe "sink" with the ship like cannons cannon balls and other stuff that you get too easily otherwise
 -[] name your ship
 -[] morale runs out > mutiny. ship becomes an npc ship, player goes to port to acquire new ship?
--[] end goal (get 100% influence over region)
 -[] add a sea serpent (valheim style)
 -[] save and load enemy ships (maybe not needed)
+-[] thinking about ports kind of like HOMM castles
 
+COMPLETED
+-[x] ports could have available patrol ships that replenish with restock, then there could be harder ports to capture with more "guards"
+-[x] need a function for evaluating combat readiness for ai to use in decide combat action
+-[x] maybe ports dont always have markets by default, could be something you buy and unlock
 -[x] add prompt to port buy upgrades
 -[x] make a simple main menu that lets you delete your save file and restart game
 -[x] rum consume to regen morale
--[x]make a fishing mechanic
--[x]work on selling items at ports
--[x]port factions, trades different items, ie. slaver port buys shackles, pirate ports buy rum etc.
--[x]make cannons that spawn on certain ports, cannons also have nation and shoots at rival nations
--[x]neat idea, food stat that slowly depletes when you are voyaging, food <= 0, crew starts dying one by one.
--[x]neat idea, fishing gear accumulates rations over time
+-[x] make a fishing mechanic
+-[x] work on selling items at ports
+-[x] port factions, trades different items, ie. slaver port buys shackles, pirate ports buy rum etc.
+-[x] make cannons that spawn on certain ports, cannons also have nation and shoots at rival nations
+-[x] neat idea, food stat that slowly depletes when you are voyaging, food <= 0, crew starts dying one by one.
+-[x] neat idea, fishing gear accumulates rations over time
 
 neat idea, diving suit consumable item, lets you dive and recover sunken treasure, maybe revealed by treasure maps
 

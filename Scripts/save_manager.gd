@@ -260,12 +260,18 @@ func save_ports(ports: Array[Port]) -> Array:
 			"name": port.port_name,
 			"faction": port.allegiance.faction,
 			"nation": port.allegiance.nation,
+			"max_hit_points": port.max_hit_points,
+			"hit_points": port.hit_points,
+			"max_crew": port.max_crew,
+			"crew": port.crew,
 			"position": {
 				"x": port.global_position.x,
 				"y": port.global_position.y,
 				"z": port.global_position.z
 			},
-			"inventory": save_inventory(port.inventory)
+			"inventory": save_inventory(port.inventory),
+			"cannons_unlocked": port.cannon_layout_port.cannons_unlocked,
+			"market_opened": port.market_opened
 		})
 
 	return result

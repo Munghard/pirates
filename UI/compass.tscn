@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://d34gysdg6n386" path="res://Scripts/compass.gd" id="1_8fe57"]
 
 [sub_resource type="Gradient" id="Gradient_8fe57"]
-offsets = PackedFloat32Array(0, 0.84837544, 1)
+offsets = PackedFloat32Array(0, 0.700361, 1)
 colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_uee5c"]
@@ -33,14 +33,16 @@ grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("1_8fe57")
 strip = NodePath("Control")
-pixels_per_rotation = 450.0
+pixels_per_rotation = 366.5
 
-[node name="TextureRect2" type="TextureRect" parent="." unique_id=89432739]
+[node name="Viewfinder" type="TextureRect" parent="." unique_id=89432739]
 custom_minimum_size = Vector2(10, 10)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 11.0
+offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0)
@@ -120,3 +122,9 @@ alignment = 2
 [node name="N" type="Label" parent="Control/HBoxContainer" unique_id=1583841901]
 layout_mode = 2
 text = "N"
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="Control/HBoxContainer" unique_id=1825700874]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2

@@ -51,6 +51,9 @@ func create_grid_territories(ports: Array[Port]):
 
 func get_random_point_in_territory(faction: FactionsData.Faction) -> Vector2:
 	var cells = faction_cells.get(faction, [])
+	
+	if faction == FactionsData.Faction.NONE:
+		cells = faction_cells.values().pick_random() # get random cells from any faction if NONE is requested
 
 	if cells.is_empty():
 		return Vector2.ZERO
@@ -111,7 +114,7 @@ func add_territory(_terriory: Territory_Data):
 	territories_changed.emit(territories)
 
 func get_territory_at(pos: Vector2) -> FactionsData.Faction:
-	var cell := Vector2i(pos)
+	var cell = Vector2i(floor(pos.x), floor(pos.y))
 	return ownership.get(cell, FactionsData.Faction.NONE)
 
 func get_territories_at(pos: Vector2) -> Array[FactionsData.Faction]:
@@ -122,7 +125,7 @@ func get_territories_at(pos: Vector2) -> Array[FactionsData.Faction]:
 	return factions
 
 func get_strongest_faction(pos: Vector2, ports: Array[Port]) -> FactionsData.Faction:
-	var best_faction = FactionsData.Faction.NAVY
+	var best_faction = FactionsData.Faction.NONE
 	var best_score = - INF
 
 	for port in ports:

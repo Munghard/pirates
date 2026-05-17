@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://ct57ceuvqy3k8" path="res://Textures/plain-arrow.png" id="10_p5y7q"]
 [ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="13_a2apx"]
 [ext_resource type="PackedScene" uid="uid://yr5t6oixqo3o" path="res://Effects/wake.tscn" id="14_tboui"]
+[ext_resource type="Script" uid="uid://bjwtlqnvjh21x" path="res://Scripts/ai_navigation.gd" id="16_jn6qf"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_a2apx"]
 top_radius = 0.01
@@ -228,6 +229,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9814739, -0.5132023)
 light_color = Color(1, 0.6166667, 0, 1)
 light_energy = 2.0
+
+[node name="navigation" type="NavigationAgent3D" parent="." unique_id=330575579]
+debug_enabled = true
+debug_use_custom = true
+debug_path_custom_color = Color(0, 0.6456724, 0.23337895, 1)
+debug_path_custom_point_size = 50.0
+script = ExtResource("16_jn6qf")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_entered" from="Area3D" to="." method="_on_boarding_area_body_entered"]

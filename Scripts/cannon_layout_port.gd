@@ -9,9 +9,15 @@ class_name Cannons_port
 @export var width: float
 
 var cannons: Array[Cannon] = []
+var cannons_unlocked := 0
 @export var cannon_points: Array[Node3D] = []
 
+
 func _ready():
+	create_canons(true)
+
+func add_cannon():
+	cannons_unlocked += 1
 	create_canons(true)
 
 func create_canons(active: bool):
@@ -20,12 +26,16 @@ func create_canons(active: bool):
 		child.queue_free()
 	cannons.clear()
 
-	for i in range(cannon_points.size()):
-		var canon = cannon_scene.instantiate() as Cannon
-		add_child(canon)
+	for i in range(cannons_unlocked):
+		var point = cannon_points[i]
+		if not point:
+			print("Error: Not enough cannon points defined for port cannons!")
+			continue
+		
+		var cannon = cannon_scene.instantiate() as Cannon
+		add_child(cannon)
 
-		canon.global_rotation = cannon_points[i].global_rotation
-		canon.position = cannon_points[i].global_position
+		cannon.transform = point.transform
 
-		cannons.append(canon)
-		canon.active = active
+		cannon.active = active
+		cannons.append(cannon)

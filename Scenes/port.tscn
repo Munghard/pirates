@@ -9,7 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="6_w7ulp"]
 [ext_resource type="Shader" uid="uid://cv7b3ai4owx81" path="res://Materials/flag.gdshader" id="8_wkjrd"]
 [ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="9_ri7tc"]
-[ext_resource type="Script" uid="uid://boacqukindhfy" path="res://Scenes/patrol_trigger.gd" id="10_ri7tc"]
+[ext_resource type="Script" uid="uid://boacqukindhfy" path="res://Scripts/patrol_trigger.gd" id="10_ri7tc"]
+[ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="11_rxq8t"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gfjmb"]
 height = 4.0
@@ -86,6 +87,9 @@ center_offset = Vector3(1.5, 0, 0)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_rxq8t"]
 radius = 50.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ix0p7"]
+size = Vector3(4.9835205, 1.762207, 2.0283203)
 
 [node name="Port" type="Area3D" unique_id=699995195 node_paths=PackedStringArray("flag_mesh") groups=["Ports"]]
 script = ExtResource("2_pyx3s")
@@ -199,21 +203,18 @@ text = "19-.20"
 horizontal_alignment = 1
 
 [node name="pb_crew" type="ProgressBar" parent="world_bars/SubViewport/Control/VBoxContainer" unique_id=1338610037]
-visible = false
 layout_mode = 2
 theme = ExtResource("5_31lm0")
 theme_type_variation = &"crew_pb"
 value = 15.78
 
 [node name="pb_ship" type="ProgressBar" parent="world_bars/SubViewport/Control/VBoxContainer" unique_id=1686803407]
-visible = false
 layout_mode = 2
 theme = ExtResource("5_31lm0")
 theme_type_variation = &"ship_pb"
 value = 15.78
 
 [node name="pb_recovery" type="ProgressBar" parent="world_bars/SubViewport/Control/VBoxContainer" unique_id=1989782862]
-visible = false
 layout_mode = 2
 theme = ExtResource("5_31lm0")
 theme_type_variation = &"recovery_pb"
@@ -233,7 +234,7 @@ port = NodePath("..")
 cannon_scene = ExtResource("6_w7ulp")
 length = 10.0
 width = 10.0
-cannon_points = [NodePath("cannon_point"), NodePath("cannon_point2"), NodePath("cannon_point3"), NodePath("cannon_point4")]
+cannon_points = [NodePath("cannon_point"), NodePath("cannon_point2"), NodePath("cannon_point3"), NodePath("cannon_point4"), NodePath("cannon_point5"), NodePath("cannon_point6")]
 
 [node name="cannon_point" type="Node3D" parent="Cannons" unique_id=1176160967]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.060614, -4.7683716e-07, -1.8817763)
@@ -246,6 +247,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.572884, -4.7683716e-07, 3.1
 
 [node name="cannon_point4" type="Node3D" parent="Cannons" unique_id=727286117]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2834148, -4.7683716e-07, 5.5756054)
+
+[node name="cannon_point5" type="Node3D" parent="Cannons" unique_id=1078775498]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2834148, -4.7683716e-07, 2.4494977)
+
+[node name="cannon_point6" type="Node3D" parent="Cannons" unique_id=1828958070]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35989666, 2.1713138, -3.5371804)
 
 [node name="flag_pole" type="MeshInstance3D" parent="." unique_id=1439100323]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5124329, 4.44343, -2.9394057)
@@ -261,6 +268,16 @@ script = ExtResource("10_ri7tc")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="patrol_trigger" unique_id=668570551]
 shape = SubResource("SphereShape3D_rxq8t")
 
+[node name="DamageZone" type="Area3D" parent="." unique_id=1479198015]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7563995, 0.8021269, -3.2247372)
+script = ExtResource("11_rxq8t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone" unique_id=2089374820]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3862915, 0.38110352, -0.53674316)
+shape = SubResource("BoxShape3D_ix0p7")
+debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]
 [connection signal="body_entered" from="patrol_trigger" to="patrol_trigger" method="_on_body_entered"]
+[connection signal="body_entered" from="DamageZone" to="DamageZone" method="_on_body_entered"]

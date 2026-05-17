@@ -157,7 +157,7 @@ func get_position_around_point(pos: Vector3, radius: float) -> Vector3:
 	var _offset = Vector3(cos(angle), 0, sin(angle)) * radius
 	
 	return pos + _offset
-		
+
 
 static func get_ships_by_faction(ships: Array[Ship], target_factions: Array[FactionsData.Faction]) -> Array[Ship]:
 	var result: Array[Ship] = []

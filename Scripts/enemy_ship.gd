@@ -14,14 +14,20 @@ var change_route := 10.0
 var route_timer := change_route
 var ai_state: AIState = AIState.IDLE
 var combat_state: CombatState = CombatState.PURSUE
-var target_point: Vector3
 
 var water: Water
+
+var active := true # active status for process
+
+@export_group("Navigation")
+@onready var ai_navigation: AI_Navigation = $navigation
+var repath_timer := 0.0
+var repath_interval := 10.0
 
 var requesting_waypoint := false
 var active_range := 100.0 # range from player
 var remove_range := 150.0 # range from player
-var active := true # active status for process
+
 
 @export_group("Perception")
 var avoidance_distance := 5.0
@@ -127,7 +133,7 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		return
 
 	if _attacker is Ship:
-		target_point = attacker.global_position
+		ai_navigation.set_target(global_position, attacker.global_position)
 
 		var ship = _attacker as Ship
 
@@ -141,11 +147,13 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 	if hit_points <= 0:
 		set_state(AIState.SUNK)
 
+
 func decide_combat_action(ship: Ship) -> CombatState:
-	if defense + 1.0 > ship.attack and attack + 1.0 > ship.defense and inventory.has_item_type(Item_Definition.Type.CANNON, 1) and inventory.has_item("cannon_balls", 1):
+	if get_combat_readiness() > ship.get_combat_readiness():
 		return CombatState.PURSUE
 	else:
 		return CombatState.FLEE
+
 
 func set_state(_ai_State: AIState):
 	ai_state = _ai_State
@@ -206,13 +214,18 @@ func _process(delta):
 		return
 	
 	super._process(delta)
+
+	repath_timer -= delta
+	var nav_target = ai_navigation.get_current_target()
+
 	var debug_draw_path = true
 	if debug_draw_path:
 		if attacker != null:
 			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
-		draw_line_to_target_point(line_route, target_point, Color.GREEN)
+		draw_line_to_target_point(line_route, nav_target, Color.GREEN)
 	
 	var time = Time.get_ticks_msec() / 1000.0
+
 
 	if ai_state == AIState.COMBAT:
 		if is_instance_valid(attacker):
@@ -222,37 +235,40 @@ func _process(delta):
 			
 			match combat_state:
 				CombatState.PURSUE, CombatState.AGRO:
-					target_point = attacker.global_position
+					ai_navigation.set_target(global_position, attacker.global_position)
 				CombatState.FLEE:
 					# Move away from attacker
-					target_point = global_position - (to_attacker.normalized() * 50.0)
+					var flee_point = global_position - (to_attacker.normalized() * 50.0)
+					if repath_timer <= 0.0:
+						ai_navigation.set_target(global_position, flee_point)
+						repath_timer = repath_interval
 					flee_timer = flee_duration
 		else:
 			set_state(AIState.ENROUTE)
 
 	if ai_state != AIState.IDLE:
 		# 1. Calculate the direction and the angle needed to look at the target
-		var target_dir = (target_point - global_position).normalized()
+		var target_dir = (nav_target - global_position).normalized()
 		var final_dir = target_dir
 
 		# only apply avoidance when moving
-		var is_moving_state = false
-		match ai_state:
-			AIState.ENROUTE:
-				is_moving_state = true
-			AIState.CAPTURED:
-				is_moving_state = false
-			AIState.PATROL:
-				is_moving_state = false
-			AIState.COMBAT:
-				if combat_state == CombatState.PURSUE or combat_state == CombatState.FLEE:
-					is_moving_state = true
-		if is_moving_state:
-			var avoid_dir = get_avoidance_direction()
-			if debug_draw_path:
-				draw_line_to_target_point(line_avoidance, global_position + (avoid_dir * 5.0), Color.PURPLE)
-			if avoid_dir != Vector3.ZERO:
-				final_dir = (target_dir + avoid_dir * 2.0).normalized()
+		# var is_moving_state = false
+		# match ai_state:
+		# 	AIState.ENROUTE:
+		# 		is_moving_state = true
+		# 	AIState.CAPTURED:
+		# 		is_moving_state = false
+		# 	AIState.PATROL:
+		# 		is_moving_state = false
+		# 	AIState.COMBAT:
+		# 		if combat_state == CombatState.PURSUE or combat_state == CombatState.FLEE:
+		# 			is_moving_state = true
+		# if is_moving_state:
+		# 	var avoid_dir = get_avoidance_direction()
+		# 	if debug_draw_path:
+		# 		draw_line_to_target_point(line_avoidance, global_position + (avoid_dir * 5.0), Color.PURPLE)
+		# 	if avoid_dir != Vector3.ZERO:
+		# 		final_dir = (target_dir + avoid_dir * 2.0).normalized()
 
 		var look_at_angle = rad_to_deg(atan2(final_dir.x, final_dir.z))
 		if time > last_perception_time + perception_interval:
@@ -269,10 +285,12 @@ func _process(delta):
 			
 			AIState.CAPTURED:
 				yaw_deg = look_at_angle # Face the waypoint
-				target_point = gameManager.player_ship.global_position
+				if repath_timer <= 0.0:
+					ai_navigation.set_target(global_position, gameManager.player_ship.global_position)
+					repath_timer = repath_interval
 				var forward = global_basis.z
 				var dot = forward.dot(target_dir)
-				var distance_squared = global_position.distance_squared_to(target_point)
+				var distance_squared = global_position.distance_squared_to(nav_target)
 				var move_threshold = 20.0
 				if distance_squared > move_threshold * move_threshold:
 					target_speed = top_speed
@@ -291,7 +309,7 @@ func _process(delta):
 						# BROADSIDE: Rotate 90 degrees offset from the target 
 						# so the side (port/starboard) faces the enemy
 						yaw_deg = look_at_angle - 90.0
-						_handle_shooting(target_point)
+						_handle_shooting(attacker.global_position)
 
 func _update_combat_transitions(dist: float, delta: float):
 	if combat_state == CombatState.FLEE:
@@ -320,23 +338,38 @@ func _handle_shooting(target: Vector3):
 	if abs(diff) < 15.0 and inventory.has_item_type(Item_Definition.Type.CANNON, 1):
 		set_canon_pitch(dist / 2.0) # Ensure your Ship class handles pitch units correctly
 		shoot_port()
-		
-func patrol_behaviour(_delta: float):
-	var patrol_radius = 20.0
-	if target_point == Vector3.ZERO:
-		target_point = gameManager.get_position_around_point(patrol_point, patrol_radius)
-	target_speed = 1 # slower speed for patrol
-	if (global_position - target_point).length() < 20.0:
-		target_point = gameManager.get_position_around_point(patrol_point, patrol_radius)
-		print("New patrol point: ", target_point)
 	
+var patrol_retargeting := false
+
+func patrol_behaviour(delta: float):
+	repath_timer -= delta
+
+	target_speed = 1.0
+
+	var nav_target = ai_navigation.get_current_target()
+	
+	if patrol_retargeting:
+		return
+	
+	# if no path or arrived → pick new destination
+	if global_position.distance_to(nav_target) < 50.0:
+		patrol_retargeting = true
+		var new_target = gameManager.get_position_around_point(patrol_point, 20.0)
+
+		ai_navigation.set_target(global_position, new_target)
+
+		repath_timer = repath_interval
+
+		#print("New patrol point: ", new_target)
+
 func en_route_behaviour(delta: float):
+	var nav_target = ai_navigation.get_current_target()
 	route_timer += delta
 
 	if requesting_waypoint:
 		return
 
-	if route_timer >= change_route or (global_position - target_point).length() < 20.0:
+	if route_timer >= change_route or (global_position - nav_target).length() < 10.0:
 		requesting_waypoint = true
 		route_timer = 0
 		change_route = randf_range(100.0, 500.0)
@@ -346,20 +379,22 @@ func en_route_behaviour(delta: float):
 var pending_waypoint: Vector3
 
 func _request_waypoint(_delta: float) -> void:
+	var nav_target = ai_navigation.get_current_target()
 	var wp = get_new_waypoint()
 
 	# Ignore tiny changes
-	if wp.distance_to(target_point) < 10.0:
-		requesting_waypoint = false
+	if wp.distance_to(nav_target) < 10.0:
 		return
 
 	pending_waypoint = wp
+	gameManager.hud.ddd_label("New waypoint acquired", global_position)
 
-	target_point = pending_waypoint
-	set_rotation_to_target_point(target_point)
+	ai_navigation.set_target(global_position, pending_waypoint)
+	set_rotation_to_target_point(nav_target)
 	target_speed = top_speed
 
 	requesting_waypoint = false
+	patrol_retargeting = false
 
 var target_point_height: float
 
@@ -395,7 +430,6 @@ func get_new_waypoint() -> Vector3:
 		var height = gameManager.world.terrain.get_height_world(point.x, point.z)
 
 		if height <= gameManager.world.water.water_level_world_space - height_buffer and is_path_clear(global_position, point):
-			gameManager.hud.ddd_label("New waypoint acquired", global_position)
 			return point
 
 	# fallback (VERY important) but not sure why its important

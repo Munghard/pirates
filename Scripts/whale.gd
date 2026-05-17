@@ -5,6 +5,7 @@ class_name Whale
 var target_position: Vector3
 var position_interval := 5.0
 var last_position_change := 0.0
+var speed := 3.0
 
 @export var max_hit_points := 20.0
 var hit_points := max_hit_points
@@ -18,12 +19,15 @@ var active := true
 var active_distance = 50.0
 var level := 1
 
+@onready var ai_navigation: AI_Navigation = $navigation
+
 signal hit_points_changed(amount: float)
 signal recieved_damage(amount: float, attacker: Node3D)
 
 @onready var floater = $floater
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
+@onready var world_bars: Node3D = $world_bars
 @onready var pb: ProgressBar = $world_bars/SubViewport/Control/VBoxContainer/pb_hp
 @onready var star_container: HBoxContainer = $world_bars/SubViewport/Control/star_container
 
@@ -95,9 +99,12 @@ func _physics_process(delta: float) -> void:
 		if global_position.y <= -5.0 and not sunk:
 			death()
 	
-	linear_velocity += global_basis.z * delta * 3.0
+	var nav_target = ai_navigation.get_current_target()
 
-	var dir = (target_position - global_position).normalized()
+
+	linear_velocity = global_basis.z * speed
+
+	var dir = (nav_target - global_position).normalized()
 	var angle = atan2(dir.x, dir.z)
 
 	rotation.y = lerp_angle(rotation.y, angle, delta)
@@ -113,14 +120,16 @@ func _process(_delta):
 		last_distance_check = time
 		var distance_squared = global_position.distance_squared_to(gameManager.player_ship.global_position)
 		active = distance_squared < active_distance * active_distance
+
+		world_bars.visible = distance_squared < (active_distance * active_distance) * 0.5
 	
 	if not active:
 		return
 
 	if last_position_change + position_interval < time:
 		last_position_change = time
-		
 		target_position = get_new_waypoint()
+		ai_navigation.set_target(global_position, target_position)
 
 
 func get_new_waypoint() -> Vector3:

@@ -6,13 +6,15 @@ class_name World
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 @onready var water: Water = $Water
 @onready var wind: Wind = $Wind
-@onready var terrain: Terrain = $Terrain
+@onready var terrain: Terrain = $NavigationRegion3D/Terrain
 @onready var birds_effect: Node3D = $birds_effect
 @onready var wind_effect: MeshInstance3D = $wind_effect
 @onready var time: GameTime = $Time
 @onready var sun: DirectionalLight3D = $Sun
 @onready var moon: DirectionalLight3D = $Moon
 @onready var clouds: MeshInstance3D = $Clouds
+@onready var navigation_region: NavigationRegion3D = $NavigationRegion3D
+
 
 @export var scatterers: Node3D
 
@@ -41,12 +43,13 @@ var _spawned_positions: Array[Vector3] = []
 func _ready():
 	water = $Water
 	wind = $Wind
-	terrain = $Terrain
+	terrain = $NavigationRegion3D/Terrain
 	wind_effect = $wind_effect
 	clouds = $Clouds
 	time = $Time
 	sun = $Sun
 	moon = $Moon
+	navigation_region = $NavigationRegion3D
 
 	assert(wind != null, "wind is null in world start")
 	assert(wind_effect != null, "wind_effect is null in world start")
@@ -56,6 +59,7 @@ func _ready():
 	assert(sun != null, "sun is null in world start")
 	assert(moon != null, "moon is null in world start")
 	assert(clouds != null, "clouds is null in world start")
+	assert(navigation_region != null, "navigation_region is null in world start")
 
 	ports_container = Node3D.new()
 	ports_container.name = "Ports"
@@ -73,6 +77,9 @@ func _ready():
 	terrain.heightmap_created.connect(scatter_scatterers)
 
 	terrain.create_terrain()
+
+	#navigation region
+	navigation_region.bake_navigation_mesh()
 
 	ship_spawner(nominal_ship_count)
 
@@ -171,13 +178,13 @@ func spawn_ports_from_data(data: Array[Port_Data]):
 		port.global_position = port_data.global_position
 		port.setup_identity(self , port_data)
 		ports.append(port)
-		
-		port.inventory = SaveManager.create_inventory_from_data(
-			port,
-			port_data.port_name,
-			gameManager.world,
-			port_data.inventory
-		)
+		if port_data.market_opened:
+			port.inventory = SaveManager.create_inventory_from_data(
+				port,
+				port_data.port_name,
+				gameManager.world,
+				port_data.inventory
+			)
 	
 	print("Ports loaded: ", ports.size())
 	emit_signal("ports_spawned", ports)
@@ -225,10 +232,21 @@ func spawn_ports(_heightmap: Texture2D):
 			faction = FactionsData.Faction.PIRATE
 		
 		var port_name = FactionsData.get_unique_port_name()
-		print("Setting up inventory for spawned port ", port_name)
+		#print("Setting up inventory for spawned port ", port_name)
 		var inventory = port.setup_inventory()
 		var inventory_saved = SaveManager.save_inventory(inventory)
-		port.setup_identity(self , Port_Data.new(faction, nation, port_name, pos, inventory_saved))
+		var cannons_unlocked = FactionsData.get_faction_starting_cannons(faction)
+		var market_opened = randf() < 0.2
+		
+		var stats = FactionsData.get_faction_stats(faction)
+		
+		var max_hit_points = stats.max_hit_points * 2.0
+		var hit_points = max_hit_points
+		var max_crew = stats.max_crew * 2.0
+		var crew = max_crew
+
+
+		port.setup_identity(self , Port_Data.new(faction, nation, port_name, max_hit_points, hit_points, max_crew, crew, pos, inventory_saved, cannons_unlocked, market_opened))
 		
 		spawned_count += 1
 		ports.append(port)

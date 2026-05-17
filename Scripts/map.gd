@@ -21,16 +21,16 @@ func _ready():
 	
 	update_map(gameManager.player_ship.faction, blip_scene)
 	
-	var port_nodes = gameManager.world.ports
-	var ports: Array[Port]
-	for port in port_nodes:
-		if port is Port:
-			ports.append(port)
+	var ports = gameManager.world.ports # this might not update after load
 	
 	for port in ports:
 		port.port_faction_changed.connect(func(_faction): update_map(gameManager.player_ship.faction, blip_scene))
 	
-	gameManager.save_manager.loaded.connect(func(): update_map(gameManager.player_ship.faction, blip_scene))
+	gameManager.save_manager.loaded.connect(func():
+		var _ports = gameManager.world.ports
+		for port in _ports:
+			port.port_faction_changed.connect(func(_faction): update_map(gameManager.player_ship.faction, blip_scene))
+		update_map(gameManager.player_ship.faction, blip_scene))
 
 	player_blip = add_blip_to_map(gameManager.player_ship, Color.WHITE, 2.0, blip_a_scene)
 	pivot_offset_ratio = Vector2(0.5, 0.5)

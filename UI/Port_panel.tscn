@@ -59,6 +59,10 @@ text = "Faction"
 layout_mode = 2
 text = "Gold:"
 
+[node name="Label_stats" type="Label" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=782457773]
+layout_mode = 2
+text = "Stats:"
+
 [node name="DepartButton" type="Button" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=5709390]
 layout_mode = 2
 text = "Depart"

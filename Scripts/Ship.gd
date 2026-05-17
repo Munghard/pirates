@@ -320,6 +320,9 @@ func kill_crew(amount: int):
 	emit_signal("crew_changed", crew)
 	if gameManager.player_ship == self and crew <= 0:
 		gameManager.hud.ddd_label("Ghost ship", global_position)
+		if not attacker:
+			attacker = self
+			# if no attacker, set self as attacker to avoid errors. This can happen if crew is killed by starvation or morale loss
 		destroy_ship(attacker)
 
 
@@ -563,6 +566,15 @@ func spawn_loot():
 	# clear inventory AFTER
 	inventory.clear()
 
+func get_combat_readiness() -> float:
+	# Simple heuristic: average of health and crew percentage
+	var health_percent = hit_points / max_hit_points
+	var crew_percent = float(crew) / float(max_crew)
+	var has_cannons = inventory.has_item_type(Item_Definition.Type.CANNON, 1)
+	var has_balls = inventory.has_item("cannon_balls", 1)
+	if not has_cannons or not has_balls:
+		return 0.0 # Not combat ready without cannons or cannonballs
+	return (health_percent + crew_percent) / 2.0
 
 func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: Node3D):
 	# gameManager.hud.selected_ship = self

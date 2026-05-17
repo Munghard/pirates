@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://ckbe3l704haxa" path="res://Textures/canned-fish.png" id="4_ds6pt"]
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="5_ufkj0"]
 [ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="6_ufkj0"]
+[ext_resource type="Script" uid="uid://bjwtlqnvjh21x" path="res://Scripts/ai_navigation.gd" id="7_uwu8l"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ltmiw"]
 radius = 1.0380859
@@ -111,5 +112,11 @@ script = ExtResource("6_ufkj0")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06677246, -1.3544617)
 shape = SubResource("BoxShape3D_uwu8l")
 debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
+
+[node name="navigation" type="NavigationAgent3D" parent="." unique_id=1522304865]
+debug_enabled = true
+debug_use_custom = true
+debug_path_custom_point_size = 36.52
+script = ExtResource("7_uwu8l")
 
 [connection signal="body_entered" from="DamageZone" to="DamageZone" method="_on_body_entered"]
