@@ -3,11 +3,13 @@ extends Ship
 class_name PlayerShip
 
 var equipment: Equipment
+var real_faction: FactionsData.Faction
 
 @onready var fanfare = preload("res://Audio/fanfare.mp3")
 
 func _ready() -> void:
 	ship_name = "Player"
+	real_faction = FactionsData.Faction.PIRATE
 	faction = FactionsData.Faction.PIRATE
 	var faction_stats = FactionsData.get_faction_stats(faction)
 	equipment = Equipment.new()
@@ -102,6 +104,11 @@ func _on_inventory_changed(_inventory: Inventory):
 			use_item,
 			_inventory.drop_item_at_index
 		)
+
+func change_faction(_faction: FactionsData.Faction):
+	faction = _faction
+	set_faction_texture()
+	
 
 func setup_cannons():
 	await get_tree().process_frame

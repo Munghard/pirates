@@ -29,9 +29,13 @@ var ship: Ship
 @export var cannons_panel: Control
 @export var fleet_panel: Control
 
+@export var option_button: OptionButton
+
 func _ready() -> void:
 	tab_bar.tab_clicked.connect(_on_tab_pressed)
 	set_active_tab(0)
+	for faction in FactionsData.Faction.values():
+		option_button.add_item(FactionsData.FACTION_NAMES[faction], faction)
 
 func set_ship(_ship: Ship):
 	ship = _ship
@@ -65,6 +69,10 @@ func _on_release_pressed(_ship: Ship):
 		_ship.boarded_by.unboard_ship(_ship)
 		print("unboard")
 
+func set_player_faction(index, player_ship: PlayerShip):
+	var faction = option_button.get_item_id(index)
+	player_ship.change_faction(faction)
+
 func update_ship_panel(_ship: Ship):
 	if _ship == null:
 		label_h.text = "No ship selected"
@@ -78,6 +86,7 @@ func update_ship_panel(_ship: Ship):
 		flag_texture_rect.visible = false
 		portrait_texture_rect.visible = false
 		faction_texture_rect.visible = false
+		option_button.visible = false
 		return
 	else:
 		label_f.visible = true
@@ -89,6 +98,7 @@ func update_ship_panel(_ship: Ship):
 		flag_texture_rect.visible = true
 		portrait_texture_rect.visible = true
 		faction_texture_rect.visible = true
+		option_button.visible = true
 
 	if _ship != _ship.gameManager.player_ship:
 		_release_callable = Callable(_on_release_pressed).bind(_ship)
@@ -111,12 +121,20 @@ func update_ship_panel(_ship: Ship):
 
 	var ai_text = ""
 	if _ship is EnemyShip:
+		option_button.visible = false
 		ai_text = "State: %s" % (_ship as EnemyShip).AIStateNames[(_ship as EnemyShip).ai_state]
 		if (_ship.ai_state == EnemyShip.AIState.COMBAT):
 			ai_text += "\nSubState: %s" % (_ship as EnemyShip).CombatStateNames[(_ship as EnemyShip).combat_state]
 		ai_text += "\nIn combat: %.s" % [str(_ship.in_combat)]
 		if _ship.attacker and _ship.attacker is Ship: ai_text += "\nTarget: %.s" % [str(_ship.attacker.ship_name)]
-	
+	elif _ship is PlayerShip:
+		option_button.visible = true
+
+		option_button.selected = int(_ship.faction)
+
+		if not option_button.item_selected.is_connected(set_player_faction.bind(_ship)):
+			option_button.item_selected.connect(set_player_faction.bind(_ship))
+
 	var stats_text = ""
 	var status_text = ""
 	var fleet_text = ""

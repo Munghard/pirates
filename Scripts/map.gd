@@ -114,6 +114,7 @@ func update_map(_player_faction, _blip_scene):
 		color = FactionsData.get_faction_color(port.allegiance.faction)
 		add_marker_to_map(port, FactionsData.get_faction_icon(port.allegiance.faction), port.port_name, color, marker_scene)
 
+
 func toggle_map():
 	visible = !visible
 
@@ -129,7 +130,11 @@ func world_to_map(world_pos: Vector3) -> Vector2:
 
 func add_marker_to_map(node: Node3D, icon: Texture2D, marker_name: String, color: Color, _marker_scene: PackedScene) -> Control:
 	var pos = node.global_position
+	
 	var marker: Control = _marker_scene.instantiate()
+	territory_draw.add_child(marker)
+	marker.position = world_to_map(pos)
+
 	var icon_texturerect: TextureRect = marker.get_node("VBoxContainer/faction_icon")
 	var label: Label = marker.get_node("VBoxContainer/Label")
 	var blip: TextureRect = marker.get_node("VBoxContainer/blip")
@@ -139,10 +144,6 @@ func add_marker_to_map(node: Node3D, icon: Texture2D, marker_name: String, color
 	icon_texturerect.texture = icon
 	label.text = marker_name
 
-	territory_draw.add_child(marker)
-
-	marker.position = world_to_map(pos) - Vector2(32, 24)
-	
 	return marker
 
 func add_blip_to_map(node: Node3D, color: Color, _scale: float, _blip_scene: PackedScene) -> Control:
@@ -150,13 +151,12 @@ func add_blip_to_map(node: Node3D, color: Color, _scale: float, _blip_scene: Pac
 	var rot = - node.global_rotation.y
 	var blip: TextureRect = _blip_scene.instantiate()
 	blip.modulate = color
-	territory_draw.add_child(blip)
+	map.add_child(blip)
 
-	blip.position = world_to_map(pos) - Vector2(16, 16)
+	blip.position = world_to_map(pos)
 
 	blip.scale = Vector2.ONE * _scale
 	blip.rotation = rot
-
 
 	return blip
 
@@ -164,7 +164,7 @@ func update_blip_position(node: Node3D, blip: Control):
 	var pos = node.global_position
 	var rot = - node.global_rotation.y
 
-	blip.position = world_to_map(pos) - Vector2(16, 16)
+	blip.position = world_to_map(pos)
 	blip.rotation = rot
 
 

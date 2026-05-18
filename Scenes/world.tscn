@@ -569,7 +569,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=1527875662]
-self_modulate = Color(0.9, 0.76124996, 0.67499995, 1)
+self_modulate = Color(0.76033205, 0.5539407, 0.42029223, 1)
 custom_minimum_size = Vector2(500, 500)
 layout_mode = 1
 anchors_preset = 15
@@ -581,7 +581,7 @@ texture = ExtResource("37_w5giw")
 stretch_mode = 3
 
 [node name="TextureRect2" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=349148954]
-self_modulate = Color(0.69, 0.40434003, 0.2139, 0.7058824)
+self_modulate = Color(0.53461957, 0.30320123, 0.14936325, 0.7058824)
 custom_minimum_size = Vector2(500, 500)
 layout_mode = 1
 anchors_preset = 15

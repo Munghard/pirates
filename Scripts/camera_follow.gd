@@ -14,6 +14,10 @@ var pan_multiplier := 1.0
 
 var max_camera_size := 50.0
 
+var camera_sizes = [25.0, 37.5, 50.0]
+var current_size_index := 0
+
+
 var zoom := 0.0
 var debug_mode = false
 
@@ -58,11 +62,11 @@ func _process(delta: float) -> void:
 	#var distance_to_target := global_position.distance_to(target_position)
 	#var auto_zoom = distance_to_target * 0.5
 
-	camera.size = zoom # + auto_zoom
+	camera.size = lerp(camera.size, zoom, delta * 5.0) # + auto_zoom
 
-func set_zoom(value: float):
-	zoom = clamp(camera.size + value, 10, max_camera_size)
-	# camera.position.z = clamp(camera.position.z + value, -200.0, -1.0)
+func set_zoom(value: int):
+	current_size_index = clamp(current_size_index + value, 0, camera_sizes.size() - 1)
+	zoom = camera_sizes[current_size_index]
 
 func add_pitch(value: float):
 	rotation.x = clamp(rotation.x + deg_to_rad(value), 0, deg_to_rad(90))

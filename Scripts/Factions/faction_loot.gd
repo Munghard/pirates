@@ -9,10 +9,10 @@ static var faction_loot = {
 	FactionsData.Faction.PIRATE: [
 		{"id": "rations", "chance": 1.0, "min": 30, "max": 50},
 		{"id": "rum", "chance": 1.0, "min": 5, "max": 50},
-		{"id": "cannon_balls", "chance": 1.0, "min": 1, "max": 6},
+		{"id": "cannon_balls", "chance": 1.0, "min": 25, "max": 100},
 
 		# optional flavor items
-		{"id": "fishing_rig", "chance": 0.35, "min": 1, "max": 1},
+		{"id": "fishing_rig", "chance": 0.15, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.MERCHANT: [
@@ -28,7 +28,7 @@ static var faction_loot = {
 
 	FactionsData.Faction.NAVY: [
 		{"id": "rations", "chance": 1.0, "min": 30, "max": 50},
-		{"id": "cannon_balls", "chance": 0.9, "min": 1, "max": 10},
+		{"id": "cannon_balls", "chance": 0.9, "min": 50, "max": 100},
 		{"id": "rum", "chance": 1.0, "min": 50, "max": 200},
 		{"id": "ropes", "chance": 0.7, "min": 1, "max": 25},
 		{"id": "shackles", "chance": 0.8, "min": 5, "max": 25},
@@ -37,7 +37,7 @@ static var faction_loot = {
 
 	FactionsData.Faction.SLAVER: [
 		{"id": "rations", "chance": 0.8, "min": 30, "max": 50},
-		{"id": "cannon_balls", "chance": 0.5, "min": 1, "max": 5},
+		{"id": "cannon_balls", "chance": 0.5, "min": 1, "max": 10},
 		{"id": "rum", "chance": 0.8, "min": 1, "max": 20},
 		{"id": "ropes", "chance": 0.9, "min": 1, "max": 25},
 		{"id": "shackles", "chance": 1.0, "min": 100, "max": 200},
@@ -46,7 +46,7 @@ static var faction_loot = {
 
 	FactionsData.Faction.BOUNTYHUNTER: [
 		{"id": "rations", "chance": 1.0, "min": 30, "max": 50},
-		{"id": "cannon_balls", "chance": 0.5, "min": 1, "max": 5},
+		{"id": "cannon_balls", "chance": 0.5, "min": 25, "max": 100},
 		{"id": "rum", "chance": 1.0, "min": 50, "max": 200},
 		{"id": "ropes", "chance": 0.7, "min": 1, "max": 25},
 		{"id": "shackles", "chance": 1.0, "min": 100, "max": 200},

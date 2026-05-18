@@ -329,7 +329,7 @@ func _handle_shooting(target: Vector3, delta: float):
 		var pitch = dist / 3.2
 		cannon.pitch = clampf(pitch, -25.0, 25.0)
 		
-		if abs(diff) < shooting_range and inventory.has_item("cannon_balls", 1):
+		if abs(diff) < shooting_range:
 			cannon.shoot(1.0, self , gameManager.audioManager)
 
 	
@@ -399,7 +399,8 @@ func _on_body_entered(body: Node3D) -> void:
 	if body is PlayerShip:
 		player_ship = body as PlayerShip
 		in_docking_radius.emit(true)
-		body.set_dockable_port(self )
+		if can_capture or allegiance.faction == player_ship.faction or allegiance.faction == FactionsData.Faction.NONE:
+			body.set_dockable_port(self )
 	elif body is LifeBoat:
 		body.queue_free()
 
@@ -579,38 +580,48 @@ func update_port_ui():
 	
 	label_stats.text = "Port stats:\nLevel: %s\nCrew: %s/%s\nHitpoints: %s/%s\nCannons: %s" % [level, crew, max_crew, hit_points, max_hit_points, cannon_layout_port.cannons_unlocked]
 
+	var services = VBoxContainer.new()
+
 	var services_label := Label.new()
 	services_label.text = "Services"
 	services_label.theme_type_variation = "HeaderLarge"
 
-	root.add_child(services_label)
+
+	if allegiance.faction == player_ship.real_faction:
+		root.add_child(services)
+	else:
+		var label = Label.new()
+		label.text = "You are not allied with this port\nand cannot use its services."
+		root.add_child(label)
+
+	services.add_child(services_label)
 	# create upgrades
 	
 	if cannon_layout_port.cannons_unlocked < 4:
-		create_upgrade_ui(root, "PORT", "Install cannon", 200, func(): cannon_layout_port.add_cannon())
+		create_upgrade_ui(services, "PORT", "Install cannon", 200, func(): cannon_layout_port.add_cannon())
 	if not market_opened:
-		create_upgrade_ui(root, "PORT", "Open market", 500, func(): open_market())
+		create_upgrade_ui(services, "PORT", "Open market", 500, func(): open_market())
 	
 	
 	if crew > 0:
-		create_upgrade_ui(root, "CREW", "Hire crew: " + str(crew) + " left", 100, func():
+		create_upgrade_ui(services, "CREW", "Hire crew: " + str(crew) + " left", 100, func():
 			crew -= 1
 			ps.gain_crew(1)
 		)
 		
 	if crew_to_recruit > 0:
-		create_upgrade_ui(root, "CREW", "Recruit crew: " + str(crew_to_recruit) + " left", 0, func():
+		create_upgrade_ui(services, "CREW", "Recruit crew: " + str(crew_to_recruit) + " left", 0, func():
 			crew_to_recruit -= 1
 			ps.gain_crew(1)
 		)
 	
-	create_upgrade_ui(root, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
-	create_upgrade_ui(root, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
-	create_upgrade_ui(root, "SHIP", "Upgrade hull", 200, func(): ps.hitpoints += 10.0)
+	create_upgrade_ui(services, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
+	create_upgrade_ui(services, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
+	create_upgrade_ui(services, "SHIP", "Upgrade hull", 200, func(): ps.hitpoints += 10.0)
 	
-	create_upgrade_ui(root, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
-	create_upgrade_ui(root, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
-	create_upgrade_ui(root, "COMBAT", "Upgrade defense", 500, func(): ps.defense += 1.0)
+	create_upgrade_ui(services, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
+	create_upgrade_ui(services, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
+	create_upgrade_ui(services, "COMBAT", "Upgrade defense", 500, func(): ps.defense += 1.0)
 
 func _on_inventory_changed(_inventory: Inventory):
 	if inventory_panel:
