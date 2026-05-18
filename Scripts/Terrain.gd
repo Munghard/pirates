@@ -3,9 +3,8 @@ extends Node3D
 class_name Terrain
 
 @export_group("Assets")
-@export var rock: PackedScene
-@export var palm: PackedScene
 @export var terrain_material: Material
+@export var chunk_manager: Chunk_Manager
 
 @export_group("Terrain Settings")
 @export var noise: FastNoiseLite
@@ -16,16 +15,14 @@ class_name Terrain
 @export var terrain_world_size: Vector2
 @export var heightmap_size: Vector2i
 var terrain_cell_size: Vector2
+
+var terrain_ready = false
+
 @export var regen := false:
 	set(value):
 		create_terrain()
 		regen = false
 
-@export_group("Vegetation")
-@export var rock_density: float = 0.2
-@export var tree_density: float = 0.2
-@export var height_min: float = 1.0
-@export var height_max: float = 8.0
 
 var heightmap_texture: Texture2D
 var mesh_instance
@@ -42,6 +39,7 @@ func create_terrain():
 	create_terrain_mesh()
 	create_collision()
 	create_heightmap()
+	terrain_ready = true
 
 
 func create_collision():
@@ -72,9 +70,6 @@ func create_heightmap():
 	print("heightmap_texture created");
 
 func create_terrain_mesh():
-	for child in get_children():
-		child.queue_free()
-	
 	terrain_world_size = Vector2(world_size.x * tile_size, world_size.y * tile_size)
 	terrain_cell_size = Vector2(tile_size, tile_size)
 	# 1. Setup Mesh
@@ -110,9 +105,6 @@ func create_terrain_mesh():
 	# Apply offset to Mesh
 	mesh_instance.mesh.surface_set_material(0, terrain_material)
 	
-	# 2. Setup Trees (passing the same offset)
-	generate_scatter_poisson(palm, tree_density)
-	generate_scatter_poisson(rock, rock_density)
 
 func get_downhill_direction(x: float, z: float) -> Vector3:
 	var step := 1.0
@@ -162,26 +154,5 @@ func get_height_world(x: float, z: float) -> float:
 
 	n = (n + 1.0) / 2.0
 	n = pow(n, height_power)
-
+	
 	return n * terrain_height - terrain_height / 2.0
-
-func generate_scatter_poisson(asset_scene: PackedScene, density: float):
-	var scatter_container = Node3D.new()
-	scatter_container.name = "Scatter_assets"
-	add_child(scatter_container)
-	
-
-	var max_attempts = int(world_size.x * world_size.y * density)
-	
-	for i in range(max_attempts):
-		var rx = randf() * world_size.x
-		var rz = randf() * world_size.y
-		var x = rx * tile_size
-		var z = rz * tile_size
-		var h = get_height_world(x, z)
-
-		if h >= height_min and h <= height_max:
-			var asset = asset_scene.instantiate()
-			scatter_container.add_child(asset)
-			asset.global_position = Vector3(x, h, z)
-			asset.rotate_y(randf() * TAU)

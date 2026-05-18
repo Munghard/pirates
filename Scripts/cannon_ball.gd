@@ -12,10 +12,7 @@ func _ready() -> void:
 	queue_free()
 
 func _on_body_entered(body: Node) -> void:
-	if body is not Ship:
-		return
-	var ship := body as Ship
-	if ship:
+	if body is DamageZone:
 		var p = particle.instantiate()
 		get_tree().current_scene.add_child(p)
 		p.global_position = global_position

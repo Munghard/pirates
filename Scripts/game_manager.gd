@@ -59,6 +59,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	save_manager.load_game(self )
+	self.process_mode = ProcessMode.PROCESS_MODE_ALWAYS
 
 func start_auto_save_game():
 	while true:
@@ -116,6 +117,10 @@ func _input(event: InputEvent) -> void:
 			hud.new_notification("Camera debug mode: %s" % [camerarig.debug_mode])
 		if event.keycode == KEY_ESCAPE:
 			hud.game_menu.visible = !hud.game_menu.visible
+			pause_game(hud.game_menu.visible)
+
+func pause_game(pause: bool):
+	get_tree().paused = pause
 
 func move_player_to_random_port():
 	var ports = world.ports

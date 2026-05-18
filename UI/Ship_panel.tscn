@@ -2,8 +2,9 @@
 
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_svv42"]
 [ext_resource type="Script" uid="uid://cotv3l2jw4kmn" path="res://Scripts/ship_panel.gd" id="2_05pls"]
+[ext_resource type="Texture2D" uid="uid://bcctrouujp4h2" path="res://Textures/picture_frame.png" id="3_t0o0u"]
 [ext_resource type="Texture2D" uid="uid://f1yn8cs4hgos" path="res://Textures/male-peasants/portrait_6.jpg" id="4_42ohx"]
-[ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="4_c50y4"]
+[ext_resource type="Texture2D" uid="uid://g2cx1fxau882" path="res://Textures/swallowtail.png" id="4_c50y4"]
 [ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="5_t0o0u"]
 
 [node name="Player_ship_panel" type="FoldableContainer" unique_id=1821436781 node_paths=PackedStringArray("portrait_texture_rect", "flag_texture_rect", "faction_texture_rect", "label_h", "label_f", "status_label", "stats_label", "fleet_label", "hitpoints_pb", "crew_pb", "recovery_pb", "morale_pb", "release_button", "tab_bar", "status_panel", "stats_panel", "cannons_panel", "fleet_panel", "option_button")]
@@ -19,9 +20,9 @@ grow_vertical = 0
 theme = ExtResource("1_svv42")
 theme_type_variation = &"FoldableContainer_homm"
 script = ExtResource("2_05pls")
-portrait_texture_rect = NodePath("MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/portrait")
+portrait_texture_rect = NodePath("MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/TextureRect/portrait")
 flag_texture_rect = NodePath("MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/texture_flag")
-faction_texture_rect = NodePath("MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/ColorRect/faction_icon")
+faction_texture_rect = NodePath("MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/texture_flag/ColorRect/faction_icon")
 label_h = NodePath("MarginContainer/VBoxContainer2/Label_h")
 label_f = NodePath("MarginContainer/VBoxContainer2/Label_f")
 status_label = NodePath("MarginContainer/VBoxContainer2/Status/Label_status")
@@ -60,36 +61,55 @@ layout_mode = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer" unique_id=42678235]
 layout_mode = 2
 
-[node name="portrait" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer" unique_id=213306578]
-custom_minimum_size = Vector2(100, 100)
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer" unique_id=1173674624]
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 2
+texture = ExtResource("3_t0o0u")
+expand_mode = 1
+
+[node name="portrait" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/TextureRect" unique_id=213306578]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -45.0
+offset_top = -45.0
+offset_right = 45.0
+offset_bottom = 45.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("4_42ohx")
 expand_mode = 1
 stretch_mode = 4
 
 [node name="Allegiance_ui" type="VBoxContainer" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer" unique_id=1247832271]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
 [node name="texture_flag" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui" unique_id=263656025]
-custom_minimum_size = Vector2(100, 50)
 layout_mode = 2
+size_flags_vertical = 3
 texture = ExtResource("4_c50y4")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="ColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui" unique_id=2124980279]
-custom_minimum_size = Vector2(50, 50)
-layout_mode = 2
-size_flags_horizontal = 0
-color = Color(0.14406255, 0.14406255, 0.14406255, 1)
-metadata/_edit_use_anchors_ = true
-
-[node name="faction_icon" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/ColorRect" unique_id=1779752683]
-custom_minimum_size = Vector2(50, 50)
+[node name="ColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/texture_flag" unique_id=2124980279]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
-offset_right = 50.0
-offset_bottom = 50.0
+offset_right = 24.0
+offset_bottom = 24.0
+size_flags_horizontal = 0
+color = Color(0.14, 0.14, 0.14, 0.5294118)
+
+[node name="faction_icon" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/texture_flag/ColorRect" unique_id=1779752683]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+offset_right = 24.0
+offset_bottom = 24.0
 texture = ExtResource("5_t0o0u")
 expand_mode = 1
 

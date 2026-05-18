@@ -18,22 +18,42 @@ func _ready():
 func _draw() -> void:
 	for data in cached_cells:
 		draw_cell(data)
+var rebuild_id := 0
+func rebuild_visual_cache() -> void:
+	rebuild_id += 1
+	var my_id := rebuild_id
 
-func rebuild_visual_cache():
 	cached_cells.clear()
-	var ownership = territory.ownership
+
+	var counter := 0
+	const CELLS_PER_FRAME := 200
+
+	var ownership = territory.ownership.duplicate(true)
 	cell_size = territory.cell_size
+
+	var new_cache := []
+
 	for cell in ownership.keys():
+		if my_id != rebuild_id:
+			return # cancelled by a newer rebuild
+
 		var faction = ownership[cell]
 		var border = is_border_cell(ownership, cell, faction)
 		var offset = cell_size
 
-		cached_cells.append({
+		new_cache.append({
 			"cell": map.world_to_map(Vector3(cell.x + offset, 0, cell.y + offset)),
 			"faction": faction,
 			"border": border,
 			"color": FactionsData.get_faction_color(faction)
 		})
+
+		counter += 1
+		if counter >= CELLS_PER_FRAME:
+			counter = 0
+			await get_tree().process_frame
+
+	cached_cells = new_cache
 	queue_redraw()
 
 func draw_cell(data):

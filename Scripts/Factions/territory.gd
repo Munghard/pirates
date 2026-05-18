@@ -32,6 +32,9 @@ func _ready():
 func create_grid_territories(ports: Array[Port]):
 	ownership.clear()
 	faction_cells.clear()
+	var counter := 0
+	const CELLS_PER_FRAME := 200
+
 	for x in range(0, gameManager.world.terrain.terrain_world_size.x, cell_size):
 		for y in range(0, gameManager.world.terrain.terrain_world_size.y, cell_size):
 			var pos = Vector2(x, y)
@@ -46,6 +49,10 @@ func create_grid_territories(ports: Array[Port]):
 				faction_cells[faction] = []
 
 			faction_cells[faction].append(cell)
+			counter += 1
+			if counter >= CELLS_PER_FRAME:
+				counter = 0
+				await get_tree().process_frame
 
 	ownership_changed.emit()
 
@@ -129,6 +136,8 @@ func get_strongest_faction(pos: Vector2, ports: Array[Port]) -> FactionsData.Fac
 	var best_score = - INF
 
 	for port in ports:
+		if port == null:
+			continue
 		var port_pos = Vector2(
 			port.global_position.x,
 			port.global_position.z

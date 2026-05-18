@@ -38,6 +38,7 @@ static func get_flag(nation: Nation, _faction: Faction) -> Texture2D:
 	var flag = NATION_FLAGS.get(nation)
 	#if faction == Faction.PIRATE:
 		#flag = preload("res://Textures/Pirate_Flag_of_Jack_Rackham.png")
+	flag = preload("res://Textures/swallowtail.png")
 	return flag
 
 enum Faction {NONE, PIRATE, MERCHANT, NAVY, SLAVER, CARTOGRAPHER, BOUNTYHUNTER, VIKING, FISHERMAN}
@@ -215,6 +216,21 @@ static func is_enemy(f1, f2) -> bool:
 static func get_random_name() -> String:
 	return NAMES[randi() % NAMES.size()]
 
+static func get_nation_color(nation: Nation) -> Color:
+	match nation:
+		Nation.ENGLAND:
+			return Color("#3260e0") #
+		Nation.FRANCE:
+			return Color("#c0392b") #
+		Nation.NETHERLANDS:
+			return Color("#9b2bc0") #
+		Nation.SPAIN:
+			return Color("#c0b92b") #
+		Nation.NORDIC:
+			return Color("#2bc050") #
+		_:
+			return Color("#7f8c8d") # neutral graya
+
 static func get_faction_color(faction: Faction) -> Color:
 	match faction:
 		Faction.PIRATE:
@@ -264,7 +280,7 @@ static func get_faction_icon(faction: Faction) -> Texture:
 		Faction.CARTOGRAPHER:
 			texture = preload("res://Textures/globe.png")
 		_:
-			texture = preload("res://Textures/sailboat.png")
+			texture = preload("res://Textures/flying-flag.png")
 	return texture
 
 static func get_faction_stats(faction: Faction) -> ShipStats:

@@ -374,11 +374,19 @@ func en_route_behaviour(delta: float):
 		route_timer = 0
 		change_route = randf_range(100.0, 500.0)
 
-		_request_waypoint(delta)
+		_request_waypoint()
+	
+	set_rotation_to_target_point(nav_target)
+
+	var forward = - transform.basis.z
+	var dir = (nav_target - global_position).normalized()
+	var dot = dir.dot(forward)
+	var mp = dot * 0.5 + 0.5
+	target_speed = top_speed * max(mp, 0.0)
 
 var pending_waypoint: Vector3
 
-func _request_waypoint(_delta: float) -> void:
+func _request_waypoint() -> void:
 	var nav_target = ai_navigation.get_current_target()
 	var wp = get_new_waypoint()
 
@@ -390,8 +398,6 @@ func _request_waypoint(_delta: float) -> void:
 	gameManager.hud.ddd_label("New waypoint acquired", global_position)
 
 	ai_navigation.set_target(global_position, pending_waypoint)
-	set_rotation_to_target_point(nav_target)
-	target_speed = top_speed
 
 	requesting_waypoint = false
 	patrol_retargeting = false

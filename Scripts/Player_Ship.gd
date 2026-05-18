@@ -38,7 +38,8 @@ func _ready() -> void:
 	#active_starboard(true)
 	#active_port(true)
 	set_faction_texture()
-	
+	ship_pivot.set_flag()
+
 	setup_inventory()
 	
 	equipment.equipment_changed.connect(func(_side): setup_cannons())
@@ -303,7 +304,7 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_W:
 			target_speed = clamp(target_speed + 1.0, -1.0, top_speed)
 		if event.keycode == KEY_S:
-			target_speed = clamp(target_speed - 1.0, -1.0, top_speed)
+			target_speed = clamp(target_speed - 1.0, - (top_speed / 2.0), top_speed)
 		if event.keycode == KEY_G:
 			toggle_cannons_trajectory()
 		if event.keycode == KEY_END:

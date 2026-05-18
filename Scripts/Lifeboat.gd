@@ -61,7 +61,7 @@ func _on_kill_pressed(player_ship: PlayerShip):
 			message += "Crew was slaughtered and you gained gold: " + str(_gold)
 		else:
 			var item_def = Item_Database.get_random_item_def()
-			var item = InventoryItem.new(item_def.id, randi_range(0, item_def.max_stack))
+			var item = InventoryItem.new(item_def.id, randi_range(1, item_def.max_stack))
 			player_ship.gameManager.spawn_item_in_world(item, global_position)
 			message += "Crew was slaughtered and you recovered an item: " + item_def.item_name
 	else:

@@ -109,6 +109,7 @@ func update_ship_panel(_ship: Ship):
 	portrait_texture_rect.texture = _ship.portrait
 	var flag_texture = FactionsData.get_flag(_ship.nation, _ship.faction)
 	flag_texture_rect.texture = flag_texture
+	flag_texture_rect.self_modulate = FactionsData.get_nation_color(_ship.nation)
 
 	var ship_name = ""
 	
