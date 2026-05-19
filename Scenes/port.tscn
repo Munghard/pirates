@@ -77,6 +77,7 @@ resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("8_wkjrd")
 shader_parameter/flag_texture = ExtResource("9_ri7tc")
+shader_parameter/flag_color = Color(0, 0, 0, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_ix0p7"]
 resource_local_to_scene = true

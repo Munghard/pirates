@@ -34,6 +34,7 @@ func load_game(gameManager: GameManager):
 
 	var player_ship = gameManager.player_ship
 
+	load_ship_stats(gameManager.player_ship, player_data)
 
 	player_ship.inventory = load_inventory(
 		player_ship,
@@ -52,8 +53,7 @@ func load_game(gameManager: GameManager):
 
 	gameManager.player_ship = player_ship
 
-	load_ship_stats(gameManager.player_ship, player_data)
-
+	
 	var ports_data := Port_Data.from_dict_array(data.get("ports", []))
 	gameManager.world.spawn_ports_from_data(ports_data)
 	
@@ -69,7 +69,7 @@ func load_game(gameManager: GameManager):
 	loaded.emit()
 
 func load_inventory(player_ship: PlayerShip, _world, data: Array) -> Inventory:
-	var inventory := Inventory.new(player_ship, _world, 16, "Player")
+	var inventory := Inventory.new(player_ship, _world, 16, player_ship.ship_name)
 
 	inventory.items.clear()
 	for item_data in data:

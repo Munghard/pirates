@@ -3,7 +3,7 @@
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_svf8u"]
 [ext_resource type="Script" uid="uid://c5a6q0c5je45f" path="res://Scripts/game_menu.gd" id="2_2qedo"]
 
-[node name="game_menu" type="Control" unique_id=1421243510]
+[node name="game_menu" type="Control" unique_id=1421243510 node_paths=PackedStringArray("spinbox", "line_edit")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,6 +12,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_svf8u")
 script = ExtResource("2_2qedo")
+spinbox = NodePath("PanelContainer/MarginContainer/VBoxContainer/VBoxContainer/SpinBox")
+line_edit = NodePath("PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2/LineEdit")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=401820627]
 layout_mode = 1
@@ -39,8 +41,30 @@ theme_type_variation = &"panel_secondary"
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PanelContainer" unique_id=913432107]
 layout_mode = 2
+theme_type_variation = &"HeaderLarge"
 text = "Pirates"
 horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=518023327]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=494699983]
+layout_mode = 2
+text = "Seed"
+
+[node name="SpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1239682481]
+layout_mode = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1234555446]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2" unique_id=1814678370]
+layout_mode = 2
+text = "Player name"
+
+[node name="LineEdit" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/VBoxContainer2" unique_id=1408644639]
+layout_mode = 2
+text = "Player"
 
 [node name="Button_new_game" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=213883082]
 layout_mode = 2

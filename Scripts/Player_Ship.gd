@@ -8,7 +8,7 @@ var real_faction: FactionsData.Faction
 @onready var fanfare = preload("res://Audio/fanfare.mp3")
 
 func _ready() -> void:
-	ship_name = "Player"
+	ship_name = GameState.player_name
 	real_faction = FactionsData.Faction.PIRATE
 	faction = FactionsData.Faction.PIRATE
 	var faction_stats = FactionsData.get_faction_stats(faction)
@@ -52,7 +52,7 @@ func _ready() -> void:
 	portrait = FactionsData.portraits[6]
 	
 func setup_inventory():
-	inventory = Inventory.new(self , gameManager, 16, "Player cargo")
+	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
 	
 	await get_tree().process_frame
 	# ensure HUD exists before connecting
@@ -259,7 +259,7 @@ func sink():
 	gameManager.hud.new_notification("The ocean keeps what it takes...")
 	await get_tree().create_timer(5.0).timeout
 	
-	gameManager.new_game()
+	gameManager.new_game(gameManager.game_seed, ship_name)
 	
 
 func upgrade_guns():
@@ -276,6 +276,10 @@ var last_territory_check := 0.0
 var territory_check_interval := 2.0
 
 func check_territory(delta: float):
+	var fow_radius = 5.0
+	if inventory.has_item("spyglass", 1):
+		fow_radius = 10.0
+	gameManager.hud.map.fog_of_war.reveal_area(Vector2(global_position.x, global_position.z), fow_radius)
 	last_territory_check -= delta
 	if last_territory_check > 0.0:
 		return

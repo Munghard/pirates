@@ -1,6 +1,7 @@
 extends Node3D
 class_name Camera
 
+@export var player_ship: PlayerShip
 @export var target: Node3D
 @export var secondary_target: Node3D
 @onready var camera := $Camera3D
@@ -22,6 +23,7 @@ var current_size_index := 0
 var zoom := 0.0
 var debug_mode = false
 
+
 func _ready():
 	zoom = camera.size
 
@@ -32,6 +34,7 @@ func get_max_distance() -> float:
 
 func _process(delta: float) -> void:
 	var move := Vector3.ZERO
+	var movement_offset = Vector3.ZERO
 
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		is_dragging = true
@@ -58,7 +61,22 @@ func _process(delta: float) -> void:
 			else:
 				target_position = target.global_position
 
-	global_position = global_position.lerp(target_position, delta * 5.0)
+	
+				var forward_mag = player_ship.target_speed * 3.0
+				var side_mag = player_ship.side_to_side_speed * 6.0
+
+				forward_mag = clamp(forward_mag, -8.0, 8.0)
+				side_mag = clamp(side_mag, -5.0, 5.0)
+
+				var forward_dir = player_ship.basis.z
+				var side_dir = player_ship.basis.x
+
+				movement_offset = forward_dir * forward_mag + side_dir * side_mag
+
+	
+	var desired_position = target_position + movement_offset
+	
+	global_position = global_position.lerp(desired_position, delta * 5.0)
 
 	#var distance_to_target := global_position.distance_to(target_position)
 	#var auto_zoom = distance_to_target * 0.5

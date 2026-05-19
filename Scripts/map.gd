@@ -3,11 +3,17 @@ extends Control
 class_name Map
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
+@export_category("Nodes")
 @onready var map_control: Control = $MarginContainer/Control
 @onready var map: TextureRect = $MarginContainer/Control/TextureRect
 @onready var map_terrain: TextureRect = $MarginContainer/Control/TextureRect2
 @onready var territory_draw: Control = $MarginContainer/Control/Territory
 
+@export_category("FOW")
+@onready var fog_of_war: Fog_Of_War = $MarginContainer/Control/Fog_of_war
+
+
+@export_category("Scenes")
 @onready var marker_scene: PackedScene = preload("res://UI/map_marker.tscn")
 @onready var blip_scene: PackedScene = preload("res://UI/blip.tscn")
 @onready var blip_a_scene: PackedScene = preload("res://UI/blip_a.tscn")

@@ -19,7 +19,7 @@ class_name HUD
 @export var notification_label: Label
 @export var fps_label: Label
 
-@export var map: Control
+@export var map: Map
 @export var game_menu: Control
 
 @export var equipment_panel: Control

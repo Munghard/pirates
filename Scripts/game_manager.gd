@@ -19,14 +19,13 @@ var territory_draw: Control
 var selected_ship: Ship
 
 var world_item: PackedScene = preload("res://Scenes/loot.tscn")
+var game_seed := 0
 
 func _enter_tree() -> void:
 	# set world seed
-	seed(_seed)
+	seed(GameState.game_seed)
 
 func _ready() -> void:
-	print(randi())
-
 	world = $SubViewportContainer/SubViewport/World
 	player_ship = $SubViewportContainer/SubViewport/World/PlayerShip
 	hud = $MarginContainer/HUD
@@ -48,6 +47,9 @@ func _ready() -> void:
 	assert(save_manager != null, "save_manager is null in gamemanager start")
 	assert(territory != null, "territory is null in gamemanager start")
 	assert(territory_draw != null, "territory_draw is null in gamemanager start")
+	
+	player_ship.ship_name = GameState.player_name
+
 	hud.init_hud()
 	debugMenu.init_debugMenu()
 	hud.toggle_map()
@@ -60,6 +62,16 @@ func _ready() -> void:
 	await get_tree().process_frame
 	save_manager.load_game(self )
 	self.process_mode = ProcessMode.PROCESS_MODE_ALWAYS
+
+func check_win_condition():
+	var player_faction = player_ship.faction
+	var influence = territory.get_faction_influence(player_faction)
+	if influence == 1.0:
+		game_finished()
+
+func game_finished():
+	print("GAME COMPLETED, MASTER OF THE SEAS")
+
 
 func start_auto_save_game():
 	while true:
@@ -83,11 +95,17 @@ func select_ship(ship: Ship):
 		if selected_ship.navigation_markers: selected_ship.navigation_markers.visible = true
 		if selected_ship.world_bars: selected_ship.world_bars.visible = true
 
+
 func toggle_debug_menu():
 	debugMenu.visible = !debugMenu.visible
 
-func new_game():
+
+func new_game(new_seed: int, player_name: String):
 	save_manager.delete_save()
+
+	GameState.game_seed = new_seed
+	GameState.player_name = player_name
+
 	get_tree().reload_current_scene()
 
 

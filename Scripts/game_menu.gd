@@ -2,8 +2,11 @@ extends Control
 
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
+@export var spinbox: SpinBox
+@export var line_edit: LineEdit
+
 func new_game():
-	gameManager.new_game()
+	gameManager.new_game(int(spinbox.value), line_edit.text)
 
 func delete_savefile():
 	gameManager.save_manager.delete_save()

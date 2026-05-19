@@ -20,11 +20,11 @@
 [ext_resource type="PackedScene" uid="uid://bmpnpyq6xlodj" path="res://UI/debug_menu.tscn" id="8_1vso6"]
 [ext_resource type="Script" uid="uid://ckymdnssopogk" path="res://Scripts/water.gd" id="8_7yui6"]
 [ext_resource type="Script" uid="uid://6rlvxosq38dp" path="res://Scripts/scatter_data.gd" id="9_l33cg"]
-[ext_resource type="ArrayMesh" uid="uid://dnc60ubb80fs1" path="res://Models/Meshes/palm.res" id="10_36g3o"]
-[ext_resource type="ArrayMesh" uid="uid://dp6wtdpqw72xi" path="res://Models/Meshes/rock1.res" id="11_vhf2b"]
+[ext_resource type="ArrayMesh" uid="uid://dmn28fei7vfxn" path="res://Models/Meshes/palm.res" id="10_36g3o"]
+[ext_resource type="ArrayMesh" uid="uid://cxp1um1dd3gby" path="res://Models/Meshes/rock1.res" id="11_vhf2b"]
 [ext_resource type="Material" uid="uid://bhgu8dhy06683" path="res://Materials/terrain.tres" id="11_xbk3s"]
-[ext_resource type="ArrayMesh" uid="uid://daj1emmo483q" path="res://Models/Meshes/rock2.res" id="12_g44x5"]
-[ext_resource type="ArrayMesh" uid="uid://bfijsj4sh31mq" path="res://Models/Meshes/rock3.res" id="13_kwnki"]
+[ext_resource type="ArrayMesh" uid="uid://dwxu31rtffe4p" path="res://Models/Meshes/rock2.res" id="12_g44x5"]
+[ext_resource type="ArrayMesh" uid="uid://cuvdiaabpkmku" path="res://Models/Meshes/rock3.res" id="13_kwnki"]
 [ext_resource type="PackedScene" uid="uid://c4w0h65nmvokw" path="res://Scenes/maelstrom.tscn" id="14_e0ngr"]
 [ext_resource type="Script" uid="uid://bc45pgfucydy7" path="res://Scripts/chunk_manager.gd" id="14_vhf2b"]
 [ext_resource type="PackedScene" uid="uid://2lfnk45q46j3" path="res://Scenes/buoyu.tscn" id="15_hgpy0"]
@@ -53,6 +53,7 @@
 [ext_resource type="PackedScene" uid="uid://kt4nc6536x0r" path="res://UI/equipment_panel.tscn" id="41_jwdyn"]
 [ext_resource type="PackedScene" uid="uid://b4klp5rpp5gsl" path="res://UI/game_menu.tscn" id="44_xcb5n"]
 [ext_resource type="Script" uid="uid://chwiih1pumcge" path="res://Scripts/save_manager.gd" id="46_6mm6r"]
+[ext_resource type="Script" uid="uid://em6x31w1mca1" path="res://Scripts/fog_of_war.gd" id="46_36g3o"]
 [ext_resource type="Script" uid="uid://ccadfi1dq6umf" path="res://Scripts/Factions/territory.gd" id="46_te07t"]
 
 [sub_resource type="Gradient" id="Gradient_r0ikl"]
@@ -185,16 +186,16 @@ albedo_texture = ExtResource("27_r0ikl")
 material = SubResource("StandardMaterial3D_p5wkl")
 flip_faces = true
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_gwaj6"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vhf2b"]
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("29_al5m0")
 shader_parameter/flag_texture = ExtResource("30_6mm6r")
 shader_parameter/flag_color = Color(0, 0, 0, 1)
 
-[sub_resource type="QuadMesh" id="QuadMesh_36g3o"]
+[sub_resource type="QuadMesh" id="QuadMesh_g44x5"]
 resource_local_to_scene = true
-material = SubResource("ShaderMaterial_gwaj6")
+material = SubResource("ShaderMaterial_vhf2b")
 size = Vector2(0.75, 0.5)
 subdivide_width = 10
 center_offset = Vector3(0.375, 0, 0)
@@ -429,14 +430,15 @@ ship = NodePath("..")
 ship = NodePath("../..")
 
 [node name="flag" parent="SubViewportContainer/SubViewport/World/PlayerShip/ship_pivot/flag_pole" parent_id_path=PackedInt32Array(7143519, 37573427) index="0" unique_id=427128270]
-mesh = SubResource("QuadMesh_36g3o")
+mesh = SubResource("QuadMesh_g44x5")
 
 [node name="floater" parent="SubViewportContainer/SubViewport/World/PlayerShip" index="2" unique_id=741225022 node_paths=PackedStringArray("water")]
 water = NodePath("../../Water")
 
-[node name="camera_rig" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=596184847 node_paths=PackedStringArray("target")]
+[node name="camera_rig" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=596184847 node_paths=PackedStringArray("player_ship", "target")]
 transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 0, 0, 0)
 script = ExtResource("2_5ukr8")
+player_ship = NodePath("../World/PlayerShip")
 target = NodePath("../World/PlayerShip")
 
 [node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/camera_rig" unique_id=389494367]
@@ -643,6 +645,18 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("40_b4e6k")
 territory = NodePath("../../../../../../Territory")
+
+[node name="Fog_of_war" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=1977543642]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset_ratio = Vector2(0.5, 0.5)
+mouse_filter = 2
+script = ExtResource("46_36g3o")
+fog_cell_size = 5.0
 
 [node name="wind_gauge" type="TextureRect" parent="MarginContainer/HUD" unique_id=1041010364]
 layout_mode = 1

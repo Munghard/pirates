@@ -55,6 +55,7 @@ func create_grid_territories(ports: Array[Port]):
 				await get_tree().process_frame
 
 	ownership_changed.emit()
+	gameManager.check_win_condition()
 
 func get_random_point_in_territory(faction: FactionsData.Faction) -> Vector2:
 	var cells = faction_cells.get(faction, [])
