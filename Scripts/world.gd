@@ -163,7 +163,7 @@ func place_player(_ports: Array[Port]):
 	var angle_deg = rad_to_deg(angle_rad)
 	gameManager.player_ship.global_position = water_pos
 	gameManager.player_ship.rotation.y = angle_rad
-	gameManager.player_ship.yaw_deg = angle_deg
+	gameManager.player_ship.desired_heading = angle_deg
 
 
 func spawn_ports_from_data(data: Array[Port_Data]):

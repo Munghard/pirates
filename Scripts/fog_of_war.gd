@@ -21,6 +21,9 @@ func _ready():
 	
 	create_grid()
 
+func set_grid(_grid: Array):
+	fog_grid = _grid
+	grid_changed.emit(fog_grid)
 
 func test_open():
 	reveal_area(Vector2(250, 250), 50)
@@ -38,7 +41,7 @@ func update_image(_fog_grid: Array):
 			var col = Color.BLACK
 			if cell == UNKNOWN:
 				col = Color.BLACK
-				col.a = 0.5
+				#col.a = 1.5
 			elif cell == EXPLORED:
 				col = Color.TRANSPARENT
 			img.set_pixel(grid_size.x - 1 - x, grid_size.y - 1 - y, col)

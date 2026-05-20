@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://bqiuq517iffer"]
+
+[ext_resource type="Texture2D" uid="uid://ci7xkusj2u2wt" path="res://Textures/stone-crafting.png" id="1_mygvu"]
+[ext_resource type="Script" uid="uid://dypbxcvt08xlx" path="res://Scripts/mine.gd" id="1_o84ae"]
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="2_o84ae"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_o84ae"]
+viewport_path = NodePath("world_bars/SubViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y4ev7"]
+resource_local_to_scene = true
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+shading_mode = 0
+albedo_texture = SubResource("ViewportTexture_o84ae")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_67vfl"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_y4ev7")
+size = Vector2(5, 5)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_5v03d"]
+radius = 5.0
+
+[node name="mine" type="Node3D" unique_id=1572714849 node_paths=PackedStringArray("pb")]
+script = ExtResource("1_o84ae")
+pb = NodePath("world_bars/SubViewport/Control/VBoxContainer/pb_recovery")
+
+[node name="world_bars" type="Node3D" parent="." unique_id=1446492284]
+
+[node name="SubViewport" type="SubViewport" parent="world_bars" unique_id=16075736]
+disable_3d = true
+transparent_bg = true
+size = Vector2i(200, 200)
+
+[node name="Control" type="VBoxContainer" parent="world_bars/SubViewport" unique_id=27787931]
+custom_minimum_size = Vector2(200, 200)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -150.5
+offset_right = 100.0
+offset_bottom = 150.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
+pivot_offset_ratio = Vector2(0.5, 0.5)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="faction_icon" type="TextureRect" parent="world_bars/SubViewport/Control" unique_id=708740894]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("1_mygvu")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="star_container" type="HBoxContainer" parent="world_bars/SubViewport/Control" unique_id=1891442866]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="world_bars/SubViewport/Control" unique_id=1272665272]
+layout_mode = 2
+size_flags_stretch_ratio = 6.11
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="pb_recovery" type="ProgressBar" parent="world_bars/SubViewport/Control/VBoxContainer" unique_id=1989782862]
+layout_mode = 2
+theme = ExtResource("2_o84ae")
+theme_type_variation = &"recovery_pb"
+value = 15.78
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="world_bars" unique_id=1565056926]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.750824, 0)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_67vfl")
+
+[node name="Area3D" type="Area3D" parent="." unique_id=621262715]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1162313675]
+shape = SubResource("SphereShape3D_5v03d")

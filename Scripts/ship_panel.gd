@@ -74,6 +74,8 @@ func set_player_faction(index, player_ship: PlayerShip):
 	player_ship.change_faction(faction)
 
 func update_ship_panel(_ship: Ship):
+	if not ship or not _ship or not _ship.gameManager or not _ship.gameManager.player_ship:
+		return
 	if _ship == null:
 		label_h.text = "No ship selected"
 		status_label.text = "Select a ship to view its stats"

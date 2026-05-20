@@ -51,6 +51,7 @@ signal port_faction_changed(new_faction: FactionsData.Faction)
 @onready var faction_texture_rect: TextureRect = $world_bars/SubViewport/Control/faction_icon
 @onready var star_container: Control = $world_bars/SubViewport/Control/star_container
 @onready var header_label: Label = $world_bars/SubViewport/Control/VBoxContainer/Label_h
+@onready var status_label: Label = $world_bars/SubViewport/Control/Label_status
 
 @export_group("Patrol")
 @onready var patrol_trigger: Area3D = $patrol_trigger
@@ -148,6 +149,8 @@ func setup_identity(world, port_data: Port_Data):
 	restock()
 	restock_time_left = restock_interval
 	restock_loop()
+
+	can_capture = allegiance.faction == FactionsData.Faction.NONE
 
 func repair(_delta):
 	if not in_combat and hit_points < max_hit_points:
@@ -389,6 +392,8 @@ func _input(event):
 				depart()
 
 func _process(delta):
+	handle_capture(delta)
+	
 	var elapsed_since_damage := Time.get_ticks_msec() - last_damage_time
 	
 
@@ -403,11 +408,11 @@ func _process(delta):
 			player_ship.hit_points += delta * 10.0
 			player_ship.hit_points = min(player_ship.hit_points, player_ship.max_hit_points)
 
-	if crew > 0 and hit_points > 0.0:
+	if crew > 0 and allegiance.faction != FactionsData.Faction.NONE:
 		recovery_progress = clamp(elapsed_since_damage / float(out_of_combat_time), 0.0, 1.0)
 		repair(delta)
 	
-	if hit_points > 0.0 and crew > 0:
+	if hit_points > 0.0 and crew > 0 and get_combat_readiness() > 0.0:
 		handle_targeting(delta)
 		
 
@@ -419,13 +424,91 @@ func _process(delta):
 #var ships_in_docking_radius :Array[Ship]
 var player_ship_in_docking_radius: PlayerShip
 
+var ships_in_area: Array[Ship] = []
+
+func is_contested() -> bool:
+	if ships_in_area.is_empty():
+		return false
+
+	var base_faction = ships_in_area[0].faction
+
+	for ship in ships_in_area:
+		if not is_instance_valid(ship):
+			continue
+
+		if ship.faction != base_faction:
+			return true
+
+	return false
+
+var capture_timer := 0.0
+var capture_time_required := 10.0
+
+func handle_capture(delta: float):
+	if not can_capture:
+		status_label.text = ""
+		return
+
+	if ships_in_area.is_empty():
+		capture_timer = 0.0
+		status_label.text = ""
+		return
+
+	if is_contested():
+		status_label.text = "Contested"
+		capture_timer = 0.0
+		return
+
+	var dominant = get_dominant_faction()
+
+	if dominant == FactionsData.Faction.NONE:
+		capture_timer = 0.0
+		return
+
+	if dominant == allegiance.faction:
+		capture_timer = 0.0
+		return
+
+	capture_timer += delta
+	status_label.text = "Capturing by %s %.1f / %.1f" % [FactionsData.FACTION_NAMES.get(dominant), capture_timer, capture_time_required]
+
+	if capture_timer >= capture_time_required:
+		capture_port(dominant, allegiance.nation)
+		capture_timer = 0.0
+
+func get_dominant_faction() -> FactionsData.Faction:
+	if ships_in_area.is_empty():
+		return FactionsData.Faction.NONE
+
+	var counts := {}
+
+	for ship in ships_in_area:
+		if not is_instance_valid(ship):
+			continue
+
+		var f = ship.faction
+		counts[f] = counts.get(f, 0) + 1
+
+	var dominant_faction := FactionsData.Faction.NONE
+	var highest_count := 0
+
+	for f in counts.keys():
+		if counts[f] > highest_count:
+			highest_count = counts[f]
+			dominant_faction = f
+
+	return dominant_faction
+
 func _on_body_entered(body: Node3D) -> void:
 	if body is PlayerShip:
 		player_ship = body as PlayerShip
 		player_ship_in_docking_radius = player_ship
 		in_docking_radius.emit(true)
-		if can_capture or allegiance.faction == player_ship.faction or allegiance.faction == FactionsData.Faction.NONE:
+		if can_capture or allegiance.faction == player_ship.faction:
 			body.set_dockable_port(self )
+	if body is Ship:
+		var ship = body as Ship
+		ships_in_area.append(ship)
 	elif body is LifeBoat:
 		body.queue_free()
 
@@ -449,6 +532,9 @@ func _on_body_exited(body: Node3D) -> void:
 		docked = false
 		in_docking_radius.emit(false)
 		player_ship = null
+	if body is Ship:
+		var ship = body as Ship
+		ships_in_area.erase(ship)
 		
 
 func get_valid_water_position() -> Vector3:
@@ -485,25 +571,24 @@ func dock():
 	docking_changed.emit(player_ship)
 	player_ship.set_docked(self )
 
-	if allegiance.faction == FactionsData.Faction.NONE or allegiance.faction != player_ship.faction and can_capture:
-		capture_port()
-
 	entered_port()
 
-func capture_port():
-	allegiance.faction = player_ship.faction
-	set_faction_icon(allegiance.faction)
-	allegiance.nation = player_ship.nation
-	set_flag(allegiance.nation, allegiance.faction)
+func capture_port(faction: FactionsData.Faction, nation: FactionsData.Nation):
+	can_capture = false
+	allegiance.set_faction(faction)
+	set_faction_icon(faction)
+	allegiance.nation = nation
+	set_flag(nation, faction)
 	set_world_flag()
-	port_faction_changed.emit(allegiance.faction)
-	faction_texture_rect.texture = FactionsData.get_faction_icon(allegiance.faction)
-	gameManager.hud.new_notification("Captured %s" % port_name)
+	port_faction_changed.emit(faction)
+	faction_texture_rect.texture = FactionsData.get_faction_icon(faction)
+	gameManager.hud.ddd_label("Captured %s" % port_name, global_position)
 	gameManager.territory.create_grid_territories(gameManager.world.ports)
 	# reset cannons on capture
 	cannon_layout_port.cannons_unlocked = 0
 	cannon_layout_port.create_canons(true)
-	gameManager.audioManager.play_sound(preload("res://Audio/fanfare.mp3"), 0.0, -10.0)
+	if faction == gameManager.player_ship.faction:
+		gameManager.audioManager.play_sound(preload("res://Audio/fanfare.mp3"), 0.0, -10.0)
 
 func depart():
 	if ui:
@@ -564,6 +649,27 @@ func open_market():
 		var market_button: Button = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_market")
 		market_button.visible = true
 
+func sell_materials():
+	if not player_ship:
+		return
+
+	while true:
+		var index = player_ship.inventory.get_item_index_of_type(Item_Definition.Type.MATERIAL)
+		if index == -1:
+			break
+
+		var item = player_ship.inventory.items[index]
+		if item == null:
+			continue
+
+		var item_def = Item_Database.get_item_definition(item.id)
+		if item_def == null:
+			continue
+
+		player_ship.gain_gold(item_def.value * item.stack)
+		player_ship.inventory.remove_item_at(index)
+
+
 func update_port_ui():
 	# delete existing ui if any
 	if ui:
@@ -577,7 +683,11 @@ func update_port_ui():
 	ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/DepartButton").pressed.connect(func(): depart())
 	
 	var market_button: Button = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_market")
+	var sell_materials_button: Button = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_sell_materials")
+	
 	market_button.pressed.connect(func(): toggle_inventory())
+	sell_materials_button.pressed.connect(func(): sell_materials())
+	
 	if market_opened:
 		market_button.visible = true
 	else:
@@ -710,6 +820,16 @@ func buy_item(item_index: int):
 		
 		bp.queue_free()
 	)
+
+func get_combat_readiness() -> float:
+	# Simple heuristic: average of health and crew percentage
+	var health_percent = hit_points / max_hit_points
+	var crew_percent = float(crew) / float(max_crew)
+	var has_cannons = cannon_layout_port.cannons_unlocked > 0
+	if not has_cannons:
+		return 0.0 # Not combat ready without cannons or cannonballs
+	return (health_percent + crew_percent) / 2.0
+
 
 func create_upgrade_ui(root: Control, category: String, upgrade_name: String, upgrade_cost: int, function: Callable):
 	# Try to find existing category container

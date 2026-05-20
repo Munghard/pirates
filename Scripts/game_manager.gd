@@ -105,6 +105,7 @@ func new_game(new_seed: int, player_name: String):
 
 	GameState.game_seed = new_seed
 	GameState.player_name = player_name
+	pause_game(false)
 
 	get_tree().reload_current_scene()
 
@@ -140,16 +141,36 @@ func _input(event: InputEvent) -> void:
 func pause_game(pause: bool):
 	get_tree().paused = pause
 
+func respawn_player():
+	var player_ship_scene = preload("res://Scenes/player_ship.tscn")
+	var old_player_ship = player_ship
+	var new_player_ship = player_ship_scene.instantiate()
+	world.add_child(new_player_ship)
+	player_ship = new_player_ship
+	move_player_to_closest_port_of_faction(old_player_ship.faction, old_player_ship)
+	old_player_ship.queue_free()
+	
+
+func move_player_to_closest_port_of_faction(_faction: FactionsData.Faction, player: PlayerShip):
+	var ports = world.ports
+	var friendly_ports = get_ports_by_faction(ports, [_faction])
+	var port = get_closest_port(friendly_ports, player)
+	
+	move_player_to_port(port)
+
 func move_player_to_random_port():
 	var ports = world.ports
-	var port: Port = ports[randi_range(0, ports.size() - 1)]
+	var port: Port = ports.pick_random()
+	move_player_to_port(port)
+
+func move_player_to_port(port: Port):
 	var water_pos = port.get_valid_water_position()
 	var dir = (water_pos - port.global_position).normalized()
 	var angle_rad = atan2(dir.x, dir.z)
 	var angle_deg = rad_to_deg(angle_rad)
 	player_ship.global_position = water_pos
 	player_ship.rotation.y = angle_rad
-	player_ship.yaw_deg = angle_deg
+	player_ship.desired_heading = angle_deg
 
 
 func spawn_ship(_position: Vector3, nation: FactionsData.Nation, faction: FactionsData.Faction) -> EnemyShip:
@@ -188,6 +209,15 @@ static func get_ships_by_faction(ships: Array[Ship], target_factions: Array[Fact
 	for ship in ships:
 		if target_factions.has(ship.faction):
 			result.append(ship)
+
+	return result
+
+static func get_ports_by_faction(ports: Array[Port], target_factions: Array[FactionsData.Faction]) -> Array[Port]:
+	var result: Array[Port] = []
+
+	for port in ports:
+		if target_factions.has(port.allegiance.faction):
+			result.append(port)
 
 	return result
 

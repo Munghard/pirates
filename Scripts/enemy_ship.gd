@@ -51,7 +51,7 @@ signal state_changed(_ai_State: AIState)
 enum AIState {IDLE, ENROUTE, COMBAT, CAPTURED, SUNK, PATROL}
 
 signal combat_state_changed(_combat_State: CombatState)
-enum CombatState {AGRO, PURSUE, FLEE}
+enum CombatState {BROADSIDE, PURSUE, FLEE}
 
 var AIStateNames = {
 	AIState.IDLE: "IDLE",
@@ -62,7 +62,7 @@ var AIStateNames = {
 	AIState.PATROL: "PATROL",
 }
 var CombatStateNames = {
-	CombatState.AGRO: "AGRO",
+	CombatState.BROADSIDE: "BROADSIDE",
 	CombatState.PURSUE: "PURSUE",
 	CombatState.FLEE: "FLEE",
 }
@@ -81,7 +81,7 @@ func _ready() -> void:
 	connect("recieved_damage", Callable(self , "_on_damage_recieved"))
 	connect("on_sink", Callable(self , "_on_ship_sunk"))
 	connect("boarded_changed", Callable(self , "_on_boarded_changed"))
-	
+	connect("combat_state_changed", Callable(self , "_on_combat_state_changed"))
 	set_state(AIState.ENROUTE)
 
 	navigation_markers.visible = false
@@ -148,8 +148,10 @@ func _on_damage_recieved(_damage: float, _attacker: Node3D):
 		set_state(AIState.SUNK)
 
 
-func decide_combat_action(ship: Ship) -> CombatState:
-	if get_combat_readiness() > ship.get_combat_readiness():
+func decide_combat_action(node3D: Node3D) -> CombatState:
+	if not node3D.has_method("get_combat_readiness"):
+		return CombatState.PURSUE
+	if get_combat_readiness() > node3D.get_combat_readiness():
 		return CombatState.PURSUE
 	else:
 		return CombatState.FLEE
@@ -159,16 +161,21 @@ func set_state(_ai_State: AIState):
 	ai_state = _ai_State
 	emit_signal("state_changed", _ai_State)
 
+var previous_combat_state: CombatState
+
 func set_combat_state(_combat_State: CombatState):
-	combat_state = _combat_State
-	emit_signal("combat_state_changed", _combat_State)
+	if previous_combat_state != _combat_State:
+		combat_state = _combat_State
+		previous_combat_state = _combat_State
+		emit_signal("combat_state_changed", _combat_State)
+
 
 func set_full_speed():
 	target_speed = top_speed
 
 func set_random_dir_and_speed():
 	target_speed = randf_range(0, top_speed)
-	yaw_deg = randf_range(0.0, 359.0)
+	desired_heading = randf_range(0.0, 359.0)
 
 func get_avoidance_direction() -> Vector3:
 	var forward = - transform.basis.z
@@ -196,6 +203,16 @@ func get_avoidance_direction() -> Vector3:
 
 	return forward
 
+func _on_combat_state_changed(state: CombatState):
+	if state == CombatState.BROADSIDE:
+		enter_broadside()
+
+
+func enter_broadside():
+	var to_enemy = (attacker.global_position - global_position).normalized()
+	# pick a stable side ONCE
+	broadside_dir = to_enemy.cross(Vector3.UP).normalized()
+
 func _physics_process(_delta: float) -> void:
 	# deactivate process
 	var dist_sq = global_position.distance_squared_to(gameManager.player_ship.global_position)
@@ -218,7 +235,7 @@ func _process(delta):
 	repath_timer -= delta
 	var nav_target = ai_navigation.get_current_target()
 
-	var debug_draw_path = true
+	var debug_draw_path = false
 	if debug_draw_path:
 		if attacker != null:
 			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
@@ -234,7 +251,7 @@ func _process(delta):
 			_update_combat_transitions(dist_to_attacker, delta)
 			
 			match combat_state:
-				CombatState.PURSUE, CombatState.AGRO:
+				CombatState.PURSUE, CombatState.BROADSIDE:
 					ai_navigation.set_target(global_position, attacker.global_position)
 				CombatState.FLEE:
 					# Move away from attacker
@@ -251,25 +268,6 @@ func _process(delta):
 		var target_dir = (nav_target - global_position).normalized()
 		var final_dir = target_dir
 
-		# only apply avoidance when moving
-		# var is_moving_state = false
-		# match ai_state:
-		# 	AIState.ENROUTE:
-		# 		is_moving_state = true
-		# 	AIState.CAPTURED:
-		# 		is_moving_state = false
-		# 	AIState.PATROL:
-		# 		is_moving_state = false
-		# 	AIState.COMBAT:
-		# 		if combat_state == CombatState.PURSUE or combat_state == CombatState.FLEE:
-		# 			is_moving_state = true
-		# if is_moving_state:
-		# 	var avoid_dir = get_avoidance_direction()
-		# 	if debug_draw_path:
-		# 		draw_line_to_target_point(line_avoidance, global_position + (avoid_dir * 5.0), Color.PURPLE)
-		# 	if avoid_dir != Vector3.ZERO:
-		# 		final_dir = (target_dir + avoid_dir * 2.0).normalized()
-
 		var look_at_angle = rad_to_deg(atan2(final_dir.x, final_dir.z))
 		if time > last_perception_time + perception_interval:
 			last_perception_time = time
@@ -277,14 +275,14 @@ func _process(delta):
 		match ai_state:
 			AIState.PATROL:
 				patrol_behaviour(delta)
-				yaw_deg = look_at_angle # Face the waypoint
+				desired_heading = look_at_angle # Face the waypoint
 
 			AIState.ENROUTE:
 				en_route_behaviour(delta)
-				yaw_deg = look_at_angle # Face the waypoint
+				desired_heading = look_at_angle # Face the waypoint
 			
 			AIState.CAPTURED:
-				yaw_deg = look_at_angle # Face the waypoint
+				desired_heading = look_at_angle # Face the waypoint
 				if repath_timer <= 0.0:
 					ai_navigation.set_target(global_position, gameManager.player_ship.global_position)
 					repath_timer = repath_interval
@@ -302,14 +300,18 @@ func _process(delta):
 				match combat_state:
 					CombatState.PURSUE, CombatState.FLEE:
 						target_speed = top_speed
-						yaw_deg = look_at_angle # Face the target/flee point
+						desired_heading = look_at_angle # Face the target/flee point
 					
-					CombatState.AGRO:
+					CombatState.BROADSIDE:
 						target_speed = 0.0
 						# BROADSIDE: Rotate 90 degrees offset from the target 
 						# so the side (port/starboard) faces the enemy
-						yaw_deg = look_at_angle - 90.0
+						#desired_heading = look_at_angle - 90.0
+						enter_broadside()
+						desired_heading = rad_to_deg(atan2(broadside_dir.x, broadside_dir.z))
 						_handle_shooting(attacker.global_position)
+
+var broadside_dir: Vector3 = Vector3.ZERO
 
 func _update_combat_transitions(dist: float, delta: float):
 	if combat_state == CombatState.FLEE:
@@ -320,7 +322,7 @@ func _update_combat_transitions(dist: float, delta: float):
 		return # Stay in flee if we chose it
 
 	if dist < agro_dist:
-		set_combat_state(CombatState.AGRO)
+		set_combat_state(CombatState.BROADSIDE)
 	elif dist > pursue_dist:
 		set_state(AIState.ENROUTE)
 	elif dist > agro_dist + 5.0: # Increased buffer
@@ -328,17 +330,21 @@ func _update_combat_transitions(dist: float, delta: float):
 
 func _handle_shooting(target: Vector3):
 	var dist = global_position.distance_to(target)
-	var dir_to_target = (target - global_position).normalized()
-	var angle_to_target = rad_to_deg(atan2(dir_to_target.x, dir_to_target.z))
 
-	# Calculate difference between current ship rotation and target angle
-	# We check if the PORT side (rotation + 90) is facing the target
-	var diff = wrapf(yaw_deg - 90.0 - angle_to_target, -180, 180)
+	var to_target = (target - global_position).normalized()
 
-	if abs(diff) < 15.0 and inventory.has_item_type(Item_Definition.Type.CANNON, 1):
-		set_canon_pitch(dist / 2.0) # Ensure your Ship class handles pitch units correctly
+	# ship port side direction
+	var port_dir = global_transform.basis.x.normalized()
+
+	# angle between port side and target direction
+	var dot = port_dir.dot(to_target)
+
+	# ~15 degree tolerance
+	if dot > 0.965 and get_combat_readiness() > 0.0:
+		set_canon_pitch(dist / 3.0)
 		shoot_port()
-	
+
+
 var patrol_retargeting := false
 
 func patrol_behaviour(delta: float):
@@ -385,6 +391,7 @@ func en_route_behaviour(delta: float):
 	target_speed = top_speed * max(mp, 0.0)
 
 var pending_waypoint: Vector3
+var last_waypoint_message := 0.0
 
 func _request_waypoint() -> void:
 	var nav_target = ai_navigation.get_current_target()
@@ -392,10 +399,16 @@ func _request_waypoint() -> void:
 
 	# Ignore tiny changes
 	if wp.distance_to(nav_target) < 10.0:
+		requesting_waypoint = false
 		return
 
 	pending_waypoint = wp
-	gameManager.hud.ddd_label("New waypoint acquired", global_position)
+
+	var t = Time.get_ticks_msec() / 2000.0
+
+	if t - last_waypoint_message > 5.0:
+		last_waypoint_message = t
+		gameManager.hud.ddd_label("New waypoint acquired", global_position)
 
 	ai_navigation.set_target(global_position, pending_waypoint)
 
@@ -405,26 +418,85 @@ func _request_waypoint() -> void:
 var target_point_height: float
 
 func perception():
+	var ports = gameManager.world.ports
 	var ships: Array = get_tree().get_nodes_in_group("Ships")
+
 	var ships_in_perception_radius: Array[Ship] = []
+	var ports_in_perception_radius: Array[Port] = []
+
+	# nearby ships
 	for ship: Ship in ships:
-		if (ship.global_position - global_position).length() < perception_radius:
+		if ship == self:
+			continue
+
+		if global_position.distance_to(ship.global_position) < perception_radius:
 			ships_in_perception_radius.append(ship)
 
+	# nearby ports
+	for port in ports:
+		if global_position.distance_to(port.global_position) < perception_radius:
+			ports_in_perception_radius.append(port)
+
 	var enemy_factions := FactionsData.get_enemy_factions(faction)
-	var enemy_ships_in_perception_radius := GameManager.get_ships_by_faction(ships_in_perception_radius, enemy_factions)
-	var closest_ship_in_enemy_faction := GameManager.get_closest_ship(enemy_ships_in_perception_radius, self )
-	if closest_ship_in_enemy_faction:
-		attacker = closest_ship_in_enemy_faction
-		set_state(AIState.COMBAT)
-		set_combat_state(decide_combat_action(attacker))
-		var action_string = ""
-		if combat_state == CombatState.FLEE:
-			action_string = "fleeing"
-		elif combat_state == CombatState.PURSUE:
-			action_string = "pursuing"
-		gameManager.hud.ddd_label("Spotted enemy ship, " + action_string, global_position)
-	
+
+	var enemy_ships := GameManager.get_ships_by_faction(
+		ships_in_perception_radius,
+		enemy_factions
+	)
+
+	var enemy_ports := GameManager.get_ports_by_faction(
+		ports_in_perception_radius,
+		enemy_factions
+	)
+
+	var closest_ship := GameManager.get_closest_ship(enemy_ships, self )
+	var closest_port := GameManager.get_closest_port(enemy_ports, self )
+
+	# prioritize ships
+	if closest_ship:
+		if attacker != closest_ship:
+			attacker = closest_ship
+			set_state(AIState.COMBAT)
+			set_combat_state(decide_combat_action(attacker))
+
+			if combat_state == CombatState.FLEE:
+				gameManager.hud.ddd_label(
+					"Spotted enemy ship, fleeing",
+					global_position,
+					Color.CYAN
+				)
+
+			elif combat_state == CombatState.PURSUE:
+				gameManager.hud.ddd_label(
+					"Spotted enemy ship, pursuing",
+					global_position,
+					Color.ORANGE
+				)
+
+	elif closest_port:
+		if closest_port.allegiance.faction == FactionsData.Faction.NONE:
+			set_combat_state(CombatState.PURSUE)
+			ai_navigation.set_target(global_position, closest_port.global_position)
+			return
+		if attacker != closest_port:
+			attacker = closest_port
+			set_state(AIState.COMBAT)
+			set_combat_state(decide_combat_action(attacker))
+
+			if combat_state == CombatState.FLEE:
+				gameManager.hud.ddd_label(
+					"Spotted enemy port, fleeing",
+					global_position,
+					Color.CYAN
+				)
+
+			elif combat_state == CombatState.PURSUE:
+				gameManager.hud.ddd_label(
+					"Spotted enemy port, pursuing",
+					global_position,
+					Color.ORANGE
+				)
+
 
 func get_new_waypoint() -> Vector3:
 	var max_attempts := 20
@@ -471,7 +543,7 @@ func is_path_clear(from: Vector3, to: Vector3) -> bool:
 
 func set_rotation_to_target_point(_target_point: Vector3):
 	var direction_to_target_point = (_target_point - global_position).normalized()
-	yaw_deg = rad_to_deg(atan2(direction_to_target_point.x, direction_to_target_point.z))
+	desired_heading = rad_to_deg(atan2(direction_to_target_point.x, direction_to_target_point.z))
 
 func _on_ship_sunk():
 	spawn_lifeboat()

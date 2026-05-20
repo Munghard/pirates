@@ -23,6 +23,8 @@ func _ready():
 	create_grid_territories(ports)
 	gameManager.save_manager.loaded.connect(func():
 		var _ports = gameManager.world.ports
+		for port in ports:
+			port.port_faction_changed.connect(func(_faction): create_grid_territories(ports))
 		create_grid_territories(_ports)
 		print("Recreated territories after load")
 		)

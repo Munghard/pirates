@@ -9,7 +9,6 @@ extends PanelContainer
 func _ready():
 	# Wait for the scene tree to ensure game_manager and player_ship are ready
 	await get_tree().process_frame
-	init_equipment_panel(game_manager.player_ship)
 	visible = false
 	
 func init_equipment_panel(player_ship: PlayerShip):

@@ -8,7 +8,7 @@
 [ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="5_31lm0"]
 [ext_resource type="PackedScene" uid="uid://cd5eblhx7bnyo" path="res://Scenes/cannon.tscn" id="6_w7ulp"]
 [ext_resource type="Shader" uid="uid://cv7b3ai4owx81" path="res://Materials/flag.gdshader" id="8_wkjrd"]
-[ext_resource type="Texture2D" uid="uid://dgqc17ogxge8h" path="res://Textures/Flag_of_the_United_Kingdom.png" id="9_ri7tc"]
+[ext_resource type="Texture2D" uid="uid://g2cx1fxau882" path="res://Textures/swallowtail.png" id="9_rxq8t"]
 [ext_resource type="Script" uid="uid://boacqukindhfy" path="res://Scripts/patrol_trigger.gd" id="10_ri7tc"]
 [ext_resource type="Script" uid="uid://dwdsjj1r0ojoa" path="res://Scripts/damage_zone.gd" id="11_rxq8t"]
 
@@ -76,7 +76,7 @@ cap_bottom = false
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("8_wkjrd")
-shader_parameter/flag_texture = ExtResource("9_ri7tc")
+shader_parameter/flag_texture = ExtResource("9_rxq8t")
 shader_parameter/flag_color = Color(0, 0, 0, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_ix0p7"]
@@ -91,6 +91,9 @@ radius = 50.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ix0p7"]
 size = Vector3(4.9835205, 1.762207, 2.0283203)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rxq8t"]
+size = Vector3(6.957901, 2.2497559, 9.161011)
 
 [node name="Port" type="Area3D" unique_id=699995195 node_paths=PackedStringArray("flag_mesh") groups=["Ports"]]
 script = ExtResource("2_pyx3s")
@@ -169,6 +172,12 @@ scale = Vector2(0.5, 0.5)
 pivot_offset_ratio = Vector2(0.5, 0.5)
 size_flags_horizontal = 4
 size_flags_vertical = 4
+
+[node name="Label_status" type="Label" parent="world_bars/SubViewport/Control" unique_id=119872795]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Status"
+horizontal_alignment = 1
 
 [node name="faction_icon" type="TextureRect" parent="world_bars/SubViewport/Control" unique_id=708740894]
 custom_minimum_size = Vector2(128, 128)
@@ -272,13 +281,24 @@ shape = SubResource("SphereShape3D_rxq8t")
 [node name="DamageZone" type="Area3D" parent="." unique_id=1479198015]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7563995, 0.8021269, -3.2247372)
 script = ExtResource("11_rxq8t")
+damage_multiplier = 2.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone" unique_id=2089374820]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3862915, 0.38110352, -0.53674316)
 shape = SubResource("BoxShape3D_ix0p7")
 debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
 
+[node name="DamageZone2" type="Area3D" parent="." unique_id=226472867]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7563995, -0.8389088, -0.3333521)
+script = ExtResource("11_rxq8t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageZone2" unique_id=26376574]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.40865326, 0.1373291, 1.9817505)
+shape = SubResource("BoxShape3D_rxq8t")
+debug_color = Color(0.418846, 0.46246225, 1, 0.41960785)
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]
 [connection signal="body_entered" from="patrol_trigger" to="patrol_trigger" method="_on_body_entered"]
 [connection signal="body_entered" from="DamageZone" to="DamageZone" method="_on_body_entered"]
+[connection signal="body_entered" from="DamageZone2" to="DamageZone2" method="_on_body_entered"]

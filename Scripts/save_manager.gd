@@ -65,6 +65,8 @@ func load_game(gameManager: GameManager):
 	gameManager.world.time.time_of_day = time_data.get("time_of_day", 0.0)
 	gameManager.world.time.day_count = time_data.get("day", 0)
 
+	gameManager.hud.map.fog_of_war.set_grid(load_fog_of_war(data.get("fow", [])))
+
 	print("loaded game")
 	loaded.emit()
 
@@ -130,7 +132,7 @@ func load_player_transform(player_ship: PlayerShip, data: Dictionary):
 		rot.get("z", 0)
 	)
 
-	player_ship.yaw_deg = data.get("yaw_deg", 0)
+	player_ship.desired_heading = data.get("yaw_deg", 0)
 
 func load_ship_stats(player_ship: PlayerShip, data: Dictionary):
 	var t = data.get("stats", {})
@@ -178,7 +180,8 @@ func save_game(gameManager: GameManager):
 		"time": {
 			"time_of_day": gameManager.world.time.time_of_day,
 			"day": gameManager.world.time.day_count
-		}
+		},
+		"fow": save_fog_of_war(gameManager.hud.map.fog_of_war.fog_grid)
 	}
 
 	_write(data)
@@ -196,7 +199,7 @@ func save_player_transform(player_ship: PlayerShip) -> Dictionary:
 			"y": player_ship.global_rotation.y,
 			"z": player_ship.global_rotation.z
 		},
-		"yaw_deg": player_ship.yaw_deg
+		"yaw_deg": player_ship.desired_heading
 	}
 static func save_inventory(inventory: Inventory) -> Array:
 	var items = []
@@ -233,6 +236,12 @@ func save_equipment(equipment: Equipment) -> Dictionary:
 	data["starboard"] = _save_item_list(equipment.starboard)
 
 	return data
+
+func load_fog_of_war(encoded: String) -> Array:
+	return Marshalls.base64_to_variant(encoded)
+
+func save_fog_of_war(grid_fow: Array):
+	return Marshalls.variant_to_base64(grid_fow)
 
 func _save_item_list(items: Array) -> Array:
 	var result = []

@@ -2,21 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://g2cx1fxau882"
-path.s3tc="res://.godot/imported/swallowtail.png-58fa2e8c7550b8402c7a48b2dbf5577e.s3tc.ctex"
+uid="uid://ci7xkusj2u2wt"
+path="res://.godot/imported/stone-crafting.png-72a02a9a1e1a7e50ecf7e6d5ccc43b7a.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/swallowtail.png"
-dest_files=["res://.godot/imported/swallowtail.png-58fa2e8c7550b8402c7a48b2dbf5577e.s3tc.ctex"]
+source_file="res://Textures/stone-crafting.png"
+dest_files=["res://.godot/imported/stone-crafting.png-72a02a9a1e1a7e50ecf7e6d5ccc43b7a.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -24,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -38,4 +37,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1

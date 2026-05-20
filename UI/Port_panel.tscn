@@ -71,6 +71,10 @@ text = "Depart"
 layout_mode = 2
 text = "Market"
 
+[node name="Button_sell_materials" type="Button" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1398370797]
+layout_mode = 2
+text = "Sell all materials"
+
 [node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1559354531]
 layout_mode = 2
 theme = ExtResource("2_fsihh")

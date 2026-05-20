@@ -45,6 +45,12 @@ func create_items():
 	item_database.append(Item_Definition.new("thirtytwo_pounder", 4, 1500, 1, "32 Pounder", "Heavy naval weapon mounted on the ship. Level 4", preload("res://Textures/cannon.png")))
 
 	item_database.append(Item_Definition.new("fishing_rig", 3, 1500, 1, "Fishing rig", "Passively catches fish over time to replenish rations.", preload("res://Textures/fishing.png")))
+	
+	item_database.append(Item_Definition.new("wood", 5, 5, 100, "Wood", "Generic resource.", preload("res://Textures/barrel.png")))
+	
+	item_database.append(Item_Definition.new("ore", 5, 10, 100, "Ore", "Generic resource.", preload("res://Textures/barrel.png")))
+	
+	item_database.append(Item_Definition.new("fiber", 5, 2, 100, "Fiber", "Generic resource.", preload("res://Textures/barrel.png")))
 
 	print("Items created in database: ", item_database.size())
 
@@ -60,6 +66,8 @@ static func get_item_type_color(type: Item_Definition.Type) -> Color:
 			return Color.CYAN
 		Item_Definition.Type.CANNON:
 			return Color.RED
+		Item_Definition.Type.MATERIAL:
+			return Color.BLACK
 		_:
 			return Color.WHITE
 	

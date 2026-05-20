@@ -292,3 +292,14 @@ func remove_item_at(index: int):
 	new_notification("Removed %s %s" % [item.stack, item_def.item_name])
 	items[index] = null
 	inventory_changed.emit(self )
+
+func get_item_index_of_type(type: Item_Definition.Type):
+	for i in range(items.size()):
+		var item = items[i]
+		if item != null:
+			var item_def = Item_Database.get_item_definition(item.id)
+			if not item_def:
+				continue
+			if item_def.type == type:
+				return i
+	return -1

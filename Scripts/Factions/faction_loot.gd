@@ -4,13 +4,18 @@ static var faction_loot = {
 	FactionsData.Faction.NONE: [
 		{"id": "rations", "chance": 1.0, "min": 30, "max": 50},
 		{"id": "rum", "chance": 1.0, "min": 30, "max": 50},
+
+		# combat
+		{"id": "six_pounder", "chance": 0.3, "min": 1, "max": 3},
+		{"id": "cannon_balls", "chance": 1.0, "min": 25, "max": 50},
 	],
 
 	FactionsData.Faction.PIRATE: [
 		{"id": "rations", "chance": 1.0, "min": 30, "max": 50},
 		{"id": "rum", "chance": 1.0, "min": 5, "max": 50},
 		{"id": "cannon_balls", "chance": 1.0, "min": 25, "max": 100},
-
+		# combat
+		{"id": "six_pounder", "chance": 1.0, "min": 1, "max": 6},
 		# optional flavor items
 		{"id": "fishing_rig", "chance": 0.15, "min": 1, "max": 1},
 	],
@@ -23,6 +28,10 @@ static var faction_loot = {
 		{"id": "firearms", "chance": 0.6, "min": 1, "max": 10},
 		{"id": "gold", "chance": 0.5, "min": 1, "max": 10},
 
+		# combat
+		{"id": "six_pounder", "chance": 0.2, "min": 1, "max": 6}, # 20 percent chance for cannons
+		{"id": "cannon_balls", "chance": 0.8, "min": 25, "max": 50}, # 20 percent chance for cannons
+		# flavor
 		{"id": "fishing_rig", "chance": 0.15, "min": 1, "max": 1},
 	],
 
@@ -33,15 +42,22 @@ static var faction_loot = {
 		{"id": "ropes", "chance": 0.7, "min": 1, "max": 25},
 		{"id": "shackles", "chance": 0.8, "min": 5, "max": 25},
 		{"id": "gold", "chance": 1.0, "min": 25, "max": 50},
+		# combat
+		{"id": "twentyfour_pounder", "chance": 1.0, "min": 1, "max": 4}, # 20 percent chance for cannons
+		{"id": "thirtytwo_pounder", "chance": 0.2, "min": 1, "max": 4}, # 20 percent chance for cannons
 	],
 
 	FactionsData.Faction.SLAVER: [
 		{"id": "rations", "chance": 0.8, "min": 30, "max": 50},
-		{"id": "cannon_balls", "chance": 0.5, "min": 1, "max": 10},
 		{"id": "rum", "chance": 0.8, "min": 1, "max": 20},
 		{"id": "ropes", "chance": 0.9, "min": 1, "max": 25},
 		{"id": "shackles", "chance": 1.0, "min": 100, "max": 200},
 		{"id": "gold", "chance": 0.7, "min": 1, "max": 25},
+		
+		#combat
+		{"id": "twelve_pounder", "chance": 0.2, "min": 1, "max": 4}, # 20 percent chance for cannons
+		{"id": "twentyfour_pounder", "chance": 0.5, "min": 1, "max": 4}, # 20 percent chance for cannons
+		{"id": "cannon_balls", "chance": 0.5, "min": 25, "max": 100},
 	],
 
 	FactionsData.Faction.BOUNTYHUNTER: [
@@ -51,6 +67,8 @@ static var faction_loot = {
 		{"id": "ropes", "chance": 0.7, "min": 1, "max": 25},
 		{"id": "shackles", "chance": 1.0, "min": 100, "max": 200},
 		{"id": "gold", "chance": 0.7, "min": 1, "max": 25},
+		{"id": "twentyfour_pounder", "chance": 1.0, "min": 1, "max": 4}, # 20 percent chance for cannons
+		{"id": "thirtytwo_pounder", "chance": 0.2, "min": 1, "max": 4}, # 20 percent chance for cannons
 	],
 
 	FactionsData.Faction.CARTOGRAPHER: [

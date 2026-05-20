@@ -32,7 +32,7 @@ var actual_speed := 0.0
 
 var side_to_side_speed := 0.0
 var target_speed := 0.0
-var yaw_deg := 0.0
+var desired_heading := 0.0
 
 var destroyed := false
 var incapacitated := false
@@ -431,7 +431,7 @@ func world_edge_push(delta: float):
 		var dir_to_center := (center - pos).normalized()
 		
 		# get target yaw (Y rotation)
-		yaw_deg = rad_to_deg(atan2(dir_to_center.x, dir_to_center.y))
+		desired_heading = rad_to_deg(atan2(dir_to_center.x, dir_to_center.y))
 		
 var previous_speed
 var previous_h_speed
@@ -476,7 +476,7 @@ func _physics_process(_delta: float) -> void:
 		elif side_to_side_speed < 0:
 			update_arrow(right_arrow, round(abs(side_to_side_speed)))
 
-	rotation_arrow.global_rotation_degrees = Vector3(0.0, yaw_deg, 0.0)
+	rotation_arrow.global_rotation_degrees = Vector3(0.0, desired_heading, 0.0)
 	#forward_arrow.scale.z = target_speed
 	previous_speed = target_speed
 	previous_h_speed = side_to_side_speed
@@ -496,11 +496,11 @@ func _physics_process(_delta: float) -> void:
 	side_to_side_speed = clamp(side_to_side_speed, -side_limit, side_limit)
 	apply_central_force((right * side_to_side_speed) + (forward * actual_speed) * 5.0)
 	# position += forward * actual_speed * delta
-	# var new_yaw = lerp_angle(rotation.y, deg_to_rad(yaw_deg), delta)
+	# var new_yaw = lerp_angle(rotation.y, deg_to_rad(desired_heading), delta)
 	# rotation = Vector3(0, new_yaw, 0)
 	
 	var current_rotation = global_transform.basis.get_euler().y
-	var target_rotation_rad = deg_to_rad(yaw_deg)
+	var target_rotation_rad = deg_to_rad(desired_heading)
 	var rotation_diff = angle_difference(current_rotation, target_rotation_rad)
 	var t = clamp(abs(rotation_diff) / PI, 0.0, 1.0)
 	rot_arrow.modulate.a = t
@@ -567,14 +567,11 @@ func spawn_loot():
 	inventory.clear()
 
 func get_combat_readiness() -> float:
-	# Simple heuristic: average of health and crew percentage
-	var health_percent = hit_points / max_hit_points
-	var crew_percent = float(crew) / float(max_crew)
 	var has_cannons = inventory.has_item_type(Item_Definition.Type.CANNON, 1)
 	var has_balls = inventory.has_item("cannon_balls", 1)
 	if not has_cannons or not has_balls:
 		return 0.0 # Not combat ready without cannons or cannonballs
-	return (health_percent + crew_percent) / 2.0
+	return (hit_points + crew) / 2.0
 
 func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: Node3D):
 	# gameManager.hud.selected_ship = self

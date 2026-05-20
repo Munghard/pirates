@@ -50,6 +50,7 @@ func _ready() -> void:
 	super._ready()
 	await get_tree().process_frame
 	portrait = FactionsData.portraits[6]
+	gameManager.hud.equipment_panel.init_equipment_panel(self )
 	
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
@@ -259,7 +260,8 @@ func sink():
 	gameManager.hud.new_notification("The ocean keeps what it takes...")
 	await get_tree().create_timer(5.0).timeout
 	
-	gameManager.new_game(gameManager.game_seed, ship_name)
+	gameManager.respawn_player()
+	#gameManager.new_game(gameManager.game_seed, ship_name)
 	
 
 func upgrade_guns():
@@ -269,7 +271,7 @@ func upgrade_guns():
 func emergency_brake():
 	side_to_side_speed = 0.0
 	target_speed = 0.0
-	yaw_deg = rotation_degrees.y
+	desired_heading = rotation_degrees.y
 
 var last_territory_faction := FactionsData.Faction.NONE
 var last_territory_check := 0.0
@@ -326,9 +328,9 @@ func _input(event: InputEvent) -> void:
 			port_pitch(-5)
 			bow_pitch(-5)
 		if event.keycode == KEY_Q:
-			yaw_deg = yaw_deg + 22.5
+			desired_heading = desired_heading + 22.5
 		if event.keycode == KEY_E:
-			yaw_deg = yaw_deg - 22.5
+			desired_heading = desired_heading - 22.5
 		if event.keycode == KEY_X:
 			emergency_brake()
 		if dockable_port != null and event.keycode == KEY_SPACE:

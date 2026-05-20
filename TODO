@@ -8,14 +8,17 @@ CURRENT
 -[o] give health and hitboxes to port cannons, maybe you can purchase cannons to defend your ports
 
 TODO
+-[] max upgrades for speed agility etc
 -[] some items should maybe "sink" with the ship like cannons cannon balls and other stuff that you get too easily otherwise
--[] name your ship
 -[] morale runs out > mutiny. ship becomes an npc ship, player goes to port to acquire new ship?
 -[] add a sea serpent (valheim style)
 -[] save and load enemy ships (maybe not needed)
 -[] thinking about ports kind of like HOMM castles
 
 COMPLETED
+-[x] name your ship
+-[x] need a way to make money without combat, maybe nodes on terrain taht you "mine" like mines and forest
+-[x] saving of the FOW
 -[x] ports could have available patrol ships that replenish with restock, then there could be harder ports to capture with more "guards"
 -[x] need a function for evaluating combat readiness for ai to use in decide combat action
 -[x] maybe ports dont always have markets by default, could be something you buy and unlock
@@ -29,13 +32,15 @@ COMPLETED
 -[x] neat idea, food stat that slowly depletes when you are voyaging, food <= 0, crew starts dying one by one.
 -[x] neat idea, fishing gear accumulates rations over time
 
-neat idea, diving suit consumable item, lets you dive and recover sunken treasure, maybe revealed by treasure maps
+NEAT IDEAS
+hotkeys or quick use slots?
+elements from greek mythology, nordic mythology, other mythology
+make the salt island from the odyssey as a rare spawn with some kind of resource or something
 
-neat idea, you have a stat max_cargo space lets say 500, and cargo space is shared between supplies and gold, so you have to manage looting in a way where you can dump supplies to take on more gold.
-
-neat idea, plug heightmap into bird particle so you get birds where theres land and not everywhere
-
-neat idea, dump items to get more speed and get away from attackers or to catch up with a ship,
+diving suit consumable item, lets you dive and recover sunken treasure, maybe revealed by treasure maps
+you have a stat max_cargo space lets say 500, and cargo space is shared between supplies and gold, so you have to manage looting in a way where you can dump supplies to take on more gold.
+plug heightmap into bird particle so you get birds where theres land and not everywhere
+dump items to get more speed and get away from attackers or to catch up with a ship,
 
 TRY WEB BUILD TO SEE HOW IT WORKS
 RESEARCH WEB MULTIPLAYER

@@ -1,11 +1,11 @@
 extends Node3D
 class_name Camera
 
-@export var player_ship: PlayerShip
-@export var target: Node3D
+@onready var gameManager: GameManager = get_node("/root/GameManager")
 @export var secondary_target: Node3D
 @onready var camera := $Camera3D
 var target_position: Vector3
+
 
 var return_delay := 2.0
 var return_timer := 0.0
@@ -23,7 +23,7 @@ var current_size_index := 0
 var zoom := 0.0
 var debug_mode = false
 
-
+var movement_offset_smoothed: Vector3
 func _ready():
 	zoom = camera.size
 
@@ -35,6 +35,8 @@ func get_max_distance() -> float:
 func _process(delta: float) -> void:
 	var move := Vector3.ZERO
 	var movement_offset = Vector3.ZERO
+	var target = gameManager.player_ship
+	var player_ship = gameManager.player_ship
 
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		is_dragging = true
@@ -73,8 +75,8 @@ func _process(delta: float) -> void:
 
 				movement_offset = forward_dir * forward_mag + side_dir * side_mag
 
-	
-	var desired_position = target_position + movement_offset
+	movement_offset_smoothed = lerp(movement_offset_smoothed, movement_offset, delta)
+	var desired_position = target_position + movement_offset_smoothed
 	
 	global_position = global_position.lerp(desired_position, delta * 5.0)
 
