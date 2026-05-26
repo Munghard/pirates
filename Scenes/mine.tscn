@@ -22,10 +22,32 @@ resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_y4ev7")
 size = Vector2(5, 5)
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_5v03d"]
-radius = 5.0
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_i7v0m"]
+height = 20.0
+radius = 10.0
 
-[node name="mine" type="Node3D" unique_id=1572714849 node_paths=PackedStringArray("pb")]
+[sub_resource type="Gradient" id="Gradient_o84ae"]
+offsets = PackedFloat32Array(0.47791165, 0.5582329, 0.5742972, 1)
+colors = PackedColorArray(0.45510197, 0.45510197, 0.45510197, 0, 1, 1, 1, 1, 0.11, 0.11, 0.11, 0, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_i7v0m"]
+gradient = SubResource("Gradient_o84ae")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_67vfl"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.16862746)
+albedo_texture = SubResource("GradientTexture2D_i7v0m")
+
+[sub_resource type="QuadMesh" id="QuadMesh_5v03d"]
+material = SubResource("StandardMaterial3D_67vfl")
+size = Vector2(25, 25)
+orientation = 1
+
+[node name="mine" type="Node3D" unique_id=1572714849 node_paths=PackedStringArray("pb") groups=["Mines"]]
 script = ExtResource("1_o84ae")
 pb = NodePath("world_bars/SubViewport/Control/VBoxContainer/pb_recovery")
 
@@ -89,4 +111,7 @@ mesh = SubResource("QuadMesh_67vfl")
 [node name="Area3D" type="Area3D" parent="." unique_id=621262715]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1162313675]
-shape = SubResource("SphereShape3D_5v03d")
+shape = SubResource("CylinderShape3D_i7v0m")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1075597690]
+mesh = SubResource("QuadMesh_5v03d")

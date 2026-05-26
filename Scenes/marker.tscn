@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://j4mqsqm1lwat"]
+
+[ext_resource type="Shader" uid="uid://cxbaolkr41hig" path="res://Materials/gradient_effect.gdshader" id="1_sqlq3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_08wab"]
+render_priority = 0
+shader = ExtResource("1_sqlq3")
+shader_parameter/color = Color(1, 1, 1, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_6eq00"]
+material = SubResource("ShaderMaterial_08wab")
+top_radius = 2.0
+bottom_radius = 2.0
+height = 10.0
+cap_top = false
+cap_bottom = false
+
+[node name="Marker" type="MeshInstance3D" unique_id=1555799363]
+mesh = SubResource("CylinderMesh_6eq00")

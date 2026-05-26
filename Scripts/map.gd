@@ -106,6 +106,14 @@ func update_map(_player_faction, _blip_scene):
 	for child in territory_draw.get_children():
 		child.queue_free()
 	
+	for lh: Node3D in get_tree().get_nodes_in_group("Lighthouses"):
+		var mine_icon = preload("res://Textures/spyglass.png")
+		add_marker_to_map(lh, mine_icon, "Lighthouse", Color.WHITE, marker_scene)
+	
+	for mine: Mine in get_tree().get_nodes_in_group("Mines"):
+		var mine_icon = preload("res://Textures/stone-crafting.png")
+		add_marker_to_map(mine, mine_icon, "Mine", Color.WHITE, marker_scene)
+	
 	for port: Port in gameManager.world.ports:
 		if not port.allegiance:
 			continue

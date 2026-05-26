@@ -36,6 +36,8 @@ window/vsync/vsync_mode=0
 Ships=""
 Floaters=""
 Ports=""
+Mines=""
+Lighthouses=""
 
 [input]
 

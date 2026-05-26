@@ -5,10 +5,12 @@ ONGOING
 -[] end goal (get 100% influence over region)
 
 CURRENT
--[o] give health and hitboxes to port cannons, maybe you can purchase cannons to defend your ports
+-[] max upgrades for speed agility etc
 
 TODO
--[] max upgrades for speed agility etc
+-[] flag items that allow to infiltrate
+-[] ramming iron items
+-[] hull items
 -[] some items should maybe "sink" with the ship like cannons cannon balls and other stuff that you get too easily otherwise
 -[] morale runs out > mutiny. ship becomes an npc ship, player goes to port to acquire new ship?
 -[] add a sea serpent (valheim style)
@@ -16,6 +18,7 @@ TODO
 -[] thinking about ports kind of like HOMM castles
 
 COMPLETED
+-[o] give health and hitboxes to port cannons, maybe you can purchase cannons to defend your ports
 -[x] name your ship
 -[x] need a way to make money without combat, maybe nodes on terrain taht you "mine" like mines and forest
 -[x] saving of the FOW

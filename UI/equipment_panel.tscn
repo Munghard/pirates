@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://br3vm6tkgh8e2" path="res://Textures/Gemini_Generated_Image_10rub010rub010ru.png" id="2_g841r"]
 [ext_resource type="Script" uid="uid://cjl501dckfll" path="res://Scripts/equipment_panel.gd" id="2_sa5vh"]
 
-[node name="Equipment_panel" type="PanelContainer" unique_id=972815911 node_paths=PackedStringArray("bow_slots", "port_slots", "starboard_slots")]
+[node name="Equipment_panel" type="PanelContainer" unique_id=972815911 node_paths=PackedStringArray("bow_slots", "port_slots", "starboard_slots", "option_button_flag")]
 custom_minimum_size = Vector2(300, 0)
 anchors_preset = 8
 anchor_left = 0.5
@@ -24,6 +24,7 @@ script = ExtResource("2_sa5vh")
 bow_slots = [NodePath("MarginContainer/VBoxContainer/TextureRect/bow/OptionButton"), NodePath("MarginContainer/VBoxContainer/TextureRect/bow/OptionButton2"), NodePath("MarginContainer/VBoxContainer/TextureRect/bow/OptionButton3")]
 port_slots = [NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton"), NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton2"), NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton3"), NodePath("MarginContainer/VBoxContainer/TextureRect/port/OptionButton4")]
 starboard_slots = [NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton"), NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton2"), NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton3"), NodePath("MarginContainer/VBoxContainer/TextureRect/starboard/OptionButton4")]
+option_button_flag = NodePath("MarginContainer/VBoxContainer/TextureRect/OptionButton5")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=727620205]
 layout_mode = 2
@@ -144,6 +145,16 @@ popup/item_0/id = 0
 
 [node name="OptionButton4" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect/starboard" unique_id=1546301474]
 layout_mode = 2
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="OptionButton5" type="OptionButton" parent="MarginContainer/VBoxContainer/TextureRect" unique_id=1944273117]
+layout_mode = 0
+offset_left = 104.0
+offset_top = 493.5
+offset_right = 190.0
+offset_bottom = 524.5
 item_count = 1
 popup/item_0/text = "None"
 popup/item_0/id = 0

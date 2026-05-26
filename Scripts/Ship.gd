@@ -407,6 +407,7 @@ func gain_hitpoints(hp: float):
 	emit_signal("hit_points_changed", hit_points)
 
 func sink():
+	sunk = true
 	spawn_loot()
 	queue_free()
 	emit_signal("on_sink")

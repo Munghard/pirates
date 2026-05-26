@@ -8,6 +8,7 @@ extends Node3D
 @export var water: Water
 
 @export var min_spawn_height: float = 5.0
+@export var max_spawn_height: float = 50.0
 @export var spawn_in_water: bool = true
 
 func _ready():
@@ -38,7 +39,7 @@ func scatter(terrain: Terrain):
 			if spawn_in_water:
 				valid = h <= water.water_level_world_space - 5.0
 			else:
-				valid = h >= min_spawn_height
+				valid = h >= min_spawn_height and h < max_spawn_height
 
 			if not valid:
 				continue

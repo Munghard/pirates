@@ -1,6 +1,6 @@
 shader_type spatial;
 
-render_mode unshaded;
+render_mode unshaded,cull_disabled;
 uniform vec4 color:source_color;
 void vertex() {
 	// Called for every vertex the material is visible on.
@@ -8,7 +8,7 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = color.rgb;
-	float blink = (sin(TIME) + 1.0) * 0.5;
+	float blink = (sin(TIME * 10.0) + 1.0) * 0.5;
 	ALPHA = mix(0.0,1.0 * color.a * blink,UV.y);
 }
 

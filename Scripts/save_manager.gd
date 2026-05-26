@@ -41,6 +41,13 @@ func load_game(gameManager: GameManager):
 		gameManager.world,
 		player_data.get("inventory", [])
 	)
+	
+	#load stash
+	var stash_data = data.get("stash", {})
+	gameManager.stash.items.clear()
+	gameManager.stash = create_inventory_from_data(gameManager, "Stash", gameManager.world, stash_data)
+		
+	
 	player_ship.connect_inventory_listeners(player_ship.inventory)
 
 	player_ship.equipment = load_equipment(player_data.get("equipment", {}))
@@ -81,7 +88,7 @@ func load_inventory(player_ship: PlayerShip, _world, data: Array) -> Inventory:
 	return inventory
 
 static func create_inventory_from_data(_owner: Node3D, owner_name: String, _world, data: Array) -> Inventory:
-	var inventory := Inventory.new(_owner, _world, 16, owner_name)
+	var inventory := Inventory.new(_owner, _world, data.size(), owner_name)
 
 	inventory.items.clear()
 	for item_data in data:
@@ -170,6 +177,7 @@ func load_ship_stats(player_ship: PlayerShip, data: Dictionary):
 
 func save_game(gameManager: GameManager):
 	var data = {
+		"stash": save_inventory(gameManager.stash),
 		"player": {
 			"inventory": save_inventory(gameManager.player_ship.inventory),
 			"equipment": save_equipment(gameManager.player_ship.equipment),
@@ -280,7 +288,8 @@ func save_ports(ports: Array[Port]) -> Array:
 			},
 			"inventory": save_inventory(port.inventory),
 			"cannons_unlocked": port.cannon_layout_port.cannons_unlocked,
-			"market_opened": port.market_opened
+			"market_opened": port.market_opened,
+			"restock_time_left": port.restock_time_left
 		})
 
 	return result

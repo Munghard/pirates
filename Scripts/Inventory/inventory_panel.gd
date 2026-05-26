@@ -9,7 +9,7 @@ extends Control
 @onready var button_sort: Button = $MarginContainer/HBoxContainer/Control/HBoxContainer/Button_sort
 
 
-func update_inventory_ui(inventory: Inventory, left_click: Callable, right_click: Callable):
+func update_inventory_ui(inventory: Inventory, left_click: Callable, right_click: Callable, _middle_click: Callable):
 	if not button_compact.pressed.is_connected(inventory.compact):
 		button_compact.pressed.connect(inventory.compact)
 	if not button_sort.pressed.is_connected(inventory.sort):
@@ -42,6 +42,7 @@ func update_inventory_ui(inventory: Inventory, left_click: Callable, right_click
 				#connect signals from ui
 				new_slot.left_click.connect(left_click.bind(i))
 				new_slot.right_click.connect(right_click.bind(i))
+				new_slot.middle_click.connect(_middle_click.bind(i))
 				new_slot.hover.connect(hover.bind(item.id))
 				new_slot.unhover.connect(unhover)
 		else:

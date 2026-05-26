@@ -15,6 +15,7 @@ var ship: Ship
 @export var status_label: Label
 @export var stats_label: Label
 @export var fleet_label: Label
+@export var gold_label: Label
 
 @export var hitpoints_pb: ProgressBar
 @export var crew_pb: ProgressBar
@@ -29,17 +30,16 @@ var ship: Ship
 @export var cannons_panel: Control
 @export var fleet_panel: Control
 
-@export var option_button: OptionButton
 
 func _ready() -> void:
 	tab_bar.tab_clicked.connect(_on_tab_pressed)
 	set_active_tab(0)
-	for faction in FactionsData.Faction.values():
-		option_button.add_item(FactionsData.FACTION_NAMES[faction], faction)
 
+	
 func set_ship(_ship: Ship):
 	ship = _ship
 	if _ship: set_faction_icon(FactionsData.get_faction_icon(_ship.faction))
+	
 
 func set_faction_icon(faction_texture: Texture2D):
 	faction_texture_rect.texture = faction_texture
@@ -69,9 +69,6 @@ func _on_release_pressed(_ship: Ship):
 		_ship.boarded_by.unboard_ship(_ship)
 		print("unboard")
 
-func set_player_faction(index, player_ship: PlayerShip):
-	var faction = option_button.get_item_id(index)
-	player_ship.change_faction(faction)
 
 func update_ship_panel(_ship: Ship):
 	if not ship or not _ship or not _ship.gameManager or not _ship.gameManager.player_ship:
@@ -88,7 +85,7 @@ func update_ship_panel(_ship: Ship):
 		flag_texture_rect.visible = false
 		portrait_texture_rect.visible = false
 		faction_texture_rect.visible = false
-		option_button.visible = false
+		gold_label.visible = false
 		return
 	else:
 		label_f.visible = true
@@ -100,12 +97,15 @@ func update_ship_panel(_ship: Ship):
 		flag_texture_rect.visible = true
 		portrait_texture_rect.visible = true
 		faction_texture_rect.visible = true
-		option_button.visible = true
+		gold_label.visible = true
 
 	if _ship != _ship.gameManager.player_ship:
+		gold_label.text = "Gold: ???"
 		_release_callable = Callable(_on_release_pressed).bind(_ship)
 		if not release_button.pressed.is_connected(_release_callable):
 			release_button.pressed.connect(_release_callable)
+	else:
+		gold_label.text = "Gold: %s$" % [_ship.gold]
 
 	release_button.visible = _ship.boarded_by != null
 	portrait_texture_rect.texture = _ship.portrait
@@ -122,21 +122,15 @@ func update_ship_panel(_ship: Ship):
 	var color = FactionsData.get_faction_color(_ship.faction)
 	label_f.self_modulate = color
 
+	
 	var ai_text = ""
 	if _ship is EnemyShip:
-		option_button.visible = false
 		ai_text = "State: %s" % (_ship as EnemyShip).AIStateNames[(_ship as EnemyShip).ai_state]
 		if (_ship.ai_state == EnemyShip.AIState.COMBAT):
 			ai_text += "\nSubState: %s" % (_ship as EnemyShip).CombatStateNames[(_ship as EnemyShip).combat_state]
 		ai_text += "\nIn combat: %.s" % [str(_ship.in_combat)]
 		if _ship.attacker and _ship.attacker is Ship: ai_text += "\nTarget: %.s" % [str(_ship.attacker.ship_name)]
-	elif _ship is PlayerShip:
-		option_button.visible = true
 
-		option_button.selected = int(_ship.faction)
-
-		if not option_button.item_selected.is_connected(set_player_faction.bind(_ship)):
-			option_button.item_selected.connect(set_player_faction.bind(_ship))
 
 	var stats_text = ""
 	var status_text = ""

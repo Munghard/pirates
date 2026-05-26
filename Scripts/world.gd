@@ -246,7 +246,7 @@ func spawn_ports(_heightmap: Texture2D):
 		var crew = max_crew
 
 
-		port.setup_identity(self , Port_Data.new(faction, nation, port_name, max_hit_points, hit_points, max_crew, crew, pos, inventory_saved, cannons_unlocked, market_opened))
+		port.setup_identity(self , Port_Data.new(faction, nation, port_name, max_hit_points, hit_points, max_crew, crew, pos, inventory_saved, cannons_unlocked, market_opened, port.restock_interval))
 		
 		spawned_count += 1
 		ports.append(port)

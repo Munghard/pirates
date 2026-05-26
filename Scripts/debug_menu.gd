@@ -45,11 +45,18 @@ func evaluate_console(text: String):
 	var parts = text.split(" ")
 	match parts[0]:
 		"give":
-			if parts.size() == 3:
+			if parts.size() >= 2:
 				var item_id = parts[1]
-				var amount = int(parts[2])
-				gameManager.player_ship.inventory.add_item(InventoryItem.new(item_id, amount))
 
+				var amount = 1
+				if parts.size() >= 3:
+					amount = int(parts[2])
+				else:
+					amount = Item_Database.get_item_definition(item_id).max_stack
+
+				gameManager.player_ship.inventory.add_item(
+					InventoryItem.new(item_id, amount)
+				)
 	print(text)
 	console.clear()
 

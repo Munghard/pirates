@@ -15,11 +15,19 @@ var debugMenu: DebugMenu
 var save_manager: SaveManager
 var territory: Territory
 var territory_draw: Control
+var sub_viewport_container: SubViewportContainer
+
+var wiki: Wiki
 
 var selected_ship: Ship
 
+var spectator: Spectator
+var spectator_mode := false
+
 var world_item: PackedScene = preload("res://Scenes/loot.tscn")
 var game_seed := 0
+
+var stash: Inventory
 
 func _enter_tree() -> void:
 	# set world seed
@@ -36,6 +44,10 @@ func _ready() -> void:
 	save_manager = $SaveManager
 	territory = $Territory
 	territory_draw = hud.map.territory_draw
+	spectator = $Spectator
+	sub_viewport_container = $SubViewportContainer
+	wiki = Wiki.new()
+	stash = Inventory.new(self , world, 32, "Stash")
 
 	assert(world != null, "world is null in gamemanager start")
 	assert(player_ship != null, "player_ship is null in gamemanager start")
@@ -47,8 +59,18 @@ func _ready() -> void:
 	assert(save_manager != null, "save_manager is null in gamemanager start")
 	assert(territory != null, "territory is null in gamemanager start")
 	assert(territory_draw != null, "territory_draw is null in gamemanager start")
+	assert(spectator != null, "spectator is null in gamemanager start")
+	assert(sub_viewport_container != null, "sub_viewport_container is null in gamemanager start")
+	assert(wiki != null, "wiki is null in gamemanager start")
+	assert(stash != null, "stash is null in gamemanager start")
 	
 	player_ship.ship_name = GameState.player_name
+
+
+	# load before initializing hud etc.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	save_manager.load_game(self )
 
 	hud.init_hud()
 	debugMenu.init_debugMenu()
@@ -58,10 +80,10 @@ func _ready() -> void:
 	
 	# autoload last game
 	
-	await get_tree().process_frame
-	await get_tree().process_frame
-	save_manager.load_game(self )
 	self.process_mode = ProcessMode.PROCESS_MODE_ALWAYS
+	
+	hud.wiki_ui.create_tree(wiki)
+	
 
 func check_win_condition():
 	var player_faction = player_ship.faction
@@ -123,6 +145,8 @@ func _input(event: InputEvent) -> void:
 			move_player_to_random_port()
 		if event.keycode == KEY_TAB:
 			hud.toggle_player_inventory_panel()
+			if player_ship.docked:
+				hud.open_stash(hud.inventory_panel.visible)
 		if event.keycode == KEY_M:
 			hud.toggle_map()
 		if event.keycode == KEY_CAPSLOCK:
@@ -137,6 +161,29 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_ESCAPE:
 			hud.game_menu.visible = !hud.game_menu.visible
 			pause_game(hud.game_menu.visible)
+		if event.keycode == KEY_H:
+			spectator_mode = !spectator_mode
+			set_spectator_mode(spectator_mode)
+
+
+func set_spectator_mode(mode: bool):
+	if mode:
+		player_ship.process_mode = Node.PROCESS_MODE_DISABLED
+		spectator.process_mode = Node.PROCESS_MODE_ALWAYS
+		camera.clear_current()
+		spectator.make_current()
+		sub_viewport_container.visible = false
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		hud.visible = false
+	else:
+		spectator.process_mode = Node.PROCESS_MODE_DISABLED
+		player_ship.process_mode = Node.PROCESS_MODE_ALWAYS
+		spectator.clear_current()
+		camera.make_current()
+		sub_viewport_container.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		hud.visible = true
+
 
 func pause_game(pause: bool):
 	get_tree().paused = pause

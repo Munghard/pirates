@@ -2,7 +2,7 @@ extends Node
 
 class_name Port_Data
 
-func _init(_faction: FactionsData.Faction, _nation: FactionsData.Nation, _port_name: String, _hit_points: float, _max_hitpoints: float, _max_crew: int, _crew: int, _global_position: Vector3, _inventory: Array, _cannons_unlocked: int, _market_opened: bool):
+func _init(_faction: FactionsData.Faction, _nation: FactionsData.Nation, _port_name: String, _hit_points: float, _max_hitpoints: float, _max_crew: int, _crew: int, _global_position: Vector3, _inventory: Array, _cannons_unlocked: int, _market_opened: bool, _restock_time_left: float):
 	faction = _faction
 	nation = _nation
 	port_name = _port_name
@@ -14,6 +14,7 @@ func _init(_faction: FactionsData.Faction, _nation: FactionsData.Nation, _port_n
 	inventory = _inventory
 	cannons_unlocked = _cannons_unlocked
 	market_opened = _market_opened
+	restock_time_left = _restock_time_left
 
 var port_name: String
 var faction: FactionsData.Faction
@@ -26,7 +27,7 @@ var global_position: Vector3
 var inventory: Array
 var cannons_unlocked: int
 var market_opened: bool
-
+var restock_time_left: float
 
 static func from_dict_array(data_array: Array) -> Array[Port_Data]:
 	var ports: Array[Port_Data] = []
@@ -56,6 +57,7 @@ static func from_dict_(data: Dictionary) -> Port_Data:
 		_position,
 		data.get("inventory", []),
 		_cannons_unlocked,
-		data.get("market_opened", false)
+		data.get("market_opened", false),
+		data.get("restock_time_left", 600.0)
 	)
 	return p

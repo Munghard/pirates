@@ -7,9 +7,6 @@ class_name Camera
 var target_position: Vector3
 
 
-var return_delay := 2.0
-var return_timer := 0.0
-var is_dragging := false
 var max_distance := 25.0
 var pan_multiplier := 1.0
 
@@ -22,8 +19,11 @@ var current_size_index := 0
 
 var zoom := 0.0
 var debug_mode = false
-
+var movement_offset_local := Vector3.ZERO
 var movement_offset_smoothed: Vector3
+var anchor_position := Vector3.ZERO
+var drag_offset := Vector3.ZERO
+
 func _ready():
 	zoom = camera.size
 
@@ -32,52 +32,46 @@ func get_max_distance() -> float:
 		return INF
 	return max_distance * pan_multiplier
 
+func set_secondary_target(node3d: Node3D):
+	secondary_target = node3d
+	clear_offset()
+
+func clear_offset():
+	drag_offset = Vector3.ZERO
+
 func _process(delta: float) -> void:
 	var move := Vector3.ZERO
-	var movement_offset = Vector3.ZERO
+	
 	var target = gameManager.player_ship
 	var player_ship = gameManager.player_ship
+	anchor_position = target.global_position
 
+	if Input.is_key_pressed(KEY_F):
+		clear_offset()
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-		is_dragging = true
-		return_timer = 0.0
-		
 		var mouse_delta = Input.get_last_mouse_velocity()
 		move = Vector3(mouse_delta.x, 0, mouse_delta.y) * delta * 0.05
-		
-		target_position += move
 
-		var offset = target_position - target.global_position
-		offset = offset.limit_length(get_max_distance())
-		target_position = target.global_position + offset
+		drag_offset += move
+		drag_offset = drag_offset.limit_length(get_max_distance())
 	else:
-		if is_dragging:
-			is_dragging = false
-			return_timer = return_delay
-		
-		if return_timer > 0.0:
-			return_timer -= delta
-		elif not debug_mode:
+		if not debug_mode:
 			if secondary_target:
-				target_position = target.global_position.lerp(secondary_target.global_position, 0.5)
+				var secondary_offset = secondary_target.global_position - anchor_position
+				secondary_offset = secondary_offset.limit_length(get_max_distance())
+
+				movement_offset_local = movement_offset_local.lerp(secondary_offset, delta * 2.0)
 			else:
-				target_position = target.global_position
+				var forward_mag = clamp(player_ship.target_speed * 3.0, -8.0, 8.0)
+				var side_mag = clamp(player_ship.side_to_side_speed * 6.0, -5.0, 5.0)
 
+				var local_offset = Vector3(side_mag, 0, forward_mag)
+				movement_offset_local = target.global_transform.basis * local_offset
+				
+
+	movement_offset_smoothed = movement_offset_smoothed.lerp(movement_offset_local, delta * 5.0)
 	
-				var forward_mag = player_ship.target_speed * 3.0
-				var side_mag = player_ship.side_to_side_speed * 6.0
-
-				forward_mag = clamp(forward_mag, -8.0, 8.0)
-				side_mag = clamp(side_mag, -5.0, 5.0)
-
-				var forward_dir = player_ship.basis.z
-				var side_dir = player_ship.basis.x
-
-				movement_offset = forward_dir * forward_mag + side_dir * side_mag
-
-	movement_offset_smoothed = lerp(movement_offset_smoothed, movement_offset, delta)
-	var desired_position = target_position + movement_offset_smoothed
-	
+	var desired_position = anchor_position + drag_offset + movement_offset_smoothed
 	global_position = global_position.lerp(desired_position, delta * 5.0)
 
 	#var distance_to_target := global_position.distance_to(target_position)

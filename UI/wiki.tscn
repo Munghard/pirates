@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://gyty6vdrd72q"]
+
+[ext_resource type="Theme" uid="uid://cpqt6pq7hr8aw" path="res://UI/new_theme.tres" id="1_u624w"]
+[ext_resource type="Script" uid="uid://seirkx8ng65r" path="res://Scripts/wiki_ui.gd" id="2_gdkct"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u624w"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[node name="Wiki" type="PanelContainer" unique_id=62322087 node_paths=PackedStringArray("richtextlabel", "label_h", "tree")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_u624w")
+script = ExtResource("2_gdkct")
+richtextlabel = NodePath("MarginContainer/HBoxContainer/VBoxContainer/RichTextLabel")
+label_h = NodePath("MarginContainer/HBoxContainer/VBoxContainer/Label")
+tree = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/Tree")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=420210001]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1574724080]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1893908006]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer2" unique_id=969653777]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "WIKI"
+
+[node name="Tree" type="Tree" parent="MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1862188877]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_u624w")
+allow_reselect = true
+hide_root = true
+drop_mode_flags = 1
+auto_tooltip = false
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/HBoxContainer" unique_id=1614296712]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1253900310]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1760100361]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Item"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1307029911]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Description"
+fit_content = true

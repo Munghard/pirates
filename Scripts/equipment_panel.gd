@@ -5,18 +5,60 @@ extends PanelContainer
 @export var starboard_slots: Array[OptionButton]
 
 @onready var game_manager: GameManager = get_node("/root/GameManager")
+@export var option_button_flag: OptionButton
 
 func _ready():
 	# Wait for the scene tree to ensure game_manager and player_ship are ready
 	await get_tree().process_frame
 	visible = false
-	
+
+	game_manager.player_ship.inventory.inventory_changed.connect(check_inventory_for_flags)
+	check_inventory_for_flags(game_manager.player_ship.inventory)
+
 func init_equipment_panel(player_ship: PlayerShip):
 	setup_slots(player_ship)
 	if not player_ship.equipment.equipment_changed.is_connected(_on_equipment_changed):
 		player_ship.equipment.equipment_changed.connect(_on_equipment_changed)
 	if not player_ship.inventory.inventory_changed.is_connected(func(_inventory): _on_equipment_changed("side")):
 		player_ship.inventory.inventory_changed.connect(func(_inventory): _on_equipment_changed("side"))
+
+	var selected_index = option_button_flag.get_item_index(player_ship.faction)
+	option_button_flag.selected = selected_index
+
+	if not option_button_flag.item_selected.is_connected(set_player_faction.bind(player_ship)):
+		option_button_flag.item_selected.connect(set_player_faction.bind(player_ship))
+
+func set_player_faction(index, player_ship: PlayerShip):
+	var faction = option_button_flag.get_item_id(index)
+	player_ship.change_faction(faction)
+
+func check_inventory_for_flags(inventory: Inventory):
+	var _factions: Array[FactionsData.Faction] = []
+	
+	if inventory.has_item("flag_pirate", 1):
+		_factions.append(FactionsData.Faction.PIRATE)
+	if inventory.has_item("flag_navy", 1):
+		_factions.append(FactionsData.Faction.NAVY)
+	if inventory.has_item("flag_merchant", 1):
+		_factions.append(FactionsData.Faction.MERCHANT)
+	if inventory.has_item("flag_slaver", 1):
+		_factions.append(FactionsData.Faction.SLAVER)
+	if inventory.has_item("flag_cartographer", 1):
+		_factions.append(FactionsData.Faction.CARTOGRAPHER)
+	if inventory.has_item("flag_bountyhunter", 1):
+		_factions.append(FactionsData.Faction.BOUNTYHUNTER)
+	if inventory.has_item("flag_viking", 1):
+		_factions.append(FactionsData.Faction.VIKING)
+	if inventory.has_item("flag_fisherman", 1):
+		_factions.append(FactionsData.Faction.FISHERMAN)
+		
+	update_faction_select_list(_factions)
+
+func update_faction_select_list(_factions: Array[FactionsData.Faction]):
+	option_button_flag.clear()
+	for faction in _factions:
+		option_button_flag.add_item(FactionsData.FACTION_NAMES[faction], faction)
+
 
 func setup_slots(player_ship: PlayerShip):
 	_setup_side(bow_slots, "bow", player_ship)

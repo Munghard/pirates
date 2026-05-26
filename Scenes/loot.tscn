@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cc8ebj671onbw" path="res://Scripts/loot.gd" id="1_rg653"]
 [ext_resource type="Script" uid="uid://bm52y82qta28s" path="res://Scripts/floater.gd" id="2_dvcho"]
 [ext_resource type="Texture2D" uid="uid://cv5g2wkdkm7vs" path="res://Textures/locked-chest.png" id="3_dvcho"]
-[ext_resource type="Shader" uid="uid://cxbaolkr41hig" path="res://Materials/gradient_effect.gdshader" id="4_lk60n"]
+[ext_resource type="Material" uid="uid://d2lqcbk7jtdvi" path="res://Materials/blinky.tres" id="4_lk60n"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_wse8f"]
 top_radius = 0.1
@@ -33,13 +33,8 @@ resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_h4ol7")
 size = Vector2(5, 5)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_h4ol7"]
-render_priority = 0
-shader = ExtResource("4_lk60n")
-shader_parameter/color = Color(1, 1, 1, 0.16862746)
-
 [sub_resource type="CylinderMesh" id="CylinderMesh_50uj4"]
-material = SubResource("ShaderMaterial_h4ol7")
+material = ExtResource("4_lk60n")
 height = 6.0
 radial_segments = 16
 cap_top = false

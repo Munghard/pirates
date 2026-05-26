@@ -21,6 +21,11 @@ func _init(_world_owner: Node3D, _world: Node3D, _size: int, _inventory_name: St
 	world_owner.add_child(self )
 	world = _world
 
+func move_item(index: int, to_inventory: Inventory):
+	var item = items[index]
+	if to_inventory.add_item(item):
+		remove_item_at(index)
+
 func sort():
 	var new_items: Array[InventoryItem] = []
 

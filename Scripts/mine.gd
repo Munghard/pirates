@@ -49,5 +49,5 @@ func _process(delta):
 	if elapsed >= duration:
 		elapsed = 0.0
 
-		var mined_item = InventoryItem.new(item_id, 1)
+		var mined_item = InventoryItem.new(item_id, 1 * player_ship.mining_efficiency)
 		player_ship.inventory.add_item(mined_item)

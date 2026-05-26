@@ -18,6 +18,8 @@ static var faction_loot = {
 		{"id": "six_pounder", "chance": 1.0, "min": 1, "max": 6},
 		# optional flavor items
 		{"id": "fishing_rig", "chance": 0.15, "min": 1, "max": 1},
+
+		{"id": "flag_pirate", "chance": 1.0, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.MERCHANT: [
@@ -33,6 +35,8 @@ static var faction_loot = {
 		{"id": "cannon_balls", "chance": 0.8, "min": 25, "max": 50}, # 20 percent chance for cannons
 		# flavor
 		{"id": "fishing_rig", "chance": 0.15, "min": 1, "max": 1},
+
+		{"id": "flag_merchant", "chance": 1.0, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.NAVY: [
@@ -45,6 +49,8 @@ static var faction_loot = {
 		# combat
 		{"id": "twentyfour_pounder", "chance": 1.0, "min": 1, "max": 4}, # 20 percent chance for cannons
 		{"id": "thirtytwo_pounder", "chance": 0.2, "min": 1, "max": 4}, # 20 percent chance for cannons
+
+		{"id": "flag_navy", "chance": 1.0, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.SLAVER: [
@@ -58,6 +64,8 @@ static var faction_loot = {
 		{"id": "twelve_pounder", "chance": 0.2, "min": 1, "max": 4}, # 20 percent chance for cannons
 		{"id": "twentyfour_pounder", "chance": 0.5, "min": 1, "max": 4}, # 20 percent chance for cannons
 		{"id": "cannon_balls", "chance": 0.5, "min": 25, "max": 100},
+
+		{"id": "flag_slaver", "chance": 1.0, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.BOUNTYHUNTER: [
@@ -69,6 +77,8 @@ static var faction_loot = {
 		{"id": "gold", "chance": 0.7, "min": 1, "max": 25},
 		{"id": "twentyfour_pounder", "chance": 1.0, "min": 1, "max": 4}, # 20 percent chance for cannons
 		{"id": "thirtytwo_pounder", "chance": 0.2, "min": 1, "max": 4}, # 20 percent chance for cannons
+		
+		{"id": "flag_bountyhunter", "chance": 1.0, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.CARTOGRAPHER: [
@@ -76,6 +86,8 @@ static var faction_loot = {
 		{"id": "maps", "chance": 1.0, "min": 10, "max": 50},
 		{"id": "documents", "chance": 1.0, "min": 10, "max": 50},
 		{"id": "navigation_equipment", "chance": 0.8, "min": 1, "max": 5},
+		
+		{"id": "flag_cartographer", "chance": 1.0, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.VIKING: [
@@ -83,6 +95,10 @@ static var faction_loot = {
 		{"id": "ropes", "chance": 1.0, "min": 5, "max": 50},
 		{"id": "navigation_equipment", "chance": 0.8, "min": 1, "max": 5},
 		{"id": "fishing_gear", "chance": 1.0, "min": 20, "max": 50},
+		{"id": "mining_rig", "chance": 0.2, "min": 1, "max": 1},
+		{"id": "wood", "chance": 0.5, "min": 1, "max": 50},
+
+		{"id": "flag_viking", "chance": 1.0, "min": 1, "max": 1},
 	],
 
 	FactionsData.Faction.FISHERMAN: [
@@ -93,5 +109,8 @@ static var faction_loot = {
 		{"id": "fishing_gear", "chance": 1.0, "min": 20, "max": 50},
 
 		{"id": "fishing_rig", "chance": 0.9, "min": 1, "max": 1},
+		{"id": "harpoon", "chance": 0.3, "min": 1, "max": 10},
+		
+		{"id": "flag_fisherman", "chance": 1.0, "min": 1, "max": 1},
 	],
 }

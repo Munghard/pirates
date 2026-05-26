@@ -147,7 +147,9 @@ func setup_identity(world, port_data: Port_Data):
 	market_opened = port_data.market_opened
 
 	restock()
-	restock_time_left = restock_interval
+	
+	restock_time_left = port_data.restock_time_left
+	
 	restock_loop()
 
 	can_capture = allegiance.faction == FactionsData.Faction.NONE
@@ -226,9 +228,7 @@ func set_faction(_faction: FactionsData.Faction):
 func surrender():
 	can_capture = true
 	set_faction(FactionsData.Faction.NONE)
-	if player_ship_in_docking_radius:
-		player_ship_in_docking_radius.set_dockable_port(self )
-	gameManager.hud.ddd_label("The port has surrendered!\nYou can now capture it by docking.", global_position, Color.GREEN)
+	gameManager.hud.ddd_label("The port has surrendered!\nYou can now capture it.", global_position, Color.GREEN)
 
 func kill_crew(amount: int):
 	if crew <= 0:
@@ -262,6 +262,7 @@ func spawn_patrol_ships():
 
 func toggle_inventory():
 	inventory_panel.visible = !inventory_panel.visible
+
 
 func set_world_flag():
 	#setup flag
@@ -374,7 +375,7 @@ func restock():
 	gold = 0
 	gain_gold(randi_range(100, 500))
 	crew = max_crew
-	crew_to_recruit = randi_range(1, 5)
+	crew_to_recruit = randi_range(1, 20)
 	if market_opened:
 		restock_inventory()
 
@@ -594,6 +595,7 @@ func depart():
 	if ui:
 		ui.queue_free()
 	player_ship.gameManager.hud.set_player_inventory_panel_visible(false)
+	player_ship.gameManager.hud.open_stash(false)
 	docked = false
 	docking_changed.emit(null)
 	left_port()
@@ -679,13 +681,16 @@ func update_port_ui():
 	# add to hud
 	player_ship.gameManager.hud.add_child(ui)
 	player_ship.gameManager.hud.set_player_inventory_panel_visible(true)
+	player_ship.gameManager.hud.open_stash(true)
 	# connect depart button
 	ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/DepartButton").pressed.connect(func(): depart())
 	
 	var market_button: Button = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_market")
+	
 	var sell_materials_button: Button = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Button_sell_materials")
 	
 	market_button.pressed.connect(func(): toggle_inventory())
+	
 	sell_materials_button.pressed.connect(func(): sell_materials())
 	
 	if market_opened:
@@ -707,7 +712,12 @@ func update_port_ui():
 	inventory_panel = ui.get_node("HBoxContainer/Inventory_panel")
 	if not inventory.inventory_changed.is_connected(_on_inventory_changed):
 		inventory.inventory_changed.connect(_on_inventory_changed)
-	inventory_panel.update_inventory_ui(inventory, buy_item, func(_index): pass )
+	inventory_panel.update_inventory_ui(
+		inventory,
+		buy_item,
+		func(_index): pass ,
+		func(_index): pass
+		)
 
 	inventory_panel.visible = market_opened
 
@@ -716,7 +726,7 @@ func update_port_ui():
 	var root = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer")
 	var label_stats: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_stats")
 	
-	label_stats.text = "Port stats:\nLevel: %s\nCrew: %s/%s\nHitpoints: %s/%s\nCannons: %s" % [level, crew, max_crew, hit_points, max_hit_points, cannon_layout_port.cannons_unlocked]
+	label_stats.text = "Port stats:\nLevel: %s\nCrew: %s/%s\nHitpoints: %.1f/%.1f\nCannons: %s" % [level, crew, max_crew, hit_points, max_hit_points, cannon_layout_port.cannons_unlocked]
 
 	var services = VBoxContainer.new()
 
@@ -742,20 +752,24 @@ func update_port_ui():
 	
 	
 	if crew > 0:
-		create_upgrade_ui(services, "CREW", "Hire crew: " + str(crew) + " left", 100, func():
+		create_upgrade_ui(services, "CREW", "Hire crew", 100, func():
 			crew -= 1
 			ps.gain_crew(1)
 		)
-		
+		create_label_ui(services, "CREW", str(crew) + " left")
 	if crew_to_recruit > 0:
-		create_upgrade_ui(services, "CREW", "Recruit crew: " + str(crew_to_recruit) + " left", 0, func():
-			crew_to_recruit -= 1
-			ps.gain_crew(1)
+		create_upgrade_ui(services, "CREW", "Recruit crew", 0, func():
+			var crew_missing = ps.max_crew - ps.crew
+			var amount = min(crew_missing, crew_to_recruit)
+
+			ps.gain_crew(amount)
+			crew_to_recruit -= amount
 		)
+		create_label_ui(services, "CREW", str(crew_to_recruit) + " left")
 	
-	create_upgrade_ui(services, "SHIP", "Upgrade sails", 200, func(): ps.top_speed += 1.0)
-	create_upgrade_ui(services, "SHIP", "Upgrade rudder", 200, func(): ps.agility += 1.0)
-	create_upgrade_ui(services, "SHIP", "Upgrade hull", 200, func(): ps.max_hit_points += 10.0)
+	if ps.top_speed < Constants.MAX_SPEED: create_upgrade_ui(services, "SHIP", "Upgrade sails %.1f + 1.0" % [ps.top_speed], 2000, func(): ps.top_speed += 1.0)
+	if ps.agility < Constants.MAX_AGILITY: create_upgrade_ui(services, "SHIP", "Upgrade rudder %.1f + 1.0" % [ps.agility], 2000, func(): ps.agility += 1.0)
+	if ps.max_hit_points < Constants.MAX_HP: create_upgrade_ui(services, "SHIP", "Upgrade hull %.1f + 1.0" % [ps.max_hit_points], 2000, func(): ps.max_hit_points += 10.0)
 	
 	#create_upgrade_ui(services, "COMBAT", "Upgrade guns", 500, func(): ps.upgrade_guns())
 	#create_upgrade_ui(services, "COMBAT", "Upgrade attack", 500, func(): ps.attack += 1.0)
@@ -766,6 +780,7 @@ func _on_inventory_changed(_inventory: Inventory):
 		inventory_panel.update_inventory_ui(
 			_inventory,
 			buy_item,
+			func(_index): pass ,
 			func(_index): pass ,
 		)
 
@@ -831,6 +846,12 @@ func get_combat_readiness() -> float:
 	return (health_percent + crew_percent) / 2.0
 
 
+func create_label_ui(root: Control, category: String, content):
+	var category_vbox: VBoxContainer = root.get_node_or_null(category)
+	var label = Label.new()
+	label.text = content
+	category_vbox.add_child(label)
+
 func create_upgrade_ui(root: Control, category: String, upgrade_name: String, upgrade_cost: int, function: Callable):
 	# Try to find existing category container
 	var category_vbox: VBoxContainer = root.get_node_or_null(category)
@@ -862,13 +883,18 @@ func create_upgrade_ui(root: Control, category: String, upgrade_name: String, up
 
 	var new_upgrade_button = Button.new()
 	new_upgrade_button.text = "Buy"
+
+	var can_buy = player_ship.gold >= upgrade_cost
+	#new_upgrade_button.visible = can_buy
+	new_upgrade_button.disabled = not can_buy
+	
 	new_upgrade_button.pressed.connect(func():
 		var prompt = gameManager.hud.prompt.instantiate()
 		gameManager.hud.add_child(prompt)
 		prompt.label_h.text = "Confirm"
 		prompt.label_message.text = "%s: %s$" % [upgrade_name, upgrade_cost]
 		prompt.icon.visible = false
-		
+
 		prompt.confirm.connect(func():
 			if not player_ship:
 				return

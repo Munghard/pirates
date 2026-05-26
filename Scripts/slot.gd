@@ -3,6 +3,7 @@ class_name Slot
 
 signal right_click
 signal left_click
+signal middle_click
 signal hover(pos)
 signal unhover
 
@@ -13,6 +14,8 @@ func _gui_input(event: InputEvent) -> void:
 				emit_signal("left_click")
 			MOUSE_BUTTON_RIGHT:
 				emit_signal("right_click")
+			MOUSE_BUTTON_MIDDLE:
+				emit_signal("middle_click")
 
 
 func _on_mouse_entered() -> void:

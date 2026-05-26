@@ -5,6 +5,7 @@ class_name HUD
 @export var ship_panel_player: ShipPanel
 
 @export var inventory_panel: Control
+@export var stash_inventory_panel: Control
 
 @export var time_panel: Control
 @export var depth_panel: Control
@@ -24,6 +25,8 @@ class_name HUD
 
 @export var equipment_panel: Control
 
+@export var wiki_ui: Control
+
 var notification_queue: Array[String] = []
 var showing_notifications = false
 
@@ -38,7 +41,17 @@ var prompt := preload("res://UI/prompt.tscn")
 func _ready():
 	boarding_button.visible = false
 	inventory_panel.visible = false
+	stash_inventory_panel.visible = false
 	game_menu.visible = false
+
+func _on_inventory_changed(_inventory: Inventory):
+	stash_inventory_panel.update_inventory_ui(
+			_inventory,
+			func(_index): pass ,
+			func(_index): pass ,
+			func(index): _inventory.move_item(index, gameManager.player_ship.inventory),
+		)
+
 
 func update_influence_panel():
 	var player_faction = gameManager.player_ship.faction
@@ -63,7 +76,9 @@ func init_hud() -> void:
 
 	#create_minimap_terrain_texture()
 	connect_ports()
-
+	
+	gameManager.stash.inventory_changed.connect(_on_inventory_changed)
+	_on_inventory_changed(gameManager.stash)
 
 func _on_time_changed(time: float):
 	var label_time: Label = time_panel.get_node("MarginContainer/VBoxContainer/Label_time")
@@ -79,10 +94,11 @@ func toggle_map():
 
 func toggle_equipment_panel():
 	equipment_panel.visible = !equipment_panel.visible
+	ship_panel_player.folded = !equipment_panel.visible
 
 func select_ship(ship: Ship):
 	gameManager.select_ship(ship)
-	gameManager.camerarig.secondary_target = gameManager.selected_ship
+	gameManager.camerarig.set_secondary_target(gameManager.selected_ship)
 	ship_panel_target.set_ship(gameManager.selected_ship)
 	ship_panel_target.update_ship_panel(gameManager.selected_ship)
 
@@ -194,6 +210,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			select_ship(null)
 
+func open_stash(value: bool):
+	stash_inventory_panel.visible = value
 
 func set_player_inventory_panel_visible(value: bool):
 	inventory_panel.visible = value
@@ -254,3 +272,7 @@ func _on_button_equipment_pressed() -> void:
 
 func _on_button_cargo_pressed() -> void:
 	toggle_player_inventory_panel()
+
+
+func _on_button_wiki_pressed() -> void:
+	wiki_ui.visible = !wiki_ui.visible

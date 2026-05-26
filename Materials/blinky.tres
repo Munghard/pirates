@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://d2lqcbk7jtdvi"]
+
+[ext_resource type="Shader" uid="uid://cxbaolkr41hig" path="res://Materials/gradient_effect.gdshader" id="1_86bny"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_86bny")
+shader_parameter/color = Color(1, 1, 1, 0.16862746)

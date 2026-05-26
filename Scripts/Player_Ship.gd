@@ -5,6 +5,8 @@ class_name PlayerShip
 var equipment: Equipment
 var real_faction: FactionsData.Faction
 
+var mining_efficiency = 1.0
+
 @onready var fanfare = preload("res://Audio/fanfare.mp3")
 
 func _ready() -> void:
@@ -51,7 +53,12 @@ func _ready() -> void:
 	await get_tree().process_frame
 	portrait = FactionsData.portraits[6]
 	gameManager.hud.equipment_panel.init_equipment_panel(self )
-	
+	docked_changed.connect(_on_docked_changed)
+
+func _on_docked_changed(port: Port):
+	if port == null:
+		gameManager.hud.open_stash(false)
+
 func setup_inventory():
 	inventory = Inventory.new(self , gameManager, 16, ship_name + " cargo")
 	
@@ -62,13 +69,13 @@ func setup_inventory():
 	add_player_loadout()
 
 func add_player_loadout():
-	inventory.add_item(InventoryItem.new("gold", 50))
-	inventory.add_item(InventoryItem.new("six_pounder", 2))
+	#inventory.add_item(InventoryItem.new("gold", 50))
+	inventory.add_item(InventoryItem.new("six_pounder", 1))
 	inventory.add_item(InventoryItem.new("rations", 30))
 	inventory.add_item(InventoryItem.new("rum", 30))
 	inventory.add_item(InventoryItem.new("cannon_balls", 50))
-	inventory.add_item(InventoryItem.new("fishing_gear", 10))
 	inventory.add_item(InventoryItem.new("repair_kit", 5))
+	inventory.add_item(InventoryItem.new("flag_pirate", 1))
 
 func connect_inventory_listeners(_inventory: Inventory):
 	if not inventory.inventory_changed.is_connected(_on_inventory_changed):
@@ -99,12 +106,14 @@ func _on_inventory_changed(_inventory: Inventory):
 			_inventory,
 			sell_item,
 			func(_index): pass ,
+			func(index): _inventory.move_item(index, gameManager.stash),
 		)
 	else:
 		gameManager.hud.inventory_panel.update_inventory_ui(
 			_inventory,
 			use_item,
-			_inventory.drop_item_at_index
+			_inventory.drop_item_at_index,
+			func(_index): pass ,
 		)
 
 func change_faction(_faction: FactionsData.Faction):
@@ -234,7 +243,7 @@ func _on_destroyed_ship(ship: Ship):
 		gameManager.audioManager.play_sound(fanfare, 0.0, -20.0)
 
 func _on_recieved_damage(_amount: float, _attacker: Node3D):
-	gameManager.camerarig.secondary_target = _attacker
+	gameManager.camerarig.set_secondary_target(_attacker)
 
 func _on_crew_gained(amount: int):
 	var text = "Gained"
@@ -257,8 +266,10 @@ func _on_gold_lost(amount: int):
 func sink():
 	# dont call super, were overriding behaviour
 	#gameManager.hud.new_notification("The sea swallows you whole...")
+	sunk = true
 	gameManager.hud.new_notification("The ocean keeps what it takes...")
 	await get_tree().create_timer(5.0).timeout
+	emit_signal("on_sink")
 	
 	gameManager.respawn_player()
 	#gameManager.new_game(gameManager.game_seed, ship_name)
@@ -279,6 +290,10 @@ var territory_check_interval := 2.0
 
 func check_territory(delta: float):
 	var fow_radius = 5.0
+	if inventory.has_item("mining_rig", 1):
+		mining_efficiency = 3.0
+	else:
+		mining_efficiency = 1.0
 	if inventory.has_item("spyglass", 1):
 		fow_radius = 10.0
 	gameManager.hud.map.fog_of_war.reveal_area(Vector2(global_position.x, global_position.z), fow_radius)

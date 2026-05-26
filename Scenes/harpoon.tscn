@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://8qhtyh6ffsmx"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_21xbf"]
+top_radius = 0.05
+bottom_radius = 0.05
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ank2v"]
+top_radius = 0.2
+bottom_radius = 0.0
+height = 0.5
+
+[node name="Harpoon" type="Node3D" unique_id=995716983]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=638874989]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_21xbf")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=810593422]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, -0.9249971)
+mesh = SubResource("CylinderMesh_ank2v")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=286641340]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, -0.44005698)
+mesh = SubResource("CylinderMesh_ank2v")

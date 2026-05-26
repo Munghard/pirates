@@ -9,6 +9,7 @@ extends HBoxContainer
 @export var minimap_scale_slider: VSlider
 @export var blip_scene: PackedScene = preload("res://UI/blip.tscn")
 @export var blip_a_scene: PackedScene = preload("res://UI/blip_a.tscn")
+@export var blip_player_scene: PackedScene = preload("res://UI/blip_player.tscn")
 var minimap_scale = 50.0
 
 func _ready() -> void:
@@ -17,6 +18,17 @@ func _ready() -> void:
 	#minimap_terrain_texture.texture = create_minimap_terrain_texture()
 
 var timer := 0.0
+
+# func _draw() -> void:
+# 	var center = size / 2.0
+# 	var dir3 = gameManager.player_ship.basis.z
+# 	var direction = Vector2(dir3.x, dir3.z).normalized()
+# 	var length = 500.0
+# 	var to = center + (-direction * length)
+
+# 	var col = Color.WHITE
+# 	col.a = 0.5
+# 	draw_dashed_line(center, to, col, 6.0, 10.0)
 
 func _process(delta):
 	timer += delta
@@ -46,36 +58,42 @@ func create_minimap_terrain_texture():
 func set_terrain_texture_transforms():
 	if not minimap_terrain_texture.texture:
 		return
+
 	var terrain = gameManager.world.terrain
-	var world_size = Vector2(
+
+	var world_size := Vector2(
 		terrain.world_size.x * terrain.tile_size,
 		terrain.world_size.y * terrain.tile_size
 	)
 
+	var tex_size := minimap_terrain_texture.texture.get_size()
+
+	# pixels per world unit
+	var terrain_scale := world_size / tex_size
+
+	var final_scale: Vector2 = Vector2.ONE * minimap_scale / terrain_scale
+
+	minimap_terrain_texture.scale = final_scale
+
 	var player_pos = gameManager.player_ship.global_position
 
-	var player_uv = Vector2(
-		player_pos.x / world_size.x,
-		player_pos.z / world_size.y
+	var player_world = Vector2(
+		player_pos.x,
+		player_pos.z
 	)
-	var tex_size := minimap_terrain_texture.texture.get_size()
-	var ui_size := minimap.size # should be 128x128
-	var base_scale := ui_size / tex_size
-	var _scale = base_scale * minimap_scale
-	
 
-	minimap_terrain_texture.pivot_offset = Vector2.ZERO # minimap_terrain_texture.size * 0.5
-	minimap_terrain_texture.scale = _scale
-	
-	var scaled_tex_size = tex_size * scale
-
-	minimap_terrain_texture.position = minimap.size * 0.5 - (player_uv * scaled_tex_size)
+	var texture_offset = Vector2(
+		player_world.x * final_scale.x,
+		player_world.y * final_scale.y
+	)
+	var scaled_tex_size = tex_size * final_scale
+	minimap_terrain_texture.position = minimap.size * 0.5 - texture_offset - scaled_tex_size * 0.5
 
 func update_minimap():
 	for child in minimap.get_children():
 		child.queue_free()
 	
-	add_blip_to_minimap(gameManager.player_ship, Color(1, 1, 1), 2.5, blip_a_scene)
+	add_blip_to_minimap(gameManager.player_ship, Color(1, 1, 1), 2.5, blip_player_scene)
 	
 	#set_terrain_texture_transforms()
 
@@ -92,7 +110,13 @@ func update_minimap():
 			color = Color.GREEN
 		#var color = FactionsData.get_faction_color(ship.faction)
 		add_blip_to_minimap(ship, color, 1.25, blip_a_scene)
-		
+	
+	for mine: Mine in get_tree().get_nodes_in_group("Mines"):
+		add_blip_to_minimap(mine, Color.WHITE, 0.75, blip_scene)
+
+	for lh: Node3D in get_tree().get_nodes_in_group("Lighthouses"):
+		add_blip_to_minimap(lh, Color.WHITE, 0.75, blip_scene)
+
 	for port: Port in gameManager.world.ports:
 		var enemy = false
 		if port.allegiance and port.allegiance.faction != FactionsData.Faction.NONE:
@@ -109,7 +133,7 @@ func update_minimap():
 		var color = Color(1, 1, 1, 0.5)
 		add_blip_to_minimap(floater, color, 0.5, blip_scene)
 
-func add_blip_to_minimap(node: Node3D, color: Color, _scale: float, _blip_scene: PackedScene):
+func add_blip_to_minimap(node: Node3D, color: Color, _scale: float, _blip_scene: PackedScene) -> Control:
 	var pos = node.global_position
 	var rot = - node.global_rotation.y
 	var blip: TextureRect = _blip_scene.instantiate()
@@ -129,7 +153,7 @@ func add_blip_to_minimap(node: Node3D, color: Color, _scale: float, _blip_scene:
 	blip.scale = Vector2.ONE * _scale
 	blip.position = minimap.size * 0.5 + -p - blip.size * 0.5
 	blip.rotation = rot
-
+	return blip
 
 func _on_v_slider_value_changed(value: float) -> void:
 	minimap_scale = value / 100.0
