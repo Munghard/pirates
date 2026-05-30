@@ -128,8 +128,12 @@ func _ready():
 	ship_healthbar.max_value = max_hit_points
 	recovery_healthbar.value = 1.0
 	recovery_healthbar.max_value = 1.0
-	
-	
+
+
+func set_debug_mode(_value: bool):
+	pass
+
+
 func setup_ship_model(_faction: FactionsData.Faction):
 	var s = ship_pivot.ship_model
 	if s:
@@ -166,6 +170,11 @@ func setup_ship_model(_faction: FactionsData.Faction):
 			var m = model.duplicate()
 			ship_pivot.add_child(m)
 
+		FactionsData.Faction.BOUNTYHUNTER:
+			model = ships.get_node("Caravel")
+			var m = model.duplicate()
+			ship_pivot.add_child(m)
+
 		FactionsData.Faction.FISHERMAN:
 			model = ships.get_node("Cutter")
 			var m = model.duplicate()
@@ -176,7 +185,7 @@ func setup_ship_model(_faction: FactionsData.Faction):
 			var m = model.duplicate()
 			ship_pivot.add_child(m)
 
-		_:
+		FactionsData.Faction.NONE:
 			model = ships.get_node("Cutter")
 			var m = model.duplicate()
 			ship_pivot.add_child(m)

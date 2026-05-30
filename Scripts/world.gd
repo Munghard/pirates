@@ -15,6 +15,7 @@ class_name World
 @onready var clouds: MeshInstance3D = $Clouds
 @onready var navigation_region: NavigationRegion3D = $NavigationRegion3D
 
+@onready var heatmap: Heatmap = $Heatmap
 
 @export var scatterers: Node3D
 
@@ -50,6 +51,7 @@ func _ready():
 	sun = $Sun
 	moon = $Moon
 	navigation_region = $NavigationRegion3D
+	heatmap = $Heatmap
 
 	assert(wind != null, "wind is null in world start")
 	assert(wind_effect != null, "wind_effect is null in world start")
@@ -60,6 +62,7 @@ func _ready():
 	assert(moon != null, "moon is null in world start")
 	assert(clouds != null, "clouds is null in world start")
 	assert(navigation_region != null, "navigation_region is null in world start")
+	assert(heatmap != null, "heatmap is null in world start")
 
 	ports_container = Node3D.new()
 	ports_container.name = "Ports"
@@ -93,8 +96,17 @@ func ship_spawner(_nominal_ship_count: int): # spawn a ship every 10 seconds if 
 				#var faction = FactionsData.roll_faction(nation)
 				var _position = gameManager.get_position_around_point(gameManager.player_ship.global_position, radius)
 				var _pos2d = Vector2(_position.x, _position.z)
-				var faction = gameManager.territory.get_territory_at(_pos2d)
+
+				var faction := gameManager.territory.get_territory_at(_pos2d)
+				var heathmap_noise = heatmap.get_noise_at_world_position(_position)
+				if heathmap_noise > 0.5:
+					if randf() > 0.3:
+						faction = FactionsData.Faction.NAVY
+					else:
+						faction = FactionsData.Faction.BOUNTYHUNTER
+
 				gameManager.spawn_ship(_position, nation, faction)
+				print("spawned ship in territory: " + FactionsData.FACTION_NAMES.get(faction));
 		
 
 func scatter_scatterers(_heightmap):

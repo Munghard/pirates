@@ -24,7 +24,7 @@ seamless = true
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7f0rn"]
 render_priority = 0
 shader = ExtResource("3_w53vn")
-shader_parameter/color1 = Color(1.0973811e-05, 0.122579105, 0.40392116, 1)
+shader_parameter/color1 = Color(1.2032688e-08, 0.17073524, 0.26807788, 1)
 shader_parameter/color2 = Color(0.65, 0.90083337, 1, 1)
 shader_parameter/color3 = Color(0, 0, 0, 1)
 shader_parameter/noise = SubResource("NoiseTexture2D_7f0rn")
@@ -41,6 +41,7 @@ orientation = 1
 
 [node name="maelstrom" type="Area3D" unique_id=735147423 node_paths=PackedStringArray("collision_shape")]
 script = ExtResource("1_8s505")
+pull_strength = 200.0
 spin_strength = 0.0
 collision_shape = NodePath("CollisionShape3D")
 

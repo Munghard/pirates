@@ -182,6 +182,7 @@ func update_depth_label():
 	var depth = gameManager.world.terrain.get_height_world(player_pos.x, player_pos.z)
 	depth_label.text = "%.1f m" % [abs(depth)]
 
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		#print("clicking at non ui");

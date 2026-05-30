@@ -11,6 +11,13 @@ extends Node3D
 @export var max_spawn_height: float = 50.0
 @export var spawn_in_water: bool = true
 
+@export var use_latitude_longitude: bool = false
+#North 1, South 0
+@export_range(0.0, 1.0, 0.01) var latitude_bias := 0.5
+#East 1, West 0
+@export_range(0.0, 1.0, 0.01) var longitude_bias := 0.5
+
+
 func _ready():
 	pass
 	#scatter()
@@ -24,13 +31,40 @@ func scatter(terrain: Terrain):
 
 	for i in range(amount):
 		var placed := false
+		var min_x = 0.0
+		var max_x = terrain_size.x
+		var min_z = 0.0
+		var max_z = terrain_size.y
 
 		for attempt in range(10): # retry limit
-			var pos = Vector3(
-				randf_range(0, terrain_size.x),
-				0,
-				randf_range(0, terrain_size.y)
-			)
+			var pos: Vector3
+			if use_latitude_longitude:
+				# X axis (west/east)
+				# X axis (west/east)
+				if longitude_bias < 0.5:
+					max_x = terrain_size.x * 0.5
+				elif longitude_bias > 0.5:
+					min_x = terrain_size.x * 0.5
+				# else: 0.5 = full width
+
+				# Z axis (south/north)
+				if latitude_bias < 0.5:
+					max_z = terrain_size.y * 0.5
+				elif latitude_bias > 0.5:
+					min_z = terrain_size.y * 0.5
+				# else: 0.5 = full height
+
+				pos = Vector3(
+					randf_range(min_x, max_x),
+					0.0,
+					randf_range(min_z, max_z)
+				)
+			else:
+				pos = Vector3(
+					randf_range(0.0, terrain_size.x),
+					0.0,
+					randf_range(0.0, terrain_size.y)
+				)
 
 			var h = terrain.get_height_world(pos.x, pos.z)
 
@@ -49,6 +83,7 @@ func scatter(terrain: Terrain):
 			add_child(instance)
 
 			pos.y = h
+			
 			instance.global_position = pos
 
 			instance.rotation_degrees = Vector3(

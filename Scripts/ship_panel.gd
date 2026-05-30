@@ -22,7 +22,9 @@ var ship: Ship
 @export var recovery_pb: ProgressBar
 @export var morale_pb: ProgressBar
 
+@export var button_sink: Button
 @export var release_button: Button
+@export var debug_mode_button: CheckButton
 @export var tab_bar: TabBar
 
 @export var status_panel: Control
@@ -111,7 +113,7 @@ func update_ship_panel(_ship: Ship):
 	portrait_texture_rect.texture = _ship.portrait
 	var flag_texture = FactionsData.get_flag(_ship.nation, _ship.faction)
 	flag_texture_rect.texture = flag_texture
-	flag_texture_rect.self_modulate = FactionsData.get_nation_color(_ship.nation)
+	flag_texture_rect.self_modulate = FactionsData.get_faction_color(_ship.faction)
 
 	var ship_name = ""
 	
@@ -125,12 +127,14 @@ func update_ship_panel(_ship: Ship):
 	
 	var ai_text = ""
 	if _ship is EnemyShip:
+		debug_mode_button.button_pressed = _ship.debug_draw_path
 		ai_text = "State: %s" % (_ship as EnemyShip).AIStateNames[(_ship as EnemyShip).ai_state]
 		if (_ship.ai_state == EnemyShip.AIState.COMBAT):
 			ai_text += "\nSubState: %s" % (_ship as EnemyShip).CombatStateNames[(_ship as EnemyShip).combat_state]
 		ai_text += "\nIn combat: %.s" % [str(_ship.in_combat)]
 		if _ship.attacker and _ship.attacker is Ship: ai_text += "\nTarget: %.s" % [str(_ship.attacker.ship_name)]
-
+	
+	button_sink.visible = debug_mode_button.button_pressed
 
 	var stats_text = ""
 	var status_text = ""
@@ -242,3 +246,7 @@ func update_pb(value: float, pb):
 func _on_button_sink_pressed() -> void:
 	if ship:
 		ship.damage(99999, 1.0, ship.global_position, ship)
+
+
+func _on_button_debug_toggled(toggled_on: bool) -> void:
+	ship.set_debug_mode(toggled_on)

@@ -75,11 +75,12 @@ func damage(_damage: float, _multiplier: float, _position: Vector3, _attacker: N
 
 	if hit_points <= 0.0 and alive:
 		alive = false
+		world_bars.visible = false
+		for i in range(level):
+			gameManager.spawn_item_in_world(InventoryItem.new("rations", randi_range(1, 50)), global_position + Vector3(randf(), 0, randf()))
 
 
 func death():
-	for i in range(level):
-		gameManager.spawn_item_in_world(InventoryItem.new("rations", randi_range(1, 50)), global_position + Vector3(randf(), 0, randf()))
 	queue_free()
 
 var sink_speed := 0.5

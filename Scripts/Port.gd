@@ -269,7 +269,8 @@ func set_world_flag():
 	var mat = flag_mesh.get_active_material(0) as ShaderMaterial
 	var flag_texture = FactionsData.get_flag(allegiance.nation, allegiance.faction)
 	mat.set_shader_parameter("flag_texture", flag_texture)
-	var color = FactionsData.get_nation_color(allegiance.nation)
+	#var color = FactionsData.get_nation_color(allegiance.nation)
+	var color = FactionsData.get_faction_color(allegiance.faction)
 	mat.set_shader_parameter("flag_color", color)
 
 func restock_loop():
@@ -338,6 +339,7 @@ func _handle_shooting(target: Vector3, delta: float):
 
 	for i in range(cannons.size()):
 		var cannon: Cannon = cannons[i]
+		cannon.active = true
 		var dir_to_target = (target - cannon.global_position).normalized()
 		var angle_to_target = rad_to_deg(atan2(dir_to_target.x, dir_to_target.z))
 		var current = cannon.global_rotation_degrees.y
@@ -415,7 +417,6 @@ func _process(delta):
 	
 	if hit_points > 0.0 and crew > 0 and get_combat_readiness() > 0.0:
 		handle_targeting(delta)
-		
 
 	# check if in combat
 	emit_signal("recovery_changed", recovery_progress)
@@ -629,6 +630,8 @@ func set_faction_icon(_faction: FactionsData.Faction):
 		return
 	var _faction_texture = FactionsData.get_faction_icon(_faction)
 	faction_texture_rect.texture = _faction_texture
+	var texture_rect_faction: TextureRect = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Allegiance_ui/faction_icon")
+	texture_rect_faction.texture = _faction_texture
 
 func set_flag(_nation: FactionsData.Nation, _faction: FactionsData.Faction):
 	if not ui:
@@ -636,7 +639,7 @@ func set_flag(_nation: FactionsData.Nation, _faction: FactionsData.Faction):
 	var flag_texture_rect: TextureRect = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Allegiance_ui/texture_flag")
 	var flag_texture = FactionsData.get_flag(_nation, _faction)
 	flag_texture_rect.texture = flag_texture
-	flag_texture_rect.modulate = FactionsData.get_nation_color(_nation)
+	flag_texture_rect.modulate = FactionsData.get_faction_color(_faction)
 
 
 func entered_port():
@@ -701,6 +704,7 @@ func update_port_ui():
 	var label_header: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer2/Label_h")
 	var label_gold: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_gold")
 	var label_faction: Label = ui.get_node("HBoxContainer/Port_panel/MarginContainer/HBoxContainer/VBoxContainer/Label_f")
+	
 	
 	set_flag(allegiance.nation, allegiance.faction)
 	set_faction_icon(allegiance.faction)
@@ -838,12 +842,10 @@ func buy_item(item_index: int):
 
 func get_combat_readiness() -> float:
 	# Simple heuristic: average of health and crew percentage
-	var health_percent = hit_points / max_hit_points
-	var crew_percent = float(crew) / float(max_crew)
 	var has_cannons = cannon_layout_port.cannons_unlocked > 0
 	if not has_cannons:
 		return 0.0 # Not combat ready without cannons or cannonballs
-	return (health_percent + crew_percent) / 2.0
+	return 1.0
 
 
 func create_label_ui(root: Control, category: String, content):

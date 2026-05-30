@@ -7,6 +7,7 @@ var map: Map
 var cached_cells = []
 var dirty = true
 var cell_size
+var rebuild_id := 0
 
 func _ready():
 	await get_tree().process_frame
@@ -14,11 +15,10 @@ func _ready():
 	gameManager.save_manager.loaded.connect(func(): rebuild_visual_cache())
 	rebuild_visual_cache()
 
-
 func _draw() -> void:
 	for data in cached_cells:
 		draw_cell(data)
-var rebuild_id := 0
+
 func rebuild_visual_cache() -> void:
 	rebuild_id += 1
 	var my_id := rebuild_id
@@ -65,7 +65,7 @@ func draw_cell(data):
 	if border:
 		col = color
 	draw_rect(
-		Rect2(Vector2(data.cell),
+		Rect2(Vector2((data.cell - size / 2.0) * cell_size),
 		Vector2.ONE * cell_size),
 		col,
 		true

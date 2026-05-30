@@ -20,6 +20,7 @@ var sub_viewport_container: SubViewportContainer
 var wiki: Wiki
 
 var selected_ship: Ship
+var hovered_ship: Ship
 
 var spectator: Spectator
 var spectator_mode := false
@@ -83,7 +84,44 @@ func _ready() -> void:
 	self.process_mode = ProcessMode.PROCESS_MODE_ALWAYS
 	
 	hud.wiki_ui.create_tree(wiki)
-	
+
+func _process(_delta: float) -> void:
+	update_hover()
+
+func update_hover():
+	var mouse_pos = get_viewport().get_mouse_position()
+
+	var from = camera.project_ray_origin(mouse_pos)
+	var to = from + camera.project_ray_normal(mouse_pos) * 1000
+
+	var space = camera.get_world_3d().direct_space_state
+	var result = space.intersect_ray(
+		PhysicsRayQueryParameters3D.create(from, to)
+	)
+
+	var new_hover: Ship = null
+
+	if result and result.collider is Ship:
+		new_hover = result.collider
+
+	# nothing changed
+	if new_hover == hovered_ship:
+		return
+
+	# clear old hover
+	if hovered_ship and is_instance_valid(hovered_ship) and hovered_ship != player_ship:
+		if hovered_ship != selected_ship:
+			if hovered_ship.world_bars:
+				hovered_ship.world_bars.visible = false
+
+	# set new hover
+	hovered_ship = new_hover
+
+	# apply new hover
+	if hovered_ship and is_instance_valid(hovered_ship) and hovered_ship != player_ship:
+		if hovered_ship != selected_ship:
+			if hovered_ship.world_bars:
+				hovered_ship.world_bars.visible = true
 
 func check_win_condition():
 	var player_faction = player_ship.faction
@@ -196,6 +234,8 @@ func respawn_player():
 	player_ship = new_player_ship
 	move_player_to_closest_port_of_faction(old_player_ship.faction, old_player_ship)
 	old_player_ship.queue_free()
+	
+	hud.ship_panel_player.set_ship(player_ship)
 	
 
 func move_player_to_closest_port_of_faction(_faction: FactionsData.Faction, player: PlayerShip):

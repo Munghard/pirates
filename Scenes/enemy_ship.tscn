@@ -30,6 +30,7 @@ cap_bottom = false
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("9_xtkqg")
+shader_parameter/flag_color = Color(0, 0, 0, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_tboui"]
 resource_local_to_scene = true

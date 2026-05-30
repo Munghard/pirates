@@ -70,6 +70,10 @@ text = "Player"
 layout_mode = 2
 text = "New game"
 
+[node name="Button_reload" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1021526597]
+layout_mode = 2
+text = "Reload"
+
 [node name="Button_respawn" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=188748593]
 layout_mode = 2
 text = "Respawn"
@@ -79,5 +83,6 @@ layout_mode = 2
 text = "Delete savefile"
 
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Button_new_game" to="." method="_on_button_new_game_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Button_reload" to="." method="_on_button_reload_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Button_respawn" to="." method="_on_button_respawn_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Button_delete_save" to="." method="_on_button_delete_save_pressed"]

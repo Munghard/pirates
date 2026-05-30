@@ -22,6 +22,7 @@
 [ext_resource type="ArrayMesh" uid="uid://cxp1um1dd3gby" path="res://Models/Meshes/rock1.res" id="11_vhf2b"]
 [ext_resource type="Material" uid="uid://bhgu8dhy06683" path="res://Materials/terrain.tres" id="11_xbk3s"]
 [ext_resource type="ArrayMesh" uid="uid://dwxu31rtffe4p" path="res://Models/Meshes/rock2.res" id="12_g44x5"]
+[ext_resource type="ArrayMesh" uid="uid://cxrocanroo5l7" path="res://Models/Pine Tree/TreeCollection/Tree_1.obj" id="13_cvubk"]
 [ext_resource type="ArrayMesh" uid="uid://cuvdiaabpkmku" path="res://Models/Meshes/rock3.res" id="13_kwnki"]
 [ext_resource type="PackedScene" uid="uid://c4w0h65nmvokw" path="res://Scenes/maelstrom.tscn" id="14_e0ngr"]
 [ext_resource type="Script" uid="uid://bc45pgfucydy7" path="res://Scripts/chunk_manager.gd" id="14_vhf2b"]
@@ -36,10 +37,13 @@
 [ext_resource type="PackedScene" uid="uid://ckaa2vwp8oesh" path="res://Scenes/lifeboat.tscn" id="21_pyn1s"]
 [ext_resource type="Shader" uid="uid://g634aciywrog" path="res://Materials/wind_ribbon.gdshader" id="21_qebug"]
 [ext_resource type="Shader" uid="uid://6an42f6pkuwg" path="res://Materials/clouds.gdshader" id="22_dt0r1"]
+[ext_resource type="PackedScene" uid="uid://cconcavlpfnlg" path="res://Scenes/iceberg.tscn" id="23_kwnki"]
 [ext_resource type="Shader" uid="uid://bug7bbfblq2pu" path="res://Materials/toon_shader_pp.gdshader" id="25_i4fjy"]
 [ext_resource type="PackedScene" uid="uid://bqiuq517iffer" path="res://Scenes/mine.tscn" id="26_vhf2b"]
+[ext_resource type="PackedScene" uid="uid://bs3ng1kw47qt6" path="res://Scenes/shipwreck.tscn" id="27_g44x5"]
 [ext_resource type="Texture2D" uid="uid://vv17m6wwh6ht" path="res://Textures/bird.png" id="27_r0ikl"]
 [ext_resource type="PackedScene" uid="uid://dhjcvq5lciyv0" path="res://Scenes/player_ship.tscn" id="31_13n8b"]
+[ext_resource type="Script" uid="uid://dr07g5qli4anc" path="res://Scripts/heatmap.gd" id="32_36g3o"]
 [ext_resource type="Shader" uid="uid://xe1idcnl8y4i" path="res://Materials/tilt_shift.gdshader" id="33_coyub"]
 [ext_resource type="Script" uid="uid://bcmyufc0xuoqc" path="res://Scripts/Inventory/item_database.gd" id="35_coyub"]
 [ext_resource type="Script" uid="uid://cttiahx2sleji" path="res://Scripts/map.gd" id="36_atqvy"]
@@ -49,6 +53,7 @@
 [ext_resource type="Script" uid="uid://bdy8aaapdamad" path="res://Scripts/draw_territory.gd" id="40_b4e6k"]
 [ext_resource type="PackedScene" uid="uid://kt4nc6536x0r" path="res://UI/equipment_panel.tscn" id="41_jwdyn"]
 [ext_resource type="PackedScene" uid="uid://b4klp5rpp5gsl" path="res://UI/game_menu.tscn" id="44_xcb5n"]
+[ext_resource type="Script" uid="uid://bkm5mwvn635jj" path="res://Scripts/heatmap_ui.gd" id="45_vhf2b"]
 [ext_resource type="Script" uid="uid://chwiih1pumcge" path="res://Scripts/save_manager.gd" id="46_6mm6r"]
 [ext_resource type="Script" uid="uid://em6x31w1mca1" path="res://Scripts/fog_of_war.gd" id="46_36g3o"]
 [ext_resource type="Script" uid="uid://ccadfi1dq6umf" path="res://Scripts/Factions/territory.gd" id="46_te07t"]
@@ -102,6 +107,14 @@ mesh = ExtResource("13_kwnki")
 radius = 3.0
 rotation = Vector3(-90, 0, 0)
 scale = 100.0
+metadata/_custom_type_script = "uid://6rlvxosq38dp"
+
+[sub_resource type="Resource" id="Resource_5kw24"]
+script = ExtResource("9_l33cg")
+mesh = ExtResource("13_cvubk")
+height_min = 3.0
+height_max = 16.0
+amount = 100.0
 metadata/_custom_type_script = "uid://6rlvxosq38dp"
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_7yui6"]
@@ -281,7 +294,7 @@ heightmap_size = Vector2i(500, 500)
 [node name="Chunk_Manager" type="Node3D" parent="SubViewportContainer/SubViewport/World/NavigationRegion3D/Terrain" unique_id=1875350031 node_paths=PackedStringArray("terrain")]
 script = ExtResource("14_vhf2b")
 terrain = NodePath("..")
-scatter_data = Array[ExtResource("9_l33cg")]([SubResource("Resource_13n8b"), SubResource("Resource_uqdn7"), SubResource("Resource_cvubk"), SubResource("Resource_eskoj")])
+scatter_data = Array[ExtResource("9_l33cg")]([SubResource("Resource_13n8b"), SubResource("Resource_uqdn7"), SubResource("Resource_cvubk"), SubResource("Resource_eskoj"), SubResource("Resource_5kw24")])
 
 [node name="Water" type="MeshInstance3D" parent="SubViewportContainer/SubViewport/World" unique_id=2117390099 node_paths=PackedStringArray("target", "terrain")]
 cast_shadow = 0
@@ -325,10 +338,12 @@ water = NodePath("../../Water")
 [node name="maelstroms" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1431239431 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("14_e0ngr")
-amount = 2
+amount = 5
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
+use_latitude_longitude = true
+longitude_bias = 1.0
 
 [node name="lifeboats" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1914553766 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -345,6 +360,17 @@ rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
 
+[node name="icebergs" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=986474031 node_paths=PackedStringArray("water")]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("23_kwnki")
+rotation_range_min = Vector3(0, -180, 0)
+rotation_range_max = Vector3(0, 180, 0)
+water = NodePath("../../Water")
+min_spawn_height = 0.0
+max_spawn_height = 0.0
+use_latitude_longitude = true
+latitude_bias = 1.0
+
 [node name="whales" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=271512521 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
 prefab = ExtResource("19_04jkj")
@@ -352,6 +378,7 @@ amount = 2
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
+use_latitude_longitude = true
 
 [node name="sharks" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1524624786 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -360,6 +387,8 @@ amount = 20
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
+use_latitude_longitude = true
+latitude_bias = 0.0
 
 [node name="lighthouses" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1491532876 node_paths=PackedStringArray("water")]
 script = ExtResource("3_o06y3")
@@ -374,6 +403,17 @@ spawn_in_water = false
 script = ExtResource("3_o06y3")
 prefab = ExtResource("26_vhf2b")
 amount = 30
+rotation_range_min = Vector3(0, -180, 0)
+rotation_range_max = Vector3(0, 180, 0)
+water = NodePath("../../Water")
+min_spawn_height = 1.0
+max_spawn_height = 10.0
+spawn_in_water = false
+
+[node name="shipwrecks" type="Node3D" parent="SubViewportContainer/SubViewport/World/Scatterers" unique_id=1931046514 node_paths=PackedStringArray("water")]
+script = ExtResource("3_o06y3")
+prefab = ExtResource("27_g44x5")
+amount = 20
 rotation_range_min = Vector3(0, -180, 0)
 rotation_range_max = Vector3(0, 180, 0)
 water = NodePath("../../Water")
@@ -411,6 +451,9 @@ draw_pass_1 = SubResource("QuadMesh_r74th")
 
 [node name="PlayerShip" parent="SubViewportContainer/SubViewport/World" unique_id=2078031840 instance=ExtResource("31_13n8b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2384267, 0)
+
+[node name="Heatmap" type="Node" parent="SubViewportContainer/SubViewport/World" unique_id=1007505288]
+script = ExtResource("32_36g3o")
 
 [node name="camera_rig" type="Node3D" parent="SubViewportContainer/SubViewport" unique_id=596184847]
 transform = Transform3D(1, 0, 0, 0, 0.5735764, -0.819152, 0, 0.819152, 0.5735764, 0, 0, 0)
@@ -572,14 +615,17 @@ script = ExtResource("36_atqvy")
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HUD/Map" unique_id=1880377617]
 layout_mode = 2
 
-[node name="Control" type="Control" parent="MarginContainer/HUD/Map/MarginContainer" unique_id=978702583]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HUD/Map/MarginContainer" unique_id=538395518]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer" unique_id=978702583]
 clip_contents = true
 custom_minimum_size = Vector2(500, 500)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=1527875662]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/Control" unique_id=1527875662]
 self_modulate = Color(0.76033205, 0.5539407, 0.42029223, 1)
 custom_minimum_size = Vector2(500, 500)
 layout_mode = 1
@@ -591,7 +637,7 @@ grow_vertical = 2
 texture = ExtResource("37_w5giw")
 stretch_mode = 3
 
-[node name="TextureRect2" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=349148954]
+[node name="TextureRect2" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/Control" unique_id=349148954]
 self_modulate = Color(0.53461957, 0.30320123, 0.14936325, 0.7058824)
 custom_minimum_size = Vector2(500, 500)
 layout_mode = 1
@@ -606,7 +652,7 @@ rotation = 3.1415927
 pivot_offset_ratio = Vector2(0.5, 0.5)
 stretch_mode = 3
 
-[node name="Territory" type="Control" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=1826651216 node_paths=PackedStringArray("territory")]
+[node name="Territory" type="Control" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/Control" unique_id=1826651216 node_paths=PackedStringArray("territory")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -615,9 +661,14 @@ offset_right = -0.0002746582
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("40_b4e6k")
-territory = NodePath("../../../../../../Territory")
+territory = NodePath("../../../../../../../Territory")
 
-[node name="Fog_of_war" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/Control" unique_id=1977543642]
+[node name="Markers" type="Control" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/Control" unique_id=1474570085]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Fog_of_war" type="TextureRect" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/Control" unique_id=1977543642]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -628,6 +679,47 @@ pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 script = ExtResource("46_36g3o")
 fog_cell_size = 5.0
+
+[node name="Heatmap" type="Control" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/Control" unique_id=303055922 node_paths=PackedStringArray("heatmap")]
+modulate = Color(1, 1, 1, 0.39215687)
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("45_vhf2b")
+heatmap = NodePath("../../../../../../../SubViewportContainer/SubViewport/World/Heatmap")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer" unique_id=186633427]
+layout_mode = 2
+
+[node name="CheckBox" type="CheckBox" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/VBoxContainer" unique_id=149042476]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "Heatmap"
+
+[node name="CheckBox2" type="CheckBox" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/VBoxContainer" unique_id=356188483]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "Fog of war"
+
+[node name="CheckBox3" type="CheckBox" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1294202854]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "Markers"
+
+[node name="CheckBox4" type="CheckBox" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/VBoxContainer" unique_id=243331757]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "Territories"
+
+[node name="CheckBox5" type="CheckBox" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1340676299]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "POI"
+
+[node name="CheckBox6" type="CheckBox" parent="MarginContainer/HUD/Map/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1801572080]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "Ports"
 
 [node name="wind_gauge" type="TextureRect" parent="MarginContainer/HUD" unique_id=1041010364]
 layout_mode = 1

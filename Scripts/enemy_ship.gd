@@ -10,6 +10,8 @@ class_name EnemyShip
 
 @export var target_arrow: Node3D
 
+var debug_draw_path = false
+
 var change_route := 10.0
 var route_timer := change_route
 var ai_state: AIState = AIState.IDLE
@@ -90,6 +92,9 @@ func _ready() -> void:
 	setup_identity(FactionsData.roll_nation(), FactionsData.roll_faction(FactionsData.roll_nation()))
 
 	super._ready()
+
+func set_debug_mode(_value: bool):
+	debug_draw_path = _value
 
 func setup_identity(_nation: FactionsData.Nation, _faction: FactionsData.Faction):
 	ship_name = FactionsData.get_unique_ship_name()
@@ -235,7 +240,6 @@ func _process(delta):
 	repath_timer -= delta
 	var nav_target = ai_navigation.get_current_target()
 
-	var debug_draw_path = false
 	if debug_draw_path:
 		if attacker != null:
 			draw_line_to_target_point(line_agro, attacker.global_position, Color.RED)
@@ -384,7 +388,7 @@ func en_route_behaviour(delta: float):
 	
 	set_rotation_to_target_point(nav_target)
 
-	var forward = - transform.basis.z
+	var forward = transform.basis.z
 	var dir = (nav_target - global_position).normalized()
 	var dot = dir.dot(forward)
 	var mp = dot * 0.5 + 0.5
@@ -507,7 +511,7 @@ func get_new_waypoint() -> Vector3:
 		var point = Vector3(p2.x, 0, p2.y)
 		var height = gameManager.world.terrain.get_height_world(point.x, point.z)
 
-		if height <= gameManager.world.water.water_level_world_space - height_buffer and is_path_clear(global_position, point):
+		if height <= gameManager.world.water.water_level_world_space - height_buffer: # and is_path_clear(global_position, point):
 			return point
 
 	# fallback (VERY important) but not sure why its important

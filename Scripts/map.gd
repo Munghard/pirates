@@ -4,13 +4,20 @@ class_name Map
 @onready var gameManager: GameManager = get_node("/root/GameManager")
 
 @export_category("Nodes")
-@onready var map_control: Control = $MarginContainer/Control
-@onready var map: TextureRect = $MarginContainer/Control/TextureRect
-@onready var map_terrain: TextureRect = $MarginContainer/Control/TextureRect2
-@onready var territory_draw: Control = $MarginContainer/Control/Territory
+@onready var map_control: Control = $MarginContainer/HBoxContainer/Control
+@onready var map: TextureRect = $MarginContainer/HBoxContainer/Control/TextureRect
+@onready var map_terrain: TextureRect = $MarginContainer/HBoxContainer/Control/TextureRect2
+@onready var territory_draw: Control = $MarginContainer/HBoxContainer/Control/Territory
+@onready var heatmap_draw: Control = $MarginContainer/HBoxContainer/Control/Heatmap
+@onready var markers: Control = $MarginContainer/HBoxContainer/Control/Markers
+@onready var fog_of_war: Fog_Of_War = $MarginContainer/HBoxContainer/Control/Fog_of_war
 
-@export_category("FOW")
-@onready var fog_of_war: Fog_Of_War = $MarginContainer/Control/Fog_of_war
+@onready var heatmap_checkbox: CheckBox = $MarginContainer/HBoxContainer/VBoxContainer/CheckBox
+@onready var fow_checkbox: CheckBox = $MarginContainer/HBoxContainer/VBoxContainer/CheckBox2
+@onready var markers_checkbox: CheckBox = $MarginContainer/HBoxContainer/VBoxContainer/CheckBox3
+@onready var territory_checkbox: CheckBox = $MarginContainer/HBoxContainer/VBoxContainer/CheckBox4
+@onready var poi_checkbox: CheckBox = $MarginContainer/HBoxContainer/VBoxContainer/CheckBox5
+@onready var ports_checkbox: CheckBox = $MarginContainer/HBoxContainer/VBoxContainer/CheckBox6
 
 
 @export_category("Scenes")
@@ -20,6 +27,9 @@ class_name Map
 
 var map_scale = 1.0
 var player_blip: Control
+
+var draw_ports := true
+var draw_pois := true
 
 func _ready():
 	await get_tree().process_frame
@@ -38,12 +48,33 @@ func _ready():
 			port.port_faction_changed.connect(func(_faction): update_map(gameManager.player_ship.faction, blip_scene))
 		update_map(gameManager.player_ship.faction, blip_scene))
 
-	player_blip = add_blip_to_map(gameManager.player_ship, Color.WHITE, 2.0, blip_a_scene)
 	pivot_offset_ratio = Vector2(0.5, 0.5)
 	territory_draw.gameManager = gameManager
 	territory_draw.map = self
 	#gameManager.territory.territories_changed.connect(update_territory_drawings)
-
+	
+	heatmap_draw.visible = false
+	heatmap_checkbox.button_pressed = heatmap_draw.visible
+	fow_checkbox.button_pressed = fog_of_war.visible
+	markers_checkbox.button_pressed = markers.visible
+	territory_checkbox.button_pressed = territory_draw.visible
+	
+	ports_checkbox.button_pressed = draw_ports
+	poi_checkbox.button_pressed = draw_pois
+	
+	heatmap_checkbox.pressed.connect(func(): heatmap_draw.visible = heatmap_checkbox.button_pressed)
+	fow_checkbox.pressed.connect(func(): fog_of_war.visible = fow_checkbox.button_pressed)
+	markers_checkbox.pressed.connect(func(): markers.visible = markers_checkbox.button_pressed)
+	territory_checkbox.pressed.connect(func(): territory_draw.visible = territory_checkbox.button_pressed)
+	
+	ports_checkbox.pressed.connect(func():
+		draw_ports = ports_checkbox.button_pressed
+		update_map(gameManager.player_ship.faction, blip_scene)
+		)
+	poi_checkbox.pressed.connect(func():
+		draw_pois = poi_checkbox.button_pressed
+		update_map(gameManager.player_ship.faction, blip_scene)
+		)
 
 func set_zoom(value: float):
 	map_scale += value
@@ -88,6 +119,9 @@ var is_dragging = false
 var last_mouse_position
 
 func _process(_delta):
+	if not visible:
+		return
+
 	if gameManager.player_ship and player_blip:
 		update_blip_position(gameManager.player_ship, player_blip)
 
@@ -103,30 +137,33 @@ func _process(_delta):
 
 
 func update_map(_player_faction, _blip_scene):
-	for child in territory_draw.get_children():
+	for child in markers.get_children():
 		child.queue_free()
 	
-	for lh: Node3D in get_tree().get_nodes_in_group("Lighthouses"):
-		var mine_icon = preload("res://Textures/spyglass.png")
-		add_marker_to_map(lh, mine_icon, "Lighthouse", Color.WHITE, marker_scene)
+	player_blip = add_blip_to_map(gameManager.player_ship, Color.WHITE, 2.0, blip_a_scene)
+	if draw_pois:
+		for lh: Node3D in get_tree().get_nodes_in_group("Lighthouses"):
+			var mine_icon = preload("res://Textures/spyglass.png")
+			add_marker_to_map(lh, mine_icon, "Lighthouse", Color.WHITE, marker_scene)
+		
+		for mine: Mine in get_tree().get_nodes_in_group("Mines"):
+			var mine_icon = preload("res://Textures/stone-crafting.png")
+			add_marker_to_map(mine, mine_icon, "Mine", Color.WHITE, marker_scene)
 	
-	for mine: Mine in get_tree().get_nodes_in_group("Mines"):
-		var mine_icon = preload("res://Textures/stone-crafting.png")
-		add_marker_to_map(mine, mine_icon, "Mine", Color.WHITE, marker_scene)
-	
-	for port: Port in gameManager.world.ports:
-		if not port.allegiance:
-			continue
-		var enemy = FactionsData.is_enemy(_player_faction, port.allegiance.faction)
-		var color = Color.GRAY
-		if enemy:
-			color = Color.RED
-		else:
-			color = Color.GREEN
-		if port.allegiance.faction == FactionsData.Faction.NONE:
-			color = Color.GRAY
-		color = FactionsData.get_faction_color(port.allegiance.faction)
-		add_marker_to_map(port, FactionsData.get_faction_icon(port.allegiance.faction), port.port_name, color, marker_scene)
+	if draw_ports:
+		for port: Port in gameManager.world.ports:
+			if not port.allegiance:
+				continue
+			var enemy = FactionsData.is_enemy(_player_faction, port.allegiance.faction)
+			var color = Color.GRAY
+			if enemy:
+				color = Color.RED
+			else:
+				color = Color.GREEN
+			if port.allegiance.faction == FactionsData.Faction.NONE:
+				color = Color.GRAY
+			color = FactionsData.get_faction_color(port.allegiance.faction)
+			add_marker_to_map(port, FactionsData.get_faction_icon(port.allegiance.faction), port.port_name, color, marker_scene)
 
 
 func toggle_map():
@@ -146,7 +183,7 @@ func add_marker_to_map(node: Node3D, icon: Texture2D, marker_name: String, color
 	var pos = node.global_position
 	
 	var marker: Control = _marker_scene.instantiate()
-	territory_draw.add_child(marker)
+	markers.add_child(marker)
 	marker.position = world_to_map(pos)
 
 	var icon_texturerect: TextureRect = marker.get_node("VBoxContainer/faction_icon")
@@ -165,7 +202,7 @@ func add_blip_to_map(node: Node3D, color: Color, _scale: float, _blip_scene: Pac
 	var rot = - node.global_rotation.y
 	var blip: TextureRect = _blip_scene.instantiate()
 	blip.modulate = color
-	map.add_child(blip)
+	markers.add_child(blip)
 
 	blip.position = world_to_map(pos)
 

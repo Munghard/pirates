@@ -14,8 +14,8 @@ func create_items():
 
 	item_database.append(Item_Definition.new("cannon_balls", 3, 5, 50, "Cannon balls", "Ammunition used by cannons.", preload("res://Textures/ball-pyramid.png")))
 
-	item_database.append(Item_Definition.new("ropes", 3, 1, 50, "Ropes", "Essential repair material used to maintain the ship.", preload("res://Textures/rope-coil.png")))
-	item_database.append(Item_Definition.new("navigation_equipment", 1, 5, 50, "Navigation equipment", "Specialized maritime tools valued by traders and navigators.", preload("res://Textures/sextant.png")))
+	item_database.append(Item_Definition.new("ropes", 0, 1, 50, "Ropes", "Essential repair material used to maintain the ship.", preload("res://Textures/rope-coil.png")))
+	item_database.append(Item_Definition.new("navigation_equipment", 0, 5, 50, "Navigation equipment", "Specialized maritime tools valued by traders and navigators.", preload("res://Textures/sextant.png")))
 	item_database.append(Item_Definition.new("documents", 0, 2, 50, "Documents", "Letters, permits, and records valuable for trade and diplomacy.", preload("res://Textures/tied-scroll.png")))
 	item_database.append(Item_Definition.new("shackles", 0, 2, 50, "Shackles", "Iron restraints commonly used for prisoners and slaves.", preload("res://Textures/handcuffs.png")))
 	item_database.append(Item_Definition.new("firearms", 0, 5, 50, "Firearms", "Muskets and pistols sought after across the seas.", preload("res://Textures/blunderbuss.png")))

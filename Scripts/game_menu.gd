@@ -20,3 +20,7 @@ func _on_button_new_game_pressed() -> void:
 func _on_button_respawn_pressed() -> void:
 	gameManager.respawn_player()
 	visible = false
+	gameManager.pause_game(false)
+
+func _on_button_reload_pressed() -> void:
+	get_tree().reload_current_scene()

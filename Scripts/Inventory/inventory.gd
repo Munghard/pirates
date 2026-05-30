@@ -36,6 +36,10 @@ func sort():
 	new_items.sort_custom(func(a, b):
 		var a_item_def = Item_Database.get_item_definition(a.id)
 		var b_item_def = Item_Database.get_item_definition(b.id)
+
+		if a_item_def.type == b_item_def.type:
+			return a_item_def.item_name < b_item_def.item_name
+
 		return a_item_def.type < b_item_def.type
 	)
 	new_items.resize(size)
@@ -44,14 +48,30 @@ func sort():
 	inventory_changed.emit(self )
 
 func compact():
-	var filtered: Array[InventoryItem] = []
+	var merged: Array[InventoryItem] = []
 
 	for item in items:
-		if item != null:
-			filtered.append(item)
+		if item == null:
+			continue
 
-	filtered.resize(size)
-	items = filtered
+		var def = Item_Database.get_item_definition(item.id)
+
+		for m in merged:
+			if m.id == item.id and m.stack < def.max_stack:
+				var space = def.max_stack - m.stack
+				var transfer = min(space, item.stack)
+
+				m.stack += transfer
+				item.stack -= transfer
+
+				if item.stack <= 0:
+					break
+
+		if item.stack > 0:
+			merged.append(item)
+
+	merged.resize(size)
+	items = merged
 	inventory_changed.emit(self )
 	
 

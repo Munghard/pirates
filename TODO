@@ -1,14 +1,15 @@
 TASKS
 
 ONGOING
--[] more interesting and engaging capture port mechanic
 -[] end goal (get 100% influence over region)
 
 CURRENT
--[] max upgrades for speed agility etc
+-[] save heatmap
+-[] world save state -> shipwrecks etc. other nodes  
+-[] should probably attach restock timers to game time so you can pass time correctly, also would need to consume rations etc.
+(easier to not allow time passing)
 
 TODO
--[] flag items that allow to infiltrate
 -[] ramming iron items
 -[] hull items
 -[] some items should maybe "sink" with the ship like cannons cannon balls and other stuff that you get too easily otherwise
@@ -18,6 +19,9 @@ TODO
 -[] thinking about ports kind of like HOMM castles
 
 COMPLETED
+-[x] more interesting and engaging capture port mechanic
+-[x] flag items that allow to infiltrate
+-[x] max upgrades for speed agility etc
 -[o] give health and hitboxes to port cannons, maybe you can purchase cannons to defend your ports
 -[x] name your ship
 -[x] need a way to make money without combat, maybe nodes on terrain taht you "mine" like mines and forest

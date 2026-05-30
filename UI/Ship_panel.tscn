@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://g2cx1fxau882" path="res://Textures/swallowtail.png" id="4_c50y4"]
 [ext_resource type="Texture2D" uid="uid://bmr323lu6x83g" path="res://Textures/anchor.png" id="5_t0o0u"]
 
-[node name="Player_ship_panel" type="FoldableContainer" unique_id=1821436781 node_paths=PackedStringArray("portrait_texture_rect", "flag_texture_rect", "faction_texture_rect", "label_h", "label_f", "status_label", "stats_label", "fleet_label", "gold_label", "hitpoints_pb", "crew_pb", "recovery_pb", "morale_pb", "release_button", "tab_bar", "status_panel", "stats_panel", "cannons_panel", "fleet_panel")]
+[node name="Player_ship_panel" type="FoldableContainer" unique_id=1821436781 node_paths=PackedStringArray("portrait_texture_rect", "flag_texture_rect", "faction_texture_rect", "label_h", "label_f", "status_label", "stats_label", "fleet_label", "gold_label", "hitpoints_pb", "crew_pb", "recovery_pb", "morale_pb", "button_sink", "release_button", "debug_mode_button", "tab_bar", "status_panel", "stats_panel", "cannons_panel", "fleet_panel")]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -33,7 +33,9 @@ hitpoints_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_health")
 crew_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_crew")
 recovery_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_recovery")
 morale_pb = NodePath("MarginContainer/VBoxContainer2/Status/pb_morale")
+button_sink = NodePath("MarginContainer/VBoxContainer2/Status/Button_sink")
 release_button = NodePath("MarginContainer/VBoxContainer2/Status/release_button")
+debug_mode_button = NodePath("MarginContainer/VBoxContainer2/Status/Button_debug")
 tab_bar = NodePath("MarginContainer/VBoxContainer2/TabBar")
 status_panel = NodePath("MarginContainer/VBoxContainer2/Status")
 stats_panel = NodePath("MarginContainer/VBoxContainer2/Stats")
@@ -62,6 +64,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer" unique_id=1173674624]
+self_modulate = Color(0.50203794, 0.6859734, 0.86935306, 1)
 custom_minimum_size = Vector2(120, 120)
 layout_mode = 2
 texture = ExtResource("3_t0o0u")
@@ -91,6 +94,7 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
 [node name="texture_flag" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui" unique_id=263656025]
+self_modulate = Color(0.796243, 0.796243, 0.796243, 1)
 layout_mode = 2
 size_flags_vertical = 3
 texture = ExtResource("4_c50y4")
@@ -98,18 +102,25 @@ expand_mode = 1
 stretch_mode = 4
 
 [node name="ColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/texture_flag" unique_id=2124980279]
-custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
-offset_right = 24.0
-offset_bottom = 24.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 19.636368
+offset_right = -44.0
+offset_bottom = -28.363632
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 0
-color = Color(0.14, 0.14, 0.14, 0.5294118)
+color = Color(0.14, 0.14, 0.14, 0)
 
 [node name="faction_icon" type="TextureRect" parent="MarginContainer/VBoxContainer2/PanelContainer/MarginContainer/HBoxContainer/Allegiance_ui/texture_flag/ColorRect" unique_id=1779752683]
-custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
-offset_right = 24.0
-offset_bottom = 24.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("5_t0o0u")
 expand_mode = 1
 
@@ -181,6 +192,11 @@ text = "State: Idle"
 layout_mode = 2
 text = "Release"
 
+[node name="Button_debug" type="CheckButton" parent="MarginContainer/VBoxContainer2/Status" unique_id=636350506]
+layout_mode = 2
+focus_mode = 1
+text = "Debug mode"
+
 [node name="Button_sink" type="Button" parent="MarginContainer/VBoxContainer2/Status" unique_id=583077401]
 layout_mode = 2
 focus_mode = 1
@@ -201,4 +217,5 @@ layout_mode = 2
 [node name="Label_fleet" type="Label" parent="MarginContainer/VBoxContainer2/Fleet" unique_id=1813467961]
 layout_mode = 2
 
+[connection signal="toggled" from="MarginContainer/VBoxContainer2/Status/Button_debug" to="." method="_on_button_debug_toggled"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer2/Status/Button_sink" to="." method="_on_button_sink_pressed"]

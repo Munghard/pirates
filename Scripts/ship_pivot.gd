@@ -12,7 +12,8 @@ func set_flag():
 	var mat = flag_mesh.get_active_material(0) as ShaderMaterial
 	var flag_texture = FactionsData.get_flag(ship.nation, ship.faction)
 	mat.set_shader_parameter("flag_texture", flag_texture)
-	var color = FactionsData.get_nation_color(ship.nation)
+	#var color = FactionsData.get_nation_color(ship.nation)
+	var color = FactionsData.get_faction_color(ship.faction)
 	mat.set_shader_parameter("flag_color", color)
 
 func setup_sails():

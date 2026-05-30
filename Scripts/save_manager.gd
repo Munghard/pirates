@@ -74,7 +74,11 @@ func load_game(gameManager: GameManager):
 
 	gameManager.hud.map.fog_of_war.set_grid(load_fog_of_war(data.get("fow", [])))
 
+	gameManager.world.heatmap.set_grid_from_data(load_heatmap(data.get("heatmap", [])))
+	
+
 	print("loaded game")
+	gameManager.hud.new_notification("Game loaded...")
 	loaded.emit()
 
 func load_inventory(player_ship: PlayerShip, _world, data: Array) -> Inventory:
@@ -189,11 +193,35 @@ func save_game(gameManager: GameManager):
 			"time_of_day": gameManager.world.time.time_of_day,
 			"day": gameManager.world.time.day_count
 		},
-		"fow": save_fog_of_war(gameManager.hud.map.fog_of_war.fog_grid)
+		"fow": save_fog_of_war(gameManager.hud.map.fog_of_war.fog_grid),
+		"heatmap": save_heatmap(gameManager.world.heatmap.grid)
 	}
 
 	_write(data)
 	print("saved game")
+	gameManager.hud.new_notification("Game saved...")
+
+func save_heatmap(_heatmap: Array[Heatmap.Cell]) -> String:
+	var raw: Array = []
+
+	for c in _heatmap:
+		raw.append([c.noise, c.resupply])
+
+	return Marshalls.variant_to_base64(raw)
+
+func load_heatmap(encoded: String) -> Array[Heatmap.Cell]:
+	var raw = Marshalls.base64_to_variant(encoded)
+
+	var result: Array[Heatmap.Cell] = []
+
+	for v in raw:
+		var cell := Heatmap.Cell.new()
+		cell.noise = v[0]
+		cell.resupply = v[1]
+		result.append(cell)
+
+	return result
+
 
 func save_player_transform(player_ship: PlayerShip) -> Dictionary:
 	return {
@@ -244,6 +272,7 @@ func save_equipment(equipment: Equipment) -> Dictionary:
 	data["starboard"] = _save_item_list(equipment.starboard)
 
 	return data
+
 
 func load_fog_of_war(encoded: String) -> Array:
 	return Marshalls.base64_to_variant(encoded)

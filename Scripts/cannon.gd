@@ -22,6 +22,8 @@ var fire_timer = 0.0
 var active := false
 var damage_multiplier = 1.0
 
+@onready var gameManager: GameManager = get_node("/root/GameManager")
+
 signal _fire_timer_changed(value: float)
 
 @export_group("Audio")
@@ -51,6 +53,7 @@ func shoot(attack: float, shooter: Node3D, audioManager: AudioManager) -> bool:
 	particle1.restart()
 	audioManager.play_sound_at(canon.global_position, audio_canon_fire, 0.3)
 	fade_light()
+	gameManager.world.heatmap.add_noise_at(global_position, 0.2, 60)
 	return true
 
 func fade_light() -> void:
